@@ -234,6 +234,8 @@ dependencies = [
  "chrono",
  "reqwest",
  "scraper",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
