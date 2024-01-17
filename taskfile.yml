@@ -1,0 +1,14 @@
+---
+version: "3"
+
+tasks:
+  swagger_up:
+    cmds:
+      - docker run -d -p 8080:80 --name swagger_rust_race_engine swaggerapi/swagger-editor:next-v5
+    silent: true
+  swagger_down:
+    cmds:
+      - docker stop swagger_rust_race_engine
+      - docker rm swagger_rust_race_engine
+    silent: true
+

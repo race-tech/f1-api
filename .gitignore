@@ -1,1 +1,13 @@
 /target
+
+# Ignore .env file
+.env
+
+# Ignore database folder
+database/
+!src/database
+
+# Ignore VSCode files
+.vscode/*
+!.vscode/settings.json
+.DS_Store

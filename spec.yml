@@ -1,0 +1,38 @@
+---
+openapi: 3.1.0
+info:
+  title: A brand new F1 API
+  version: 0.0.1
+  contact:
+    name: Thibault Cheneviere
+    email: thibault.chene23@gmail.com
+    url: https://thibault-cne.fr
+  
+paths:
+  /api/f1/status:
+    get:
+      description: Returns the current status of the API
+      responses:
+        '200':
+          description: The API is up and running
+          content: 
+            application/json: 
+              schema:
+                $ref: '#/components/schemas/Status'
+        '503':
+          description: The API is not available
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/Status'
+
+components:
+  schemas: 
+    Status:
+      type: object
+      properties: 
+        status:
+          type: string
+          examples:
+            - "up and running"
+            - "unavailable"

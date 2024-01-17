@@ -2,9 +2,9 @@ use chrono::prelude::*;
 
 #[derive(Default, Debug)]
 pub struct Standing {
-    year: usize,
-    drivers: Vec<Driver>,
-    constructors: Vec<Constructor>,
+    pub year: usize,
+    pub drivers: Vec<Driver>,
+    pub constructors: Vec<Constructor>,
 }
 
 impl Standing {
@@ -121,13 +121,13 @@ impl Standing {
 }
 
 #[derive(Default, Debug)]
-struct Driver {
-    position: u8,
-    name: String,
-    short: String,
-    nationality: String,
-    team: String,
-    points: u16,
+pub struct Driver {
+    pub position: u8,
+    pub name: String,
+    pub short: String,
+    pub nationality: String,
+    pub team: String,
+    pub points: u16,
 }
 
 impl Driver {
@@ -151,10 +151,10 @@ impl Driver {
 }
 
 #[derive(Default, Debug)]
-struct Constructor {
-    position: u8,
-    name: String,
-    points: u16,
+pub struct Constructor {
+    pub position: u8,
+    pub name: String,
+    pub points: u16,
 }
 
 impl Constructor {
