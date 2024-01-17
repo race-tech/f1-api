@@ -46,6 +46,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "api"
+version = "0.1.0"
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -171,6 +175,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "database"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "diesel",
+ "dotenvy",
+ "reqwest",
+ "scraper",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "derive_more"
 version = "0.99.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -267,19 +284,6 @@ checksum = "a258e46cdc063eb8519c00b9fc845fc47bcfca4130e2f08e88665ceda8474245"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "f1-api"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "diesel",
- "dotenvy",
- "reqwest",
- "scraper",
- "serde",
- "serde_json",
 ]
 
 [[package]]

@@ -2,6 +2,8 @@
 openapi: 3.1.0
 info:
   title: A brand new F1 API
+  summary: Todo
+  description: Todo
   version: 0.0.1
   contact:
     name: Thibault Cheneviere
@@ -11,22 +13,106 @@ info:
 paths:
   /api/f1/status:
     get:
-      description: Returns the current status of the API
+      description: Returns the current status of the API.
       responses:
         '200':
-          description: The API is up and running
+          description: The API is up and running.
           content: 
             application/json: 
               schema:
                 $ref: '#/components/schemas/Status'
         '503':
-          description: The API is not available
+          description: The API is not available.
           content: 
             application/json: 
               schema: 
                 $ref: '#/components/schemas/Status'
+  /api/f1/drivers:
+    get:
+      description: Retrieve information on drivers.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - name: id
+          in: query
+          description: The id of a driver to retrieve. This parameter **must** be used alone.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: name
+          in: query
+          description: The name of a driver to retrieve. This parameter **must** be used alone.
+          schema:
+            type: string
+          required: false
+        - name: constructor
+          in: query
+          description: A constructor name. It will retrieve all drivers who has run for this constructor.
+          schema:
+            type: string
+          required: false
+        - name: circuit
+          in: query
+          description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
+          schema:
+            type: string
+          required: false
+        - name: year
+          in: query
+          description: A formula1 season year. It will retrieve all drivers who has run in this year.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: round
+          in: query
+          description: A specific round in a formula1 season. This require the `year` param to be specified. It will retrieve all drivers who has run in this specific round.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: grid
+          in: query
+          description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: result
+          in: query
+          description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
+          schema:
+            type: integer
+            format: int32
+          required: false
+
 
 components:
+  parameters: 
+    Page:
+      name: page
+      in: query
+      description: The page to retrieve. `-1` will retrieve the last page. The page system is indexed in range `1..`. The default value is `1`.
+      schema: 
+        type: integer
+        format: int32
+        examples:
+          - 1
+          - 2
+          - -1
+        default: 1
+    NbPerPage:
+      name: limit
+      in: query
+      description: The limit of items to retrieve per `page`. The value `-1` is used to retrieve all elements in the page. The default value is `30`.
+      schema: 
+        type: integer
+        format: int32
+        examples:
+          - 10
+          - -1
+        default: 30
   schemas: 
     Status:
       type: object
@@ -36,3 +122,93 @@ components:
           examples:
             - "up and running"
             - "unavailable"
+    DefaultResponse:
+      type: object
+      required:
+        - series
+        - limit
+        - page
+        - max_page
+        - total
+      properties:
+        series:
+          description: The series on which the response is made.
+          type: string
+          examples:
+            - f1
+            - f2
+        limit:
+          description: The limit passed to the query.
+          type: integer
+          format: int32
+          examples:
+            - 30
+            - 10
+        page:
+          description: The page queried.
+          type: integer
+          format: int32
+          examples:
+            - 1
+            - 2
+            - -1
+        max_page:
+          description: The maximum number of page to query.
+          type: integer
+          format: int32
+          examples:
+            - 10
+            - 13
+        total:
+          description: The number of elements present in the response.
+          type: integer
+          format: int32
+          examples:
+            - 30
+            - 10
+            - 12
+    DriverResponse:
+      allOf: 
+        - $ref: '#/components/schemas/DefaultResponse'
+        - type: object
+          properties: 
+            drivers:
+              type: array
+              items: 
+                $ref: '#/components/schemas/DriverModel'
+    DriverModel:
+      type: object
+      properties:
+        driver_id:
+          type: string
+          examples:
+            - alonso
+        permanent_number:
+          type: integer
+          format: int32
+          examples:
+            - 14
+        code:
+          type: string
+          examples:
+            - ALO
+        url:
+          type: string
+          examples:
+            - "http://en.wikipedia.org/wiki/Fernando_Alonso"
+        given_name:
+          type: string
+          examples:
+            - Fernando
+        family_name:
+          type: string
+          examples:
+            - Alonso
+        date_of_birth:
+          type: string
+          examples:
+            - "1981-07-29"
+        nationality:
+          type: string
+          examples:
+            - Spanish

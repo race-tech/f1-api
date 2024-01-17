@@ -4,8 +4,7 @@
 .env
 
 # Ignore database folder
-database/
-!src/database
+db/
 
 # Ignore VSCode files
 .vscode/*
