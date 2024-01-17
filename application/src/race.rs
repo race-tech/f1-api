@@ -4,7 +4,7 @@ use diesel::{Identifiable, Queryable, Selectable};
 
 use super::schema::races;
 
-#[derive(Queryable, Selectable, Identifiable, Debug)]
+#[derive(Queryable, Selectable, Identifiable, Debug, serde::Serialize)]
 #[diesel(primary_key(race_id))]
 #[diesel(table_name = races, check_for_backend(super::Backend))]
 pub struct Race {

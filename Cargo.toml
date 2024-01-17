@@ -1,6 +1,7 @@
 [workspace]
 members = [
-    "database",
-    "api"
+    "application",
+    "api",
+    "infrastructure"
 ]
 resolver = "2"

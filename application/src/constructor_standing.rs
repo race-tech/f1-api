@@ -4,7 +4,7 @@ use diesel::{Identifiable, Queryable, Selectable};
 
 use super::schema::constructorStandings;
 
-#[derive(Queryable, Selectable, Identifiable, Debug)]
+#[derive(Queryable, Selectable, Identifiable, Debug, serde::Serialize)]
 #[diesel(primary_key(constructor_standing_id))]
 #[diesel(table_name = constructorStandings, check_for_backend(super::Backend))]
 pub struct ConstructorStanding {

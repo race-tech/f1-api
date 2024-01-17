@@ -10,3 +10,6 @@ db/
 .vscode/*
 !.vscode/settings.json
 .DS_Store
+
+# Ignore archive folder
+archive/

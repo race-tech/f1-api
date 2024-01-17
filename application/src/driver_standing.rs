@@ -4,7 +4,7 @@ use diesel::{Identifiable, Queryable, Selectable};
 
 use super::schema::driverStandings;
 
-#[derive(Queryable, Selectable, Identifiable, Debug)]
+#[derive(Queryable, Selectable, Identifiable, Debug, serde::Serialize)]
 #[diesel(primary_key(driver_standing_id))]
 #[diesel(table_name = driverStandings, check_for_backend(super::Backend))]
 pub struct DriverStanding {

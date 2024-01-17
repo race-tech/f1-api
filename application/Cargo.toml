@@ -1,0 +1,11 @@
+[package]
+name = "application"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = { version = "0.4.31", features = ["serde"] }
+serde = { version = "1.0.195", features = ["derive"] }
+diesel = { version = "2.1.0", features = ["mysql", "chrono"] }

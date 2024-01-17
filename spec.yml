@@ -11,7 +11,7 @@ info:
     url: https://thibault-cne.fr
   
 paths:
-  /api/f1/status:
+  /api/status:
     get:
       description: Returns the current status of the API.
       responses:
@@ -27,7 +27,14 @@ paths:
             application/json: 
               schema: 
                 $ref: '#/components/schemas/Status'
-  /api/f1/drivers:
+  /api/{series}/drivers:
+    parameters: 
+      - name: series
+        in: path
+        required: true
+        description: The championship series to query.
+        schema:
+          $ref: '#/components/schemas/Series'
     get:
       description: Retrieve information on drivers.
       parameters:
@@ -114,6 +121,12 @@ components:
           - -1
         default: 30
   schemas: 
+    Series:
+      description: The championship series.
+      type: string
+      enum:
+        - f1
+        - f2
     Status:
       type: object
       properties: 
@@ -132,11 +145,7 @@ components:
         - total
       properties:
         series:
-          description: The series on which the response is made.
-          type: string
-          examples:
-            - f1
-            - f2
+          $ref: '#/components/schemas/Series'
         limit:
           description: The limit passed to the query.
           type: integer
@@ -178,8 +187,18 @@ components:
                 $ref: '#/components/schemas/DriverModel'
     DriverModel:
       type: object
+      required:
+        - driver_id
+        - driver_ref
+        - url
+        - given_name
+        - family_name
       properties:
         driver_id:
+          type: integer
+          examples:
+            - 1
+        driver_ref:
           type: string
           examples:
             - alonso

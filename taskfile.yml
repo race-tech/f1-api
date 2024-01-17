@@ -19,7 +19,7 @@ tasks:
         --name=rust_race_engine
         -d
         -p 3306:3306
-        -v $(pwd)/database/f1db.sql:/docker-entrypoint-initdb.d/dump.sql
+        -v $(pwd)/db/f1db.sql:/docker-entrypoint-initdb.d/dump.sql
         -e MYSQL_DATABASE="$MYSQL_DATABASE"
         -e MYSQL_USER="$MYSQL_USER"
         -e MYSQL_PASSWORD="$MYSQL_PASSWORD"
