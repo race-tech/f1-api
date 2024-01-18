@@ -9,6 +9,12 @@ info:
     name: Thibault Cheneviere
     email: thibault.chene23@gmail.com
     url: https://thibault-cne.fr
+
+tags: 
+  - name: drivers
+    description: Retrieve informations on formula1 drivers.
+  - name: current
+    description: Retrieve the informations on the current formula1 season.
   
 paths:
   /api/status:
@@ -36,6 +42,8 @@ paths:
         schema:
           $ref: '#/components/schemas/Series'
     get:
+      tags: 
+        - drivers
       description: Retrieve information on drivers.
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -93,10 +101,241 @@ paths:
             type: integer
             format: int32
           required: false
+  /api/{series}/{year}/drivers:
+    parameters: 
+      - $ref: '#/components/parameters/Series'
+      - $ref: '#/components/parameters/Year'
+    get:
+      tags: 
+        - drivers
+      description: Retrieve information on drivers of a specific season.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - name: id
+          in: query
+          description: The id of a driver to retrieve. This parameter **must** be used alone.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: name
+          in: query
+          description: The name of a driver to retrieve. This parameter **must** be used alone.
+          schema:
+            type: string
+          required: false
+        - name: constructor
+          in: query
+          description: A constructor name. It will retrieve all drivers who has run for this constructor.
+          schema:
+            type: string
+          required: false
+        - name: circuit
+          in: query
+          description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
+          schema:
+            type: string
+          required: false
+        - name: grid
+          in: query
+          description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: result
+          in: query
+          description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
+          schema:
+            type: integer
+            format: int32
+          required: false
+  /api/{series}/{year}/{round}/drivers:
+    parameters: 
+      - $ref: '#/components/parameters/Series'
+      - $ref: '#/components/parameters/Year'
+      - $ref: '#/components/parameters/Round'
+    get:
+      tags: 
+        - drivers
+      description: Retrieve information on drivers of a specific round of a season.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - name: id
+          in: query
+          description: The id of a driver to retrieve. This parameter **must** be used alone.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: name
+          in: query
+          description: The name of a driver to retrieve. This parameter **must** be used alone.
+          schema:
+            type: string
+          required: false
+        - name: constructor
+          in: query
+          description: A constructor name. It will retrieve all drivers who has run for this constructor.
+          schema:
+            type: string
+          required: false
+        - name: circuit
+          in: query
+          description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
+          schema:
+            type: string
+          required: false
+        - name: grid
+          in: query
+          description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: result
+          in: query
+          description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
+          schema:
+            type: integer
+            format: int32
+          required: false
+  /api/{series}/current/drivers:
+    parameters: 
+      - $ref: '#/components/parameters/Series'
+    get:
+      tags:
+        - drivers
+        - current
+      description: Retrieve information on drivers of the current season.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - name: id
+          in: query
+          description: The id of a driver to retrieve. This parameter **must** be used alone.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: name
+          in: query
+          description: The name of a driver to retrieve. This parameter **must** be used alone.
+          schema:
+            type: string
+          required: false
+        - name: constructor
+          in: query
+          description: A constructor name. It will retrieve all drivers who has run for this constructor.
+          schema:
+            type: string
+          required: false
+        - name: circuit
+          in: query
+          description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
+          schema:
+            type: string
+          required: false
+        - name: grid
+          in: query
+          description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: result
+          in: query
+          description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
+          schema:
+            type: integer
+            format: int32
+          required: false
+  /api/{series}/current/{round}/drivers:
+    parameters: 
+      - $ref: '#/components/parameters/Series'
+      - $ref: '#/components/parameters/Round'
+    get:
+      tags: 
+        - drivers
+        - current
+      description: Retrieve information on drivers of a specific round of the current season.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - name: id
+          in: query
+          description: The id of a driver to retrieve. This parameter **must** be used alone.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: name
+          in: query
+          description: The name of a driver to retrieve. This parameter **must** be used alone.
+          schema:
+            type: string
+          required: false
+        - name: constructor
+          in: query
+          description: A constructor name. It will retrieve all drivers who has run for this constructor.
+          schema:
+            type: string
+          required: false
+        - name: circuit
+          in: query
+          description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
+          schema:
+            type: string
+          required: false
+        - name: grid
+          in: query
+          description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
+          schema:
+            type: integer
+            format: int32
+          required: false
+        - name: result
+          in: query
+          description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
+          schema:
+            type: integer
+            format: int32
+          required: false
 
 
 components:
-  parameters: 
+  parameters:
+    Year:
+      name: year
+      in: path
+      required: true
+      description: A formula1 season year.
+      schema:
+        type: integer
+        format: int32
+        examples:
+          - 2023
+          - 2022
+    Round:
+      name: round
+      in: path
+      required: true
+      description: A round of a formula1 season.
+      schema:
+        type: integer
+        format: int32
+        examples:
+          - 1
+          - 17
+    Series:
+      name: series
+      in: path
+      required: true
+      description: A championship series.
+      schema:
+        $ref: '#/components/schemas/Series'
     Page:
       name: page
       in: query
