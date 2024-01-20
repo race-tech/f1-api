@@ -14,9 +14,13 @@ tags:
   - name: drivers
     description: Informations on drivers.
   - name: current
-    description: Informations on the current formula1 season.
+    description: Informations on the current season.
   - name: standings
     description: Informations on the standings, drivers or constructors.
+  - name: constructors
+    description: Informations on constructors.
+  - name: seasons
+    description: Informations on seasons currently supported.
   
 paths:
   /api/status:
@@ -35,14 +39,144 @@ paths:
             application/json: 
               schema: 
                 $ref: '#/components/schemas/Status'
+  /api/{series}/seasons:
+    parameters: 
+      - $ref: '#/components/parameters/Series'
+    get:
+      tags:
+        - seasons
+      description: Retrieve informations on currently supported seasons.
+      parameters: 
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/SeasonsDriverRef'
+        - $ref: '#/components/parameters/SeasonsDriverNumber'
+        - $ref: '#/components/parameters/Constructor'
+        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/SeasonsGrid'
+        - $ref: '#/components/parameters/SeasonsResult'
+      responses:
+        '200':
+          $ref: '#/components/responses/SeasonsResponse'
+
+  /api/{series}/constructors:
+    parameters: 
+      - $ref: '#/components/parameters/Series'
+    get:
+      tags: 
+        - constructors
+      description: Retrieve information on constructors.
+      parameters: 
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/DriverNumber'
+        - $ref: '#/components/parameters/Constructor'
+        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/Grid'
+        - $ref: '#/components/parameters/Result'
+      responses: 
+        '200':
+          $ref: '#/components/responses/ConstructorsResponse'
+  /api/{series}/{year}/constructors:
+    parameters: 
+      - $ref: '#/components/parameters/Series'
+      - $ref: '#/components/parameters/Year'
+    get:
+      tags: 
+        - constructors
+      description: Retrieve information on constructors of a specific season.
+      parameters: 
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/DriverNumber'
+        - $ref: '#/components/parameters/Constructor'
+        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/Grid'
+        - $ref: '#/components/parameters/Result'
+      responses: 
+        '200':
+          $ref: '#/components/responses/ConstructorsResponse'
+  /api/{series}/{year}/{round}/constructors:
+    parameters: 
+      - $ref: '#/components/parameters/Series'
+      - $ref: '#/components/parameters/Year'
+      - $ref: '#/components/parameters/Round'
+    get:
+      tags: 
+        - constructors
+      description: Retrieve information on constructors of a specific round of a season.
+      parameters: 
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/DriverNumber'
+        - $ref: '#/components/parameters/Constructor'
+        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/Grid'
+        - $ref: '#/components/parameters/Result'
+      responses: 
+        '200':
+          $ref: '#/components/responses/ConstructorsResponse'
+  /api/{series}/current/constructors:
+    parameters: 
+      - $ref: '#/components/parameters/Series'
+    get:
+      tags: 
+        - constructors
+        - current
+      description: Retrieve information on constructors of the current season.
+      parameters: 
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/DriverNumber'
+        - $ref: '#/components/parameters/Constructor'
+        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/Grid'
+        - $ref: '#/components/parameters/Result'
+      responses: 
+        '200':
+          $ref: '#/components/responses/ConstructorsResponse'
+  /api/{series}/current/{round}/constructors:
+    parameters: 
+      - $ref: '#/components/parameters/Series'
+      - $ref: '#/components/parameters/Round'
+    get:
+      tags: 
+        - constructors
+        - current
+      description: Retrieve information on constructors of a specific round of the current season.
+      parameters: 
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/DriverNumber'
+        - $ref: '#/components/parameters/Constructor'
+        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/Grid'
+        - $ref: '#/components/parameters/Result'
+      responses: 
+        '200':
+          $ref: '#/components/responses/ConstructorsResponse'
+
+
   /api/{series}/drivers:
     parameters: 
-      - name: series
-        in: path
-        required: true
-        description: The championship series to query.
-        schema:
-          $ref: '#/components/schemas/Series'
+      - $ref: '#/components/parameters/Series'
     get:
       tags: 
         - drivers
@@ -54,13 +188,13 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/DriverRef'
-        - $ref: '#/components/parameters/DriverConstructor'
-        - $ref: '#/components/parameters/DriverCircuit'
-        - $ref: '#/components/parameters/DriverGrid'
-        - $ref: '#/components/parameters/DriverResult'
+        - $ref: '#/components/parameters/Constructor'
+        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/Grid'
+        - $ref: '#/components/parameters/Result'
       responses: 
         '200':
-          $ref: '#/components/responses/DriverResponse'
+          $ref: '#/components/responses/DriversResponse'
   /api/{series}/{year}/drivers:
     parameters: 
       - $ref: '#/components/parameters/Series'
@@ -74,13 +208,13 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/DriverRef'
-        - $ref: '#/components/parameters/DriverConstructor'
-        - $ref: '#/components/parameters/DriverCircuit'
-        - $ref: '#/components/parameters/DriverGrid'
-        - $ref: '#/components/parameters/DriverResult'
+        - $ref: '#/components/parameters/Constructor'
+        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/Grid'
+        - $ref: '#/components/parameters/Result'
       responses: 
         '200':
-          $ref: '#/components/responses/DriverResponse'
+          $ref: '#/components/responses/DriversResponse'
   /api/{series}/{year}/{round}/drivers:
     parameters: 
       - $ref: '#/components/parameters/Series'
@@ -95,13 +229,13 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/DriverRef'
-        - $ref: '#/components/parameters/DriverConstructor'
-        - $ref: '#/components/parameters/DriverCircuit'
-        - $ref: '#/components/parameters/DriverGrid'
-        - $ref: '#/components/parameters/DriverResult'
+        - $ref: '#/components/parameters/Constructor'
+        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/Grid'
+        - $ref: '#/components/parameters/Result'
       responses: 
         '200':
-          $ref: '#/components/responses/DriverResponse'
+          $ref: '#/components/responses/DriversResponse'
   /api/{series}/current/drivers:
     parameters: 
       - $ref: '#/components/parameters/Series'
@@ -115,13 +249,13 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/DriverRef'
-        - $ref: '#/components/parameters/DriverConstructor'
-        - $ref: '#/components/parameters/DriverCircuit'
-        - $ref: '#/components/parameters/DriverGrid'
-        - $ref: '#/components/parameters/DriverResult'
+        - $ref: '#/components/parameters/Constructor'
+        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/Grid'
+        - $ref: '#/components/parameters/Result'
       responses: 
         '200':
-          $ref: '#/components/responses/DriverResponse'
+          $ref: '#/components/responses/DriversResponse'
   /api/{series}/current/{round}/drivers:
     parameters: 
       - $ref: '#/components/parameters/Series'
@@ -136,13 +270,13 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/DriverRef'
-        - $ref: '#/components/parameters/DriverConstructor'
-        - $ref: '#/components/parameters/DriverCircuit'
-        - $ref: '#/components/parameters/DriverGrid'
-        - $ref: '#/components/parameters/DriverResult'
+        - $ref: '#/components/parameters/Constructor'
+        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/Grid'
+        - $ref: '#/components/parameters/Result'
       responses: 
         '200':
-          $ref: '#/components/responses/DriverResponse'
+          $ref: '#/components/responses/DriversResponse'
 
   /api/{series}/{year}/standings:
     get:
@@ -238,10 +372,31 @@ paths:
 
 components:
   parameters:
-    DriverNumber:
-      name: number
+    SeasonsDriverNumber:
+      name: driver_number
       in: query
-      description: The unique number of a driver to retrieve. This parameter **must** be used alone.
+      description: The unique number of a driver.
+      schema:
+        type: integer
+        format: int32
+        examples:
+          - 1
+          - 10
+      required: false
+    SeasonsDriverRef:
+      name: driver_ref
+      in: query
+      description: The reference of a driver (usualy the family name in lowercase).
+      schema:
+        type: string
+        examples:
+        - alonso
+        - hamilton
+      required: false
+    DriverNumber:
+      name: driver_number
+      in: query
+      description: The unique number of a driver. This parameter **must** be used alone.
       schema:
         type: integer
         format: int32
@@ -250,39 +405,39 @@ components:
           - 10
       required: false
     DriverRef:
-      name: ref
+      name: driver_ref
       in: query
-      description: The reference of a driver to retrieve (usualy the family name in lowercase). This parameter **must** be used alone.
+      description: The reference of a driver (usualy the family name in lowercase). This parameter **must** be used alone.
       schema:
         type: string
         examples:
         - alonso
         - hamilton
       required: false
-    DriverConstructor:
+    Constructor:
       name: constructor
       in: query
-      description: A constructor name. It will retrieve all drivers who has run for this constructor.
+      description: A constructor name. It will retrieve all drivers who has run for this constructor or the specific constructor.
       schema:
         type: string
         examples:
           - renault
           - redbull
       required: false
-    DriverCircuit:
+    Circuit:
       name: circuit
       in: query
-      description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
+      description: A circuit name. It will retrieve all drivers or constructors who has run on this specific circuit.
       schema:
         type: string
         examples:
           - monza
           - monaco
       required: false
-    DriverGrid:
+    Grid:
       name: grid
       in: query
-      description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
+      description: A specific grid position. It will retrieve all drivers or constructors who has started a Grand Prix from this specific grid position.
       schema:
         type: integer
         format: int32
@@ -290,10 +445,32 @@ components:
           - 1
           - 10
       required: false
-    DriverResult:
+    Result:
       name: result
       in: query
-      description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
+      description: A specific result position. It will retrieve all drivers or constructors who has finished a Grand Prix at this position.
+      schema:
+        type: integer
+        format: int32
+        examples:
+          - 1
+          - 10
+      required: false
+    SeasonsGrid:
+      name: grid
+      in: query
+      description: A specific grid position. **It must be used with either a driver reference or number or a constructor name.** It will retrieve all seasons when the drivers or constructors have started a Grand Prix from this specific grid position.
+      schema:
+        type: integer
+        format: int32
+        examples:
+          - 1
+          - 10
+      required: false
+    SeasonsResult:
+      name: result
+      in: query
+      description: A specific result position. **It must be used with either a driver reference or number or a constructor name.** It will retrieve all seasons when the drivers or constructors have finished a Grand Prix at this position.
       schema:
         type: integer
         format: int32
@@ -305,7 +482,7 @@ components:
       name: year
       in: path
       required: true
-      description: A formula1 season year.
+      description: A season year.
       schema:
         type: integer
         format: int32
@@ -316,7 +493,7 @@ components:
       name: round
       in: path
       required: true
-      description: A round of a formula1 season.
+      description: A round of a championship season.
       schema:
         type: integer
         format: int32
@@ -372,12 +549,24 @@ components:
         application/json: 
           schema: 
             $ref: '#/components/schemas/DriversStandingsResponse'
-    DriverResponse:
+    ConstructorsResponse:
+      description: The queried constructors.
+      content:
+        application/json: 
+          schema:
+            $ref: '#/components/schemas/ConstructorsResponse'
+    DriversResponse:
       description: The queried drivers.
       content:
         application/json: 
           schema:
-            $ref: '#/components/schemas/DriverResponse'
+            $ref: '#/components/schemas/DriversResponse'
+    SeasonsResponse:
+      description: The queried seasons.
+      content:
+        application/json: 
+          schema:
+            $ref: '#/components/schemas/SeasonsResponse'
   schemas:
     StandingsResponse:
       allOf: 
@@ -525,7 +714,6 @@ components:
       type: string
       enum:
         - f1
-        - f2
     Status:
       type: object
       properties: 
@@ -575,7 +763,18 @@ components:
             - 30
             - 10
             - 12
-    DriverResponse:
+    ConstructorsResponse:
+      allOf: 
+        - $ref: '#/components/schemas/DefaultResponse'
+        - type: object
+          required:
+            - constructors
+          properties: 
+            constructors:
+              type: array
+              items: 
+                $ref: '#/components/schemas/ConstructorModel'
+    DriversResponse:
       allOf: 
         - $ref: '#/components/schemas/DefaultResponse'
         - type: object
@@ -586,6 +785,33 @@ components:
               type: array
               items: 
                 $ref: '#/components/schemas/DriverModel'
+    SeasonsResponse:
+      allOf: 
+        - $ref: '#/components/schemas/DefaultResponse'
+        - type: object
+          required:
+            - drivers
+          properties: 
+            seasons:
+              type: array
+              items: 
+                $ref: '#/components/schemas/SeasonModel'
+    SeasonModel:
+      type: object
+      require:
+        - season
+        - url
+      properties:
+        season:
+          type: integer
+          format: int32
+          examples:
+            - 1950
+            - 2024
+        url:
+          type: string
+          examples:
+            - "http://en.wikipedia.org/wiki/F1_2003"
     ConstructorModel:
       type: object
       required:
