@@ -1,7 +1,7 @@
 ---
 openapi: 3.1.0
 info:
-  title: A brand new F1 API
+  title: A brand new Formula API
   summary: Todo
   description: Todo
   version: 0.0.1
@@ -12,9 +12,11 @@ info:
 
 tags: 
   - name: drivers
-    description: Retrieve informations on formula1 drivers.
+    description: Informations on drivers.
   - name: current
-    description: Retrieve the informations on the current formula1 season.
+    description: Informations on the current formula1 season.
+  - name: standings
+    description: Informations on the standings, drivers or constructors.
   
 paths:
   /api/status:
@@ -48,59 +50,17 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
-        - name: id
-          in: query
-          description: The id of a driver to retrieve. This parameter **must** be used alone.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: name
-          in: query
-          description: The name of a driver to retrieve. This parameter **must** be used alone.
-          schema:
-            type: string
-          required: false
-        - name: constructor
-          in: query
-          description: A constructor name. It will retrieve all drivers who has run for this constructor.
-          schema:
-            type: string
-          required: false
-        - name: circuit
-          in: query
-          description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
-          schema:
-            type: string
-          required: false
-        - name: year
-          in: query
-          description: A formula1 season year. It will retrieve all drivers who has run in this year.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: round
-          in: query
-          description: A specific round in a formula1 season. This require the `year` param to be specified. It will retrieve all drivers who has run in this specific round.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: grid
-          in: query
-          description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: result
-          in: query
-          description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
-          schema:
-            type: integer
-            format: int32
-          required: false
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/NbPerPage'
+        - $ref: '#/components/parameters/DriverNumber'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/DriverConstructor'
+        - $ref: '#/components/parameters/DriverCircuit'
+        - $ref: '#/components/parameters/DriverGrid'
+        - $ref: '#/components/parameters/DriverResult'
+      responses: 
+        '200':
+          $ref: '#/components/responses/DriverResponse'
   /api/{series}/{year}/drivers:
     parameters: 
       - $ref: '#/components/parameters/Series'
@@ -112,45 +72,15 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
-        - name: id
-          in: query
-          description: The id of a driver to retrieve. This parameter **must** be used alone.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: name
-          in: query
-          description: The name of a driver to retrieve. This parameter **must** be used alone.
-          schema:
-            type: string
-          required: false
-        - name: constructor
-          in: query
-          description: A constructor name. It will retrieve all drivers who has run for this constructor.
-          schema:
-            type: string
-          required: false
-        - name: circuit
-          in: query
-          description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
-          schema:
-            type: string
-          required: false
-        - name: grid
-          in: query
-          description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: result
-          in: query
-          description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
-          schema:
-            type: integer
-            format: int32
-          required: false
+        - $ref: '#/components/parameters/DriverNumber'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/DriverConstructor'
+        - $ref: '#/components/parameters/DriverCircuit'
+        - $ref: '#/components/parameters/DriverGrid'
+        - $ref: '#/components/parameters/DriverResult'
+      responses: 
+        '200':
+          $ref: '#/components/responses/DriverResponse'
   /api/{series}/{year}/{round}/drivers:
     parameters: 
       - $ref: '#/components/parameters/Series'
@@ -163,45 +93,15 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
-        - name: id
-          in: query
-          description: The id of a driver to retrieve. This parameter **must** be used alone.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: name
-          in: query
-          description: The name of a driver to retrieve. This parameter **must** be used alone.
-          schema:
-            type: string
-          required: false
-        - name: constructor
-          in: query
-          description: A constructor name. It will retrieve all drivers who has run for this constructor.
-          schema:
-            type: string
-          required: false
-        - name: circuit
-          in: query
-          description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
-          schema:
-            type: string
-          required: false
-        - name: grid
-          in: query
-          description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: result
-          in: query
-          description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
-          schema:
-            type: integer
-            format: int32
-          required: false
+        - $ref: '#/components/parameters/DriverNumber'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/DriverConstructor'
+        - $ref: '#/components/parameters/DriverCircuit'
+        - $ref: '#/components/parameters/DriverGrid'
+        - $ref: '#/components/parameters/DriverResult'
+      responses: 
+        '200':
+          $ref: '#/components/responses/DriverResponse'
   /api/{series}/current/drivers:
     parameters: 
       - $ref: '#/components/parameters/Series'
@@ -213,45 +113,15 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
-        - name: id
-          in: query
-          description: The id of a driver to retrieve. This parameter **must** be used alone.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: name
-          in: query
-          description: The name of a driver to retrieve. This parameter **must** be used alone.
-          schema:
-            type: string
-          required: false
-        - name: constructor
-          in: query
-          description: A constructor name. It will retrieve all drivers who has run for this constructor.
-          schema:
-            type: string
-          required: false
-        - name: circuit
-          in: query
-          description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
-          schema:
-            type: string
-          required: false
-        - name: grid
-          in: query
-          description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: result
-          in: query
-          description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
-          schema:
-            type: integer
-            format: int32
-          required: false
+        - $ref: '#/components/parameters/DriverNumber'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/DriverConstructor'
+        - $ref: '#/components/parameters/DriverCircuit'
+        - $ref: '#/components/parameters/DriverGrid'
+        - $ref: '#/components/parameters/DriverResult'
+      responses: 
+        '200':
+          $ref: '#/components/responses/DriverResponse'
   /api/{series}/current/{round}/drivers:
     parameters: 
       - $ref: '#/components/parameters/Series'
@@ -264,49 +134,173 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
-        - name: id
-          in: query
-          description: The id of a driver to retrieve. This parameter **must** be used alone.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: name
-          in: query
-          description: The name of a driver to retrieve. This parameter **must** be used alone.
-          schema:
-            type: string
-          required: false
-        - name: constructor
-          in: query
-          description: A constructor name. It will retrieve all drivers who has run for this constructor.
-          schema:
-            type: string
-          required: false
-        - name: circuit
-          in: query
-          description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
-          schema:
-            type: string
-          required: false
-        - name: grid
-          in: query
-          description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
-          schema:
-            type: integer
-            format: int32
-          required: false
-        - name: result
-          in: query
-          description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
-          schema:
-            type: integer
-            format: int32
-          required: false
+        - $ref: '#/components/parameters/DriverNumber'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/DriverConstructor'
+        - $ref: '#/components/parameters/DriverCircuit'
+        - $ref: '#/components/parameters/DriverGrid'
+        - $ref: '#/components/parameters/DriverResult'
+      responses: 
+        '200':
+          $ref: '#/components/responses/DriverResponse'
+
+  /api/{series}/{year}/standings:
+    get:
+      tags:
+        - standings
+      description: Retrieve the constructors and drivers standings of a specific season.
+      parameters: 
+        - $ref: '#/components/parameters/Series'
+        - $ref: '#/components/parameters/Year'
+      responses: 
+        '200':
+          $ref: '#/components/responses/StandingsResponse'
+  /api/{series}/{year}/standings/constructors:
+    get:
+      tags:
+        - standings
+      description: Retrieve the constructors standings of a specific season.
+      parameters: 
+        - $ref: '#/components/parameters/Series'
+        - $ref: '#/components/parameters/Year'
+      responses: 
+        '200':
+          $ref: '#/components/responses/ConstructorsStandingsResponse'
+  /api/{series}/{year}/standings/drivers:
+    get:
+      tags:
+        - standings
+      description: Retrieve the drivers standings of a specific season.
+      parameters: 
+        - $ref: '#/components/parameters/Series'
+        - $ref: '#/components/parameters/Year'
+      responses: 
+        '200':
+          $ref: '#/components/responses/DriversStandingsResponse'
+  /api/{series}/{year}/{round}/standings/constructors:
+    get:
+      tags:
+        - standings
+      description: Retrieve the constructors standings of a specific round of a season.
+      parameters: 
+        - $ref: '#/components/parameters/Series'
+        - $ref: '#/components/parameters/Year'
+        - $ref: '#/components/parameters/Round'
+      responses: 
+        '200':
+          $ref: '#/components/responses/ConstructorsStandingsResponse'
+  /api/{series}/{year}/{round}/standings/drivers:
+    get:
+      tags:
+        - standings
+      description: Retrieve the drivers standings of a specific round of a season.
+      parameters: 
+        - $ref: '#/components/parameters/Series'
+        - $ref: '#/components/parameters/Year'
+        - $ref: '#/components/parameters/Round'
+      responses: 
+        '200':
+          $ref: '#/components/responses/DriversStandingsResponse'
+  /api/{series}/current/standings:
+    get:
+      tags:
+        - standings
+        - current
+      description: Retrieve the constructors and drivers standings of the current season.
+      parameters: 
+        - $ref: '#/components/parameters/Series'
+      responses: 
+        '200':
+          $ref: '#/components/responses/StandingsResponse'
+  /api/{series}/current/standings/constructors:
+    get:
+      tags:
+        - standings
+        - current
+      description: Retrieve the constructors standings of the current season.
+      parameters: 
+        - $ref: '#/components/parameters/Series'
+      responses: 
+        '200':
+          $ref: '#/components/responses/ConstructorsStandingsResponse'
+  /api/{series}/current/standings/drivers:
+    get:
+      tags:
+        - standings
+        - current
+      description: Retrieve the drivers standings of the current season.
+      parameters: 
+        - $ref: '#/components/parameters/Series'
+      responses: 
+        '200':
+          $ref: '#/components/responses/DriversStandingsResponse'
 
 
 components:
   parameters:
+    DriverNumber:
+      name: number
+      in: query
+      description: The unique number of a driver to retrieve. This parameter **must** be used alone.
+      schema:
+        type: integer
+        format: int32
+        examples:
+          - 1
+          - 10
+      required: false
+    DriverRef:
+      name: ref
+      in: query
+      description: The reference of a driver to retrieve (usualy the family name in lowercase). This parameter **must** be used alone.
+      schema:
+        type: string
+        examples:
+        - alonso
+        - hamilton
+      required: false
+    DriverConstructor:
+      name: constructor
+      in: query
+      description: A constructor name. It will retrieve all drivers who has run for this constructor.
+      schema:
+        type: string
+        examples:
+          - renault
+          - redbull
+      required: false
+    DriverCircuit:
+      name: circuit
+      in: query
+      description: A circuit name. It will retrieve all drivers who has run on this specific circuit.
+      schema:
+        type: string
+        examples:
+          - monza
+          - monaco
+      required: false
+    DriverGrid:
+      name: grid
+      in: query
+      description: A specific grid position. It will retrieve all drivers who has started a Grand Prix from this specific grid position.
+      schema:
+        type: integer
+        format: int32
+        examples:
+          - 1
+          - 10
+      required: false
+    DriverResult:
+      name: result
+      in: query
+      description: A specific result position. It will retrieve all drivers who has finished a Grand Prix from this specific position.
+      schema:
+        type: integer
+        format: int32
+        examples:
+          - 1
+          - 10
+      required: false
     Year:
       name: year
       in: path
@@ -359,7 +353,173 @@ components:
           - 10
           - -1
         default: 30
-  schemas: 
+  responses:
+    StandingsResponse:
+      description: The queried standings.
+      content:
+        application/json: 
+          schema: 
+            $ref: '#/components/schemas/StandingsResponse'
+    ConstructorsStandingsResponse:
+      description: The queried standings.
+      content:
+        application/json: 
+          schema: 
+            $ref: '#/components/schemas/ConstructorsStandingsResponse'
+    DriversStandingsResponse:
+      description: The queried standings.
+      content:
+        application/json: 
+          schema: 
+            $ref: '#/components/schemas/DriversStandingsResponse'
+    DriverResponse:
+      description: The queried drivers.
+      content:
+        application/json: 
+          schema:
+            $ref: '#/components/schemas/DriverResponse'
+  schemas:
+    StandingsResponse:
+      allOf: 
+        - $ref: '#/components/schemas/DefaultResponse'
+        - type: object
+          required: 
+            - standings
+          properties: 
+            standings:
+              type: array
+              items: 
+                allOf: 
+                  - $ref: '#/components/schemas/StandingsModel'
+                  - type: object
+                    required: 
+                      - constructors_standings
+                      - drivers_standings
+                    properties: 
+                      constructors_standings:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ConstructorsStandingsModel'
+                      drivers_standings:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DriversStandingsModel'
+    ConstructorsStandingsResponse:
+      allOf: 
+        - $ref: '#/components/schemas/DefaultResponse'
+        - type: object
+          required: 
+            - standings
+          properties: 
+            standings:
+              type: array
+              items: 
+                allOf: 
+                  - $ref: '#/components/schemas/StandingsModel'
+                  - type: object
+                    required: 
+                      - constructors_standings
+                    properties: 
+                      constructors_standings:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ConstructorsStandingsModel'
+    DriversStandingsResponse:
+      allOf: 
+        - $ref: '#/components/schemas/DefaultResponse'
+        - type: object
+          required: 
+            - standings
+          properties: 
+            standings:
+              type: array
+              items: 
+                allOf: 
+                  - $ref: '#/components/schemas/StandingsModel'
+                  - type: object
+                    required: 
+                      - drivers_standings
+                    properties: 
+                      drivers_standings:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DriversStandingsModel'
+    StandingsModel:
+      description: The standings entity.
+      type: object
+      properties: 
+        season:
+          type: integer
+          format: int32
+          examples:
+            - 2008
+            - 2023
+        round:
+          type: integer
+          format: int32
+          examples:
+            - 1
+            - 18
+      required: 
+        - season
+        - round
+    StandingsDefaultModel:
+      description: The base template of a standings entity.
+      type: object
+      required: 
+        - position
+        - position_text
+        - points
+        - wins
+      properties: 
+        position:
+          type: integer
+          format: int32
+          examples:
+            - 1
+            - 2
+        position_text:
+          type: string
+          examples:
+            - 1
+            - 2
+        points:
+          type: integer
+          format: int32
+          examples:
+            - 98
+            - 367
+        wins:
+          type: integer
+          format: int32
+          examples:
+            - 5
+            - 0
+    ConstructorsStandingsModel:
+      allOf:
+        - $ref: '#/components/schemas/StandingsDefaultModel'
+        - description: A constructor standings entry.
+          type: object
+          required:
+            - constructor
+          properties:
+            constructor:
+              $ref: '#/components/schemas/ConstructorModel'
+    DriversStandingsModel:
+      allOf:
+        - $ref: '#/components/schemas/StandingsDefaultModel'
+        - description: A driver standings entry.
+          type: object
+          required:
+            - driver
+            - constructors
+          properties:
+            driver:
+              $ref: '#/components/schemas/DriverModel'
+            constructors:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConstructorModel'
     Series:
       description: The championship series.
       type: string
@@ -419,24 +579,44 @@ components:
       allOf: 
         - $ref: '#/components/schemas/DefaultResponse'
         - type: object
+          required:
+            - drivers
           properties: 
             drivers:
               type: array
               items: 
                 $ref: '#/components/schemas/DriverModel'
+    ConstructorModel:
+      type: object
+      required:
+        - constructor_ref
+        - name
+        - url
+      properties:
+        constructor_ref:
+          type: string
+          examples:
+            - ferrari
+        name:
+          type: string
+          examples:
+            - Scuderia Ferrari
+        nationality:
+          type: string
+          examples:
+            - Italian
+        url:
+          type: string
+          examples:
+            - "https://fr.wikipedia.org/wiki/Scuderia_Ferrari"
     DriverModel:
       type: object
       required:
-        - driver_id
         - driver_ref
         - url
         - given_name
         - family_name
       properties:
-        driver_id:
-          type: integer
-          examples:
-            - 1
         driver_ref:
           type: string
           examples:
