@@ -49,8 +49,6 @@ paths:
       parameters: 
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/SeasonsDriverRef'
         - $ref: '#/components/parameters/SeasonsDriverNumber'
         - $ref: '#/components/parameters/Constructor'
@@ -71,8 +69,6 @@ paths:
       parameters: 
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverRef'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/Constructor'
@@ -91,8 +87,6 @@ paths:
         - constructors
       description: Retrieve information on constructors of a specific season.
       parameters: 
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverRef'
@@ -116,8 +110,6 @@ paths:
       parameters: 
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverRef'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/Constructor'
@@ -136,8 +128,6 @@ paths:
         - current
       description: Retrieve information on constructors of the current season.
       parameters: 
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverRef'
@@ -161,8 +151,6 @@ paths:
       parameters: 
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverRef'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/Constructor'
@@ -182,8 +170,6 @@ paths:
         - drivers
       description: Retrieve information on drivers.
       parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverNumber'
