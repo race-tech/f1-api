@@ -9,3 +9,5 @@ edition = "2021"
 chrono = { version = "0.4.31", features = ["serde"] }
 serde = { version = "1.0.195", features = ["derive"] }
 diesel = { version = "2.1.0", features = ["mysql", "chrono"] }
+
+shared = { path = "../shared" }

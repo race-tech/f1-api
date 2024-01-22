@@ -1,6 +1,8 @@
 // @generated automatically by Diesel CLI.
 #![allow(non_snake_case)]
 
+use diesel::joinable;
+
 diesel::table! {
     circuits (circuit_id) {
         #[sql_name = "circuitId"]
@@ -278,6 +280,11 @@ diesel::table! {
         status_content -> Varchar,
     }
 }
+
+joinable!(results -> drivers (driver_id));
+joinable!(results -> constructors (constructor_id));
+joinable!(results -> races (race_id));
+joinable!(races -> circuits (circuit_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     circuits,

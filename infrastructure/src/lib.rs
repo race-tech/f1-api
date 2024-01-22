@@ -2,13 +2,18 @@ use diesel::mysql::MysqlConnection;
 use dotenvy::dotenv;
 use std::env;
 
+use shared::parameters::Series;
+
 pub struct Connection {
     pool: MysqlConnection,
 }
 
 impl Connection {
-    pub fn pool(&mut self) -> &mut MysqlConnection {
-        &mut self.pool
+    pub fn pool_from_series(&mut self, series: Series) -> &mut MysqlConnection {
+        match series {
+            Series::F1 => &mut self.pool,
+            Series::F2 => &mut self.pool,
+        }
     }
 }
 
@@ -22,7 +27,8 @@ impl Default for Connection {
         println!("Connecting to {}", database_url);
 
         Self {
-            pool: MysqlConnection::establish(&database_url).expect("Failed to connect to database."),
+            pool: MysqlConnection::establish(&database_url)
+                .expect("Failed to connect to database."),
         }
     }
 }
