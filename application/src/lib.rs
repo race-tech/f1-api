@@ -15,6 +15,8 @@ pub mod models {
 }
 
 pub mod filters {
+    #![allow(unused_imports, unused_macros)]
+
     // Filters for "numbers"
     pub enum NumberFilter<T> {
         Equal(T),
@@ -103,20 +105,23 @@ pub mod filters {
                 // Map into array of boxed conditions
                 .filter_map::<BoxedCondition, _>(Condition::into_boxed_condition)
                 // Reduce to a boxed_condition1.and(boxed_condition2).and(boxed_condition3)...
-                .fold(None, |boxed_conditions: Option<BoxedCondition>, boxed_condition| {
-                    Some(match boxed_conditions {
-                        Some(bc) => match $and_or {
-                            AndOr::And => Box::new(bc.and(boxed_condition)),
-                            AndOr::Or => Box::new(bc.or(boxed_condition)),
-                        },
-                        None => boxed_condition,
-                    })
-                })
+                .fold(
+                    None,
+                    |boxed_conditions: Option<BoxedCondition>, boxed_condition| {
+                        Some(match boxed_conditions {
+                            Some(bc) => match $and_or {
+                                AndOr::And => Box::new(bc.and(boxed_condition)),
+                                AndOr::Or => Box::new(bc.or(boxed_condition)),
+                            },
+                            None => boxed_condition,
+                        })
+                    },
+                )
         };
     }
 
-    pub(crate) use create_filter;
     pub(crate) use boolean_filter;
+    pub(crate) use create_filter;
     pub(crate) use fields_to_filter;
     pub(crate) use number_filter;
     pub(crate) use string_filter;
