@@ -39,11 +39,6 @@ jobs:
       - name: Build
         run: cargo build --verbose --release
 
-      - name: Run lib tests
-        run: |
-          cargo check
-          cargo test --features test_lib --verbose --all
-
       - name: Run tests
         run: |
           cargo check
