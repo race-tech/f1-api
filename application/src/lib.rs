@@ -14,6 +14,12 @@ pub mod models {
     pub use super::race::Race;
 }
 
+mod prelude {
+    pub use super::filters::*;
+    pub use super::pagination::*;
+    pub use super::schema::*;
+}
+
 pub mod filters {
     #![allow(unused_imports, unused_macros)]
 

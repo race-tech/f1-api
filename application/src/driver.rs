@@ -7,11 +7,7 @@ use diesel::{
 
 use shared::models::DriverFilter;
 
-use crate::{
-    filters::*,
-    pagination::{Paginate, Paginated},
-    schema::{circuits, constructors, drivers, races, results},
-};
+use crate::prelude::*;
 
 #[derive(Identifiable, Queryable, Selectable, Debug)]
 #[diesel(primary_key(driver_id))]
