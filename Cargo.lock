@@ -47,6 +47,7 @@ version = "0.1.0"
 dependencies = [
  "application",
  "diesel",
+ "dotenvy",
  "infrastructure",
  "rocket",
  "serde_json",
@@ -275,6 +276,7 @@ dependencies = [
  "diesel_derives",
  "mysqlclient-sys",
  "percent-encoding",
+ "r2d2",
  "url",
 ]
 
@@ -610,7 +612,6 @@ name = "infrastructure"
 version = "0.1.0"
 dependencies = [
  "diesel",
- "dotenvy",
  "shared",
 ]
 
@@ -930,6 +931,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "r2d2"
+version = "0.8.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "51de85fb3fb6524929c8a2eb85e6b6d363de4e8c48f9e2c2eac4944abc181c93"
+dependencies = [
+ "log",
+ "parking_lot",
+ "scheduled-thread-pool",
+]
+
+[[package]]
 name = "rand"
 version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1144,6 +1156,15 @@ name = "ryu"
 version = "1.0.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f98d2aa92eebf49b69786be48e4477826b256916e84a57ff2a4f21923b48eb4c"
+
+[[package]]
+name = "scheduled-thread-pool"
+version = "0.2.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3cbc66816425a074528352f5789333ecff06ca41b36b0b0efdfbb29edc391a19"
+dependencies = [
+ "parking_lot",
+]
 
 [[package]]
 name = "scoped-tls"
