@@ -4,11 +4,7 @@ use rocket::{get, routes};
 
 use application;
 use infrastructure;
-use shared::models::{Driver, DriverFilter};
-use shared::parameters::{
-    Circuit, Constructor, DriverNumber, DriverRef, Grid, Limit, Page, RaceResult, Series,
-};
-use shared::responses::DriversResponse;
+use shared::prelude::*;
 
 #[get(
     "/<series>/drivers?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
