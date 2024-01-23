@@ -1,9 +1,13 @@
 #[macro_use]
 extern crate rocket;
 
-use api::handler;
+use dotenvy::dotenv;
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/api", handler::handlers())
+    dotenv().ok();
+
+    rocket::build()
+        .mount("/api", api::handlers::handlers())
+        .manage(infrastructure::ConnectionPool::try_new().unwrap())
 }

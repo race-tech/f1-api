@@ -9,6 +9,7 @@ edition = "2021"
 rocket = { version = "0.5.0", features = ["json"] }
 diesel = { version = "2.1.0", features = ["mysql", "chrono"] }
 serde_json = "1.0.64"
+dotenvy = "0.15.7"
 
 application = { path = "../application" }
 shared = { path = "../shared" }

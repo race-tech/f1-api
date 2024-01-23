@@ -1,3 +1,4 @@
+use diesel::Connection;
 use rocket::serde::json::Json;
 use rocket::{get, routes};
 
@@ -13,6 +14,7 @@ use shared::responses::DriversResponse;
     "/<series>/drivers?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
 )]
 pub fn drivers(
+    db: &rocket::State<infrastructure::ConnectionPool>,
     series: Series,
     limit: Option<Limit>,
     page: Option<Page>,
@@ -34,11 +36,16 @@ pub fn drivers(
         result,
     };
 
-    let mut pool = infrastructure::Connection::default();
-    let (drivers, pagination) = application::models::Driver::filter(filter)
-        .load_and_count_pages(pool.pool_from_series(series))
-        .unwrap();
+    let pool = &mut db.from_series(series).get().unwrap();
+    let res = pool
+        .transaction(|conn| application::models::Driver::filter(filter).load_and_count_pages(conn));
 
+    let (drivers, pagination) = match res {
+        Ok(res) => res,
+        Err(e) => {
+            panic!("Error: {}", e);
+        }
+    };
     let drivers = drivers.into_iter().map(Driver::from).collect::<Vec<_>>();
 
     let response = DriversResponse {
