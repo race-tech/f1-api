@@ -49,6 +49,7 @@ dependencies = [
  "diesel",
  "dotenvy",
  "infrastructure",
+ "r2d2",
  "rocket",
  "serde_json",
  "shared",

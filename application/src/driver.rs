@@ -63,8 +63,8 @@ impl Driver {
     }
 
     pub fn filter(filter: DriverFilter) -> Paginated<BoxedQuery> {
-        let limit = filter.limit.unwrap_or_default().inner() as i64;
-        let page = filter.page.unwrap_or_default().inner() as i64;
+        let limit = filter.limit.unwrap_or_default().0 as i64;
+        let page = filter.page.unwrap_or_default().0 as i64;
 
         let conditions = fields_to_filter!(
             filter,
@@ -73,7 +73,9 @@ impl Driver {
             constructor => (Constructor, StringFilter::Equal),
             circuit => (Circuit, StringFilter::Equal),
             grid => (Grid, NumberFilter::Equal),
-            result => (Result, NumberFilter::Equal)
+            result => (Result, NumberFilter::Equal),
+            year => (Year, NumberFilter::Equal),
+            round => (Round, NumberFilter::Equal)
         );
 
         let filter = match create_filter!(conditions, AndOr::And) {
@@ -107,17 +109,23 @@ enum Condition {
     Circuit(StringFilter),
     Grid(NumberFilter<i32>),
     Result(NumberFilter<i32>),
+    Year(NumberFilter<i32>),
+    Round(NumberFilter<i32>),
 }
 
 impl Condition {
     fn into_boxed_condition(self) -> Option<BoxedCondition> {
+        use Condition::*;
+
         Some(match self {
-            Condition::Grid(f) => number_filter!(f, results::grid),
-            Condition::Result(f) => number_filter!(f, results::position),
-            Condition::Constructor(f) => string_filter!(f, constructors::constructor_ref),
-            Condition::Circuit(f) => string_filter!(f, circuits::circuit_ref),
-            Condition::DriverRef(f) => string_filter!(f, drivers::driver_ref),
-            Condition::DriverNumber(f) => number_filter!(f, drivers::number),
+            Grid(f) => number_filter!(f, results::grid),
+            Result(f) => number_filter!(f, results::position),
+            Constructor(f) => string_filter!(f, constructors::constructor_ref),
+            Circuit(f) => string_filter!(f, circuits::circuit_ref),
+            DriverRef(f) => string_filter!(f, drivers::driver_ref),
+            DriverNumber(f) => number_filter!(f, drivers::number),
+            Year(f) => number_filter!(f, races::year),
+            Round(f) => number_filter!(f, races::round),
         })
     }
 }

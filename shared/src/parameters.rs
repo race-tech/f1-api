@@ -15,17 +15,33 @@ impl<'r> FromParam<'r> for Series {
     }
 }
 
+impl<'r> FromParam<'r> for Year {
+    type Error = ();
+
+    fn from_param(param: &str) -> Result<Self, Self::Error> {
+        match param.parse::<i32>() {
+            Ok(year) => Ok(Year(year)),
+            Err(_) => Err(()),
+        }
+    }
+}
+
+impl<'r> FromParam<'r> for Round {
+    type Error = ();
+
+    fn from_param(param: &str) -> Result<Self, Self::Error> {
+        match param.parse::<i32>() {
+            Ok(round) => Ok(Round(round)),
+            Err(_) => Err(()),
+        }
+    }
+}
+
 macro_rules! query_parameters {
     ($(($name:ident, $type:ty $([$($traits:ident),*])*)),*) => {
         $(
             #[derive(Debug, FromForm $($(, $traits)+)*)]
-            pub struct $name($type);
-
-            impl $name {
-                pub fn inner(&self) -> $type {
-                    self.0.clone()
-                }
-            }
+            pub struct $name(pub $type);
         )*
     };
 }
@@ -38,7 +54,9 @@ query_parameters!(
     (Constructor, String),
     (Circuit, String),
     (Grid, i32),
-    (RaceResult, i32)
+    (RaceResult, i32),
+    (Year, i32),
+    (Round, i32)
 );
 
 impl Default for Page {

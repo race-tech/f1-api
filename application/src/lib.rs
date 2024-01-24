@@ -95,7 +95,7 @@ pub mod filters {
                 let filter = $struct;
                 let mut conditions = vec![];
                 $(
-                    if let Some(inner) = filter.$field.map(|f| f.inner()) {
+                    if let Some(inner) = filter.$field.map(|f| f.0) {
                         conditions.push(Condition::$condition($filter(inner)));
                     }
                 )*

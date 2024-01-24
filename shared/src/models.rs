@@ -51,4 +51,6 @@ pub struct DriverFilter {
     pub circuit: Option<Circuit>,
     pub grid: Option<Grid>,
     pub result: Option<RaceResult>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
 }
