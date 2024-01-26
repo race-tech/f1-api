@@ -47,8 +47,8 @@ macro_rules! query_parameters {
 }
 
 query_parameters!(
-    (Page, i32 [Copy]),
-    (Limit, i32 [Copy]),
+    (Page, i32[Copy]),
+    (Limit, i32[Copy]),
     (DriverRef, String),
     (DriverNumber, i32),
     (ConstructorName, String),
