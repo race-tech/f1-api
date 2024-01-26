@@ -51,6 +51,7 @@ dependencies = [
  "infrastructure",
  "r2d2",
  "rocket",
+ "serde",
  "serde_json",
  "shared",
 ]

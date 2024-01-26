@@ -40,18 +40,18 @@ impl<'r> FromParam<'r> for Round {
 macro_rules! query_parameters {
     ($(($name:ident, $type:ty $([$($traits:ident),*])*)),*) => {
         $(
-            #[derive(Debug, FromForm $($(, $traits)+)*)]
+            #[derive(Debug, FromForm, Clone $($(, $traits)+)*)]
             pub struct $name(pub $type);
         )*
     };
 }
 
 query_parameters!(
-    (Page, i32 [Copy, Clone]),
-    (Limit, i32 [Copy, Clone]),
+    (Page, i32 [Copy]),
+    (Limit, i32 [Copy]),
     (DriverRef, String),
     (DriverNumber, i32),
-    (Constructor, String),
+    (ConstructorName, String),
     (Circuit, String),
     (Grid, i32),
     (RaceResult, i32),

@@ -41,13 +41,37 @@ pub struct Driver {
     pub url: String,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct Constructor {
+    pub constructor_ref: String,
+    pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nationality: Option<String>,
+    pub url: String,
+}
+
 #[derive(Debug)]
 pub struct DriverFilter {
     pub limit: Option<Limit>,
     pub page: Option<Page>,
     pub driver_number: Option<DriverNumber>,
     pub driver_ref: Option<DriverRef>,
-    pub constructor: Option<Constructor>,
+    pub constructor: Option<ConstructorName>,
+    pub circuit: Option<Circuit>,
+    pub grid: Option<Grid>,
+    pub result: Option<RaceResult>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ConstructorFilter {
+    pub limit: Option<Limit>,
+    pub page: Option<Page>,
+    pub driver_number: Option<DriverNumber>,
+    pub driver_ref: Option<DriverRef>,
+    pub constructor: Option<ConstructorName>,
     pub circuit: Option<Circuit>,
     pub grid: Option<Grid>,
     pub result: Option<RaceResult>,

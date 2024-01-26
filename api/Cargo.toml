@@ -11,6 +11,7 @@ diesel = { version = "2.1.0", features = ["mysql", "chrono"] }
 serde_json = "1.0.64"
 dotenvy = "0.15.7"
 r2d2 = "0.8.10"
+serde = "1.0.195"
 
 application = { path = "../application" }
 shared = { path = "../shared" }

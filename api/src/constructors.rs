@@ -7,9 +7,9 @@ use infrastructure::{self, ConnectionPool};
 use shared::prelude::*;
 
 #[get(
-    "/<series>/drivers?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
+    "/<series>/constructors?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
 )]
-pub fn drivers(
+pub fn constructors(
     db: &rocket::State<infrastructure::ConnectionPool>,
     series: Series,
     limit: Option<Limit>,
@@ -20,8 +20,8 @@ pub fn drivers(
     circuit: Option<Circuit>,
     grid: Option<Grid>,
     result: Option<RaceResult>,
-) -> crate::error::Result<Json<DriversResponse>> {
-    let filter = DriverFilter {
+) -> crate::error::Result<Json<ConstructorResponse>> {
+    let filter = ConstructorFilter {
         limit,
         page,
         driver_ref,
@@ -34,21 +34,21 @@ pub fn drivers(
         round: None,
     };
 
-    let (drivers, pagination) = driver_inner_handler(db, series, filter)?;
+    let (constructors, pagination) = constructors_inner_handler(db, series, filter)?;
 
-    let response = DriversResponse {
+    let response = ConstructorResponse {
         pagination,
         series,
-        drivers,
+        constructors,
     };
 
     Ok(Json(response))
 }
 
 #[get(
-    "/<series>/drivers/<year>?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
+    "/<series>/constructors/<year>?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
 )]
-pub fn drivers_by_year(
+pub fn constructors_by_year(
     db: &rocket::State<infrastructure::ConnectionPool>,
     series: Series,
     year: Year,
@@ -60,8 +60,8 @@ pub fn drivers_by_year(
     circuit: Option<Circuit>,
     grid: Option<Grid>,
     result: Option<RaceResult>,
-) -> crate::error::Result<Json<DriversResponse>> {
-    let filter = DriverFilter {
+) -> crate::error::Result<Json<ConstructorResponse>> {
+    let filter = ConstructorFilter {
         limit,
         page,
         driver_ref,
@@ -74,21 +74,21 @@ pub fn drivers_by_year(
         round: None,
     };
 
-    let (drivers, pagination) = driver_inner_handler(db, series, filter)?;
+    let (constructors, pagination) = constructors_inner_handler(db, series, filter)?;
 
-    let response = DriversResponse {
+    let response = ConstructorResponse {
         pagination,
         series,
-        drivers,
+        constructors,
     };
 
     Ok(Json(response))
 }
 
 #[get(
-    "/<series>/drivers/<year>/<round>?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
+    "/<series>/constructors/<year>/<round>?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
 )]
-pub fn drivers_by_year_and_round(
+pub fn constructors_by_year_and_round(
     db: &rocket::State<infrastructure::ConnectionPool>,
     series: Series,
     year: Year,
@@ -101,8 +101,8 @@ pub fn drivers_by_year_and_round(
     circuit: Option<Circuit>,
     grid: Option<Grid>,
     result: Option<RaceResult>,
-) -> crate::error::Result<Json<DriversResponse>> {
-    let filter = DriverFilter {
+) -> crate::error::Result<Json<ConstructorResponse>> {
+    let filter = ConstructorFilter {
         limit,
         page,
         driver_ref,
@@ -115,34 +115,42 @@ pub fn drivers_by_year_and_round(
         round: Some(round),
     };
 
-    let (drivers, pagination) = driver_inner_handler(db, series, filter)?;
+    let (constructors, pagination) = constructors_inner_handler(db, series, filter)?;
 
-    let response = DriversResponse {
+    let response = ConstructorResponse {
         pagination,
         series,
-        drivers,
+        constructors,
     };
 
     Ok(Json(response))
 }
 
-fn driver_inner_handler(
+fn constructors_inner_handler(
     db: &State<ConnectionPool>,
     series: Series,
-    filter: DriverFilter,
-) -> crate::error::Result<(Vec<Driver>, Pagination)> {
+    filter: ConstructorFilter,
+) -> crate::error::Result<(Vec<Constructor>, Pagination)> {
     let pool = &mut db.from_series(series).get()?;
-    let res = pool
-        .transaction(|conn| application::models::Driver::filter(filter).load_and_count_pages(conn));
+    let res = pool.transaction(|conn| {
+        application::models::Constructor::filter(filter).load_and_count_pages(conn)
+    });
 
-    Ok(res.map(|(drivers, pagination)| {
+    Ok(res.map(|(constructors, pagination)| {
         (
-            drivers.into_iter().map(Driver::from).collect::<Vec<_>>(),
+            constructors
+                .into_iter()
+                .map(Constructor::from)
+                .collect::<Vec<_>>(),
             pagination,
         )
     })?)
 }
 
 pub fn handlers() -> Vec<rocket::Route> {
-    routes![drivers, drivers_by_year, drivers_by_year_and_round]
+    routes![
+        constructors,
+        constructors_by_year,
+        constructors_by_year_and_round
+    ]
 }
