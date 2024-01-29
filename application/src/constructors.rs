@@ -2,23 +2,12 @@ use diesel::{
     helper_types::{AsSelect, Eq, InnerJoin, InnerJoinOn, InnerJoinQuerySource, IntoBoxed, Select},
     prelude::*,
     sql_types::{Bool, Nullable},
-    Identifiable, Queryable, Selectable,
 };
 
-use shared::models::ConstructorFilter;
+use shared::filters::ConstructorFilter;
 
+use crate::models::Constructor;
 use crate::prelude::*;
-
-#[derive(Identifiable, Queryable, Selectable, Debug)]
-#[diesel(primary_key(constructor_id))]
-#[diesel(table_name = constructors, check_for_backend(super::Backend))]
-pub struct Constructor {
-    pub constructor_id: i32,
-    pub constructor_ref: String,
-    pub name: String,
-    pub nationality: Option<String>,
-    pub url: String,
-}
 
 type BoxedConditionSource = InnerJoinQuerySource<
     InnerJoinQuerySource<
@@ -83,17 +72,6 @@ impl Constructor {
         };
 
         Self::boxed().filter(filter).paginate(page).per_page(limit)
-    }
-}
-
-impl From<Constructor> for shared::models::Constructor {
-    fn from(constructor: Constructor) -> shared::models::Constructor {
-        shared::models::Constructor {
-            constructor_ref: constructor.constructor_ref,
-            name: constructor.name,
-            nationality: constructor.nationality,
-            url: constructor.url,
-        }
     }
 }
 

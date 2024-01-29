@@ -1,28 +1,18 @@
 use diesel::{
-    helper_types::{AsSelect, Eq, InnerJoin, InnerJoinOn, InnerJoinQuerySource, IntoBoxed, Select},
+    helper_types::{
+        AsSelect, Eq, Filter, InnerJoin, InnerJoinOn, InnerJoinQuerySource, IntoBoxed, Select,
+    },
     prelude::*,
     sql_types::{Bool, Nullable},
-    Identifiable, Queryable, Selectable,
 };
 
-use shared::models::DriverFilter;
+use shared::{filters::DriverFilter, parameters::DriverId};
 
+use crate::models::Driver;
 use crate::prelude::*;
 
-#[derive(Identifiable, Queryable, Selectable, Debug)]
-#[diesel(primary_key(driver_id))]
-#[diesel(table_name = drivers, check_for_backend(super::Backend))]
-pub struct Driver {
-    pub driver_id: i32,
-    pub driver_ref: String,
-    pub number: Option<i32>,
-    pub code: Option<String>,
-    pub forename: String,
-    pub surname: String,
-    pub dob: Option<chrono::NaiveDate>,
-    pub nationality: Option<String>,
-    pub url: String,
-}
+type All = Select<drivers::table, AsSelect<Driver, super::Backend>>;
+type ByDriverId = Filter<All, diesel::dsl::Eq<drivers::driver_id, i32>>;
 
 type BoxedConditionSource = InnerJoinQuerySource<
     InnerJoinQuerySource<
@@ -85,20 +75,11 @@ impl Driver {
 
         Self::boxed().filter(filter).paginate(page).per_page(limit)
     }
-}
 
-impl From<Driver> for shared::models::Driver {
-    fn from(driver: Driver) -> shared::models::Driver {
-        shared::models::Driver {
-            driver_ref: driver.driver_ref,
-            number: driver.number,
-            code: driver.code,
-            forename: driver.forename,
-            surname: driver.surname,
-            dob: driver.dob,
-            nationality: driver.nationality,
-            url: driver.url,
-        }
+    pub fn by_id(driver_id: DriverId) -> ByDriverId {
+        drivers::table
+            .filter(drivers::driver_id.eq(driver_id.0))
+            .select(Driver::as_select())
     }
 }
 

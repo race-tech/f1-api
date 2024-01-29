@@ -3,14 +3,16 @@ use rocket::serde::json::Json;
 use rocket::{get, routes, State};
 
 use application;
-use infrastructure::{self, ConnectionPool};
+use infrastructure::ConnectionPool;
 use shared::prelude::*;
+
+use crate::error::Result;
 
 #[get(
     "/<series>/constructors?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
 )]
 pub fn constructors(
-    db: &rocket::State<infrastructure::ConnectionPool>,
+    db: &State<ConnectionPool>,
     series: Series,
     limit: Option<Limit>,
     page: Option<Page>,
@@ -20,7 +22,7 @@ pub fn constructors(
     circuit: Option<Circuit>,
     grid: Option<Grid>,
     result: Option<RaceResult>,
-) -> crate::error::Result<Json<ConstructorResponse>> {
+) -> Result<Json<ConstructorResponse>> {
     let filter = ConstructorFilter {
         limit,
         page,
@@ -46,10 +48,10 @@ pub fn constructors(
 }
 
 #[get(
-    "/<series>/constructors/<year>?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
+    "/<series>/<year>/constructor?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
 )]
 pub fn constructors_by_year(
-    db: &rocket::State<infrastructure::ConnectionPool>,
+    db: &State<ConnectionPool>,
     series: Series,
     year: Year,
     limit: Option<Limit>,
@@ -60,7 +62,7 @@ pub fn constructors_by_year(
     circuit: Option<Circuit>,
     grid: Option<Grid>,
     result: Option<RaceResult>,
-) -> crate::error::Result<Json<ConstructorResponse>> {
+) -> Result<Json<ConstructorResponse>> {
     let filter = ConstructorFilter {
         limit,
         page,
@@ -86,10 +88,10 @@ pub fn constructors_by_year(
 }
 
 #[get(
-    "/<series>/constructors/<year>/<round>?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
+    "/<series>/<year>/<round>/constructors?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
 )]
 pub fn constructors_by_year_and_round(
-    db: &rocket::State<infrastructure::ConnectionPool>,
+    db: &State<ConnectionPool>,
     series: Series,
     year: Year,
     round: Round,
@@ -101,7 +103,7 @@ pub fn constructors_by_year_and_round(
     circuit: Option<Circuit>,
     grid: Option<Grid>,
     result: Option<RaceResult>,
-) -> crate::error::Result<Json<ConstructorResponse>> {
+) -> Result<Json<ConstructorResponse>> {
     let filter = ConstructorFilter {
         limit,
         page,
@@ -130,7 +132,7 @@ fn constructors_inner_handler(
     db: &State<ConnectionPool>,
     series: Series,
     filter: ConstructorFilter,
-) -> crate::error::Result<(Vec<Constructor>, Pagination)> {
+) -> Result<(Vec<Constructor>, Pagination)> {
     let pool = &mut db.from_series(series).get()?;
     let res = pool.transaction(|conn| {
         application::models::Constructor::filter(filter).load_and_count_pages(conn)

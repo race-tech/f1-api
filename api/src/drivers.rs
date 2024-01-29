@@ -3,38 +3,18 @@ use rocket::serde::json::Json;
 use rocket::{get, routes, State};
 
 use application;
-use infrastructure::{self, ConnectionPool};
+use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
-#[get(
-    "/<series>/drivers?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
-)]
-pub fn drivers(
-    db: &rocket::State<infrastructure::ConnectionPool>,
-    series: Series,
-    limit: Option<Limit>,
-    page: Option<Page>,
-    driver_number: Option<DriverNumber>,
-    driver_ref: Option<DriverRef>,
-    constructor: Option<ConstructorName>,
-    circuit: Option<Circuit>,
-    grid: Option<Grid>,
-    result: Option<RaceResult>,
-) -> crate::error::Result<Json<DriversResponse>> {
-    let filter = DriverFilter {
-        limit,
-        page,
-        driver_ref,
-        driver_number,
-        constructor,
-        circuit,
-        grid,
-        result,
-        year: None,
-        round: None,
-    };
+use crate::error::Result;
 
-    let (drivers, pagination) = driver_inner_handler(db, series, filter)?;
+#[get("/<series>/drivers?<param..>")]
+pub fn drivers(
+    db: &State<ConnectionPool>,
+    series: Series,
+    param: DriverParameter,
+) -> Result<Json<DriversResponse>> {
+    let (drivers, pagination) = driver_inner_handler(db, series, param.into())?;
 
     let response = DriversResponse {
         pagination,
@@ -45,34 +25,15 @@ pub fn drivers(
     Ok(Json(response))
 }
 
-#[get(
-    "/<series>/drivers/<year>?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
-)]
+#[get("/<series>/<year>/drivers?<param..>")]
 pub fn drivers_by_year(
-    db: &rocket::State<infrastructure::ConnectionPool>,
+    db: &State<ConnectionPool>,
     series: Series,
     year: Year,
-    limit: Option<Limit>,
-    page: Option<Page>,
-    driver_number: Option<DriverNumber>,
-    driver_ref: Option<DriverRef>,
-    constructor: Option<ConstructorName>,
-    circuit: Option<Circuit>,
-    grid: Option<Grid>,
-    result: Option<RaceResult>,
-) -> crate::error::Result<Json<DriversResponse>> {
-    let filter = DriverFilter {
-        limit,
-        page,
-        driver_ref,
-        driver_number,
-        constructor,
-        circuit,
-        grid,
-        result,
-        year: Some(year),
-        round: None,
-    };
+    param: DriverParameter,
+) -> Result<Json<DriversResponse>> {
+    let mut filter: DriverFilter = param.into();
+    filter.year = Some(year);
 
     let (drivers, pagination) = driver_inner_handler(db, series, filter)?;
 
@@ -85,35 +46,17 @@ pub fn drivers_by_year(
     Ok(Json(response))
 }
 
-#[get(
-    "/<series>/drivers/<year>/<round>?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
-)]
+#[get("/<series>/<year>/<round>/drivers?<param..>")]
 pub fn drivers_by_year_and_round(
-    db: &rocket::State<infrastructure::ConnectionPool>,
+    db: &State<ConnectionPool>,
     series: Series,
     year: Year,
     round: Round,
-    limit: Option<Limit>,
-    page: Option<Page>,
-    driver_number: Option<DriverNumber>,
-    driver_ref: Option<DriverRef>,
-    constructor: Option<ConstructorName>,
-    circuit: Option<Circuit>,
-    grid: Option<Grid>,
-    result: Option<RaceResult>,
-) -> crate::error::Result<Json<DriversResponse>> {
-    let filter = DriverFilter {
-        limit,
-        page,
-        driver_ref,
-        driver_number,
-        constructor,
-        circuit,
-        grid,
-        result,
-        year: Some(year),
-        round: Some(round),
-    };
+    param: DriverParameter,
+) -> Result<Json<DriversResponse>> {
+    let mut filter: DriverFilter = param.into();
+    filter.year = Some(year);
+    filter.round = Some(round);
 
     let (drivers, pagination) = driver_inner_handler(db, series, filter)?;
 
@@ -130,7 +73,7 @@ fn driver_inner_handler(
     db: &State<ConnectionPool>,
     series: Series,
     filter: DriverFilter,
-) -> crate::error::Result<(Vec<Driver>, Pagination)> {
+) -> Result<(Vec<Driver>, Pagination)> {
     let pool = &mut db.from_series(series).get()?;
     let res = pool
         .transaction(|conn| application::models::Driver::filter(filter).load_and_count_pages(conn));

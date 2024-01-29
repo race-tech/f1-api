@@ -1,7 +1,5 @@
 use rocket::serde::Serialize;
 
-use crate::parameters::*;
-
 #[derive(Debug, Serialize, Default)]
 #[serde(crate = "rocket::serde")]
 pub struct Pagination {
@@ -51,30 +49,26 @@ pub struct Constructor {
     pub url: String,
 }
 
-#[derive(Debug)]
-pub struct DriverFilter {
-    pub limit: Option<Limit>,
-    pub page: Option<Page>,
-    pub driver_number: Option<DriverNumber>,
-    pub driver_ref: Option<DriverRef>,
-    pub constructor: Option<ConstructorName>,
-    pub circuit: Option<Circuit>,
-    pub grid: Option<Grid>,
-    pub result: Option<RaceResult>,
-    pub year: Option<Year>,
-    pub round: Option<Round>,
+#[derive(Debug, Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct DriverStanding {
+    pub driver: Driver,
+    pub points: f32,
+    pub wins: i32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub position: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub position_text: Option<String>,
 }
 
-#[derive(Debug, Clone)]
-pub struct ConstructorFilter {
-    pub limit: Option<Limit>,
-    pub page: Option<Page>,
-    pub driver_number: Option<DriverNumber>,
-    pub driver_ref: Option<DriverRef>,
-    pub constructor: Option<ConstructorName>,
-    pub circuit: Option<Circuit>,
-    pub grid: Option<Grid>,
-    pub result: Option<RaceResult>,
-    pub year: Option<Year>,
-    pub round: Option<Round>,
+#[derive(Debug, Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct ConstructorStanding {
+    pub constructor: Constructor,
+    pub points: f32,
+    pub wins: i32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub position: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub position_text: Option<String>,
 }

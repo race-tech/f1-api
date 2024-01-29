@@ -2,22 +2,16 @@ mod constructor_standing;
 mod constructors;
 mod driver_standing;
 mod drivers;
+pub mod models;
 mod pagination;
-mod race;
+mod races;
 mod schema;
 
 type Backend = diesel::mysql::Mysql;
 
-pub mod models {
-    pub use super::constructor_standing::ConstructorStanding;
-    pub use super::constructors::Constructor;
-    pub use super::driver_standing::DriverStanding;
-    pub use super::drivers::Driver;
-    pub use super::race::Race;
-}
-
 mod prelude {
     pub use super::filters::*;
+    pub use super::models;
     pub use super::pagination::*;
     pub use super::schema::*;
 }

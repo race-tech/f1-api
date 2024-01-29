@@ -1,36 +1,68 @@
-use diesel::dsl::{AsSelect, Filter, Select};
-use diesel::prelude::*;
-use diesel::{Identifiable, Queryable, Selectable};
+use diesel::{
+    helper_types::{AsSelect, InnerJoin, InnerJoinQuerySource, IntoBoxed, Select},
+    prelude::*,
+    sql_types::{Bool, Nullable},
+};
+use shared::filters::DriverStandingFilter;
 
-use super::schema::driverStandings;
+use crate::models::{Driver, DriverStanding};
+use crate::prelude::*;
 
-#[derive(Queryable, Selectable, Identifiable, Debug, serde::Serialize)]
-#[diesel(primary_key(driver_standing_id))]
-#[diesel(table_name = driverStandings, check_for_backend(super::Backend))]
-pub struct DriverStanding {
-    pub driver_standing_id: i32,
-    pub race_id: i32,
-    pub driver_id: i32,
-    pub points: f32,
-    pub position: Option<i32>,
-    pub position_text: Option<String>,
-    pub wins: i32,
-}
+type BoxedConditionSource = InnerJoinQuerySource<drivers::table, driverStandings::table>;
+type BoxedCondition =
+    Box<dyn BoxableExpression<BoxedConditionSource, super::Backend, SqlType = Nullable<Bool>>>;
 
-type All = Select<driverStandings::table, AsSelect<DriverStanding, super::Backend>>;
-type ByRaceId = Filter<All, diesel::dsl::Eq<driverStandings::race_id, i32>>;
-type ByDriverId = Filter<All, diesel::dsl::Eq<driverStandings::driver_id, i32>>;
+type BoxedQuerySource = InnerJoin<drivers::table, driverStandings::table>;
+type BoxedQuery = IntoBoxed<
+    'static,
+    Select<BoxedQuerySource, AsSelect<(DriverStanding, Driver), super::Backend>>,
+    super::Backend,
+>;
 
 impl DriverStanding {
-    pub fn all() -> All {
-        driverStandings::table.select(DriverStanding::as_select())
+    fn boxed() -> BoxedQuery {
+        drivers::table
+            .inner_join(driverStandings::table)
+            .select(<(DriverStanding, Driver)>::as_select())
+            .distinct()
+            .order(driverStandings::driver_standing_id.asc())
+            .into_boxed()
     }
 
-    pub fn by_race_id(race_id: i32) -> ByRaceId {
-        Self::all().filter(driverStandings::race_id.eq(race_id))
-    }
+    pub fn filter(filter: DriverStandingFilter) -> Paginated<BoxedQuery> {
+        let limit = filter.limit.unwrap_or_default().0 as i64;
+        let page = filter.page.unwrap_or_default().0 as i64;
 
-    pub fn by_driver_id(driver_id: i32) -> ByDriverId {
-        Self::all().filter(driverStandings::driver_id.eq(driver_id))
+        let conditions = fields_to_filter!(
+            filter,
+            name => (DriverRef, StringFilter::Equal),
+            result => (Result, NumberFilter::Equal),
+            race_id => (RaceId, NumberFilter::Equal)
+        );
+
+        let filter = match create_filter!(conditions, AndOr::And) {
+            Some(boxed_condition) => boxed_condition,
+            None => return Self::boxed().paginate(page).per_page(limit),
+        };
+
+        Self::boxed().filter(filter).paginate(page).per_page(limit)
+    }
+}
+
+enum Condition {
+    Result(NumberFilter<i32>),
+    DriverRef(StringFilter),
+    RaceId(NumberFilter<i32>),
+}
+
+impl Condition {
+    fn into_boxed_condition(self) -> Option<BoxedCondition> {
+        use Condition::*;
+
+        Some(match self {
+            DriverRef(f) => string_filter!(f, drivers::driver_ref),
+            Result(f) => number_filter!(f, driverStandings::position),
+            RaceId(f) => number_filter!(f, driverStandings::race_id),
+        })
     }
 }
