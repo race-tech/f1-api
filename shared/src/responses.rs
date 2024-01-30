@@ -1,6 +1,6 @@
 use rocket::serde::Serialize;
 
-use super::models::*;
+use super::prelude::*;
 
 #[derive(Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -32,4 +32,9 @@ pub struct StandingsResponse {
     #[serde(flatten)]
     pub pagination: Pagination,
     pub series: Series,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub season: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub round: Option<i32>,
 }

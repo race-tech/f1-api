@@ -59,10 +59,7 @@ pub struct Season {
 #[derive(Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
 pub struct DriverStanding {
-    pub year: i32,
-    pub round: i32,
     pub driver: Driver,
-    pub constructor: Constructor,
     pub points: f32,
     pub wins: i32,
     #[serde(skip_serializing_if = "Option::is_none")]

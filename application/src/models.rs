@@ -1,4 +1,4 @@
-use diesel::{Associations, Identifiable, Queryable, Selectable};
+use diesel::{Identifiable, Queryable, Selectable};
 
 use crate::prelude::*;
 
@@ -21,9 +21,8 @@ pub struct Constructor {
     pub url: String,
 }
 
-#[derive(Queryable, Selectable, Identifiable, Associations, Debug, serde::Serialize)]
+#[derive(Queryable, Selectable, Identifiable, Debug)]
 #[diesel(primary_key(race_id))]
-#[diesel(belongs_to(Season, foreign_key = year))]
 #[diesel(table_name = races, check_for_backend(super::Backend))]
 pub struct Race {
     pub race_id: i32,
@@ -83,8 +82,6 @@ pub struct DriverStanding {
     pub driver: Driver,
     #[diesel(embed)]
     pub race_round_and_year: RaceRoundAndYear,
-    #[diesel(embed)]
-    pub constructor: Constructor,
 }
 
 impl From<Constructor> for shared::models::Constructor {
@@ -122,21 +119,10 @@ impl From<Season> for shared::models::Season {
     }
 }
 
-pub struct Tuple<A, B, C>(A, B, C);
-
-impl<A, B, C> From<(A, B, C)> for Tuple<A, B, C> {
-    fn from(value: (A, B, C)) -> Tuple<A, B, C> {
-        Tuple(value.0, value.1, value.2)
-    }
-}
-
 impl From<DriverStanding> for shared::models::DriverStanding {
     fn from(value: DriverStanding) -> shared::models::DriverStanding {
         shared::models::DriverStanding {
-            year: value.race_round_and_year.year,
-            round: value.race_round_and_year.round,
             driver: value.driver.into(),
-            constructor: value.constructor.into(),
             points: value.points,
             wins: value.wins,
             position: value.position,

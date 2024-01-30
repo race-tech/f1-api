@@ -17,6 +17,10 @@ mod prelude {
     pub use super::schema::*;
 }
 
+pub mod builders {
+    pub use super::driver_standing::DriverStandingBuilder;
+}
+
 pub mod filters {
     #![allow(unused_imports, unused_macros)]
 
