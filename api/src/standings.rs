@@ -4,7 +4,7 @@ use r2d2::PooledConnection;
 use rocket::serde::json::Json;
 use rocket::{get, routes, State};
 
-use application::{self, models};
+use application;
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
@@ -54,18 +54,9 @@ fn driver_standing_inner_handler(
     param: DriverStandingParameter,
 ) -> Result<StandingsResponse> {
     let f = |conn: &mut PooledConnection<ConnectionManager<MysqlConnection>>| {
-        let filter: DriverStandingFilter = if let Some(year) = year {
-            let race = if let Some(round) = round {
-                models::Race::by_year_and_round(year, round).first(conn)?
-            } else {
-                models::Race::last_race_of_year(year).first(conn)?
-            };
-            let mut filter: DriverStandingFilter = param.into();
-            filter.race_id = Some(race.race_id.into());
-            filter
-        } else {
-            param.into()
-        };
+        let mut filter: DriverStandingFilter = param.into();
+        filter.year = year;
+        filter.round = round;
 
         let (vec, pagination) =
             application::builders::DriverStandingBuilder::new(filter).load(conn)?;

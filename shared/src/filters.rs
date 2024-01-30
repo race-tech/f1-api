@@ -34,5 +34,6 @@ pub struct DriverStandingFilter {
     pub page: Option<Page>,
     pub name: Option<DriverRef>,
     pub result: Option<RaceResult>,
-    pub race_id: Option<RaceId>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
 }

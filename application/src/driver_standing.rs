@@ -21,8 +21,14 @@ impl DriverStandingBuilder {
         let page = self.0.page.unwrap_or_default().0 as _;
         let limit = self.0.limit.unwrap_or_default().0 as _;
 
-        if let Some(race_id) = self.0.race_id {
-            Self::by_race_id(race_id.0)
+        if let Some(year) = self.0.year {
+            let race = if let Some(round) = self.0.round {
+                models::Race::by_year_and_round(year, round).first(conn)?
+            } else {
+                models::Race::last_race_of_year(year).first(conn)?
+            };
+
+            Self::by_race_id(race.race_id)
                 .paginate(page)
                 .per_page(limit)
                 .load_and_count_pages(conn)
