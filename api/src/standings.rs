@@ -1,6 +1,5 @@
 use diesel::prelude::*;
 use diesel::r2d2::ConnectionManager;
-use diesel::Connection;
 use r2d2::PooledConnection;
 use rocket::serde::json::Json;
 use rocket::{get, routes, State};
@@ -66,15 +65,13 @@ fn driver_standing_inner_handler(
             None => param.into(),
         };
 
-        let (standing_and_driver, pagination) =
+        let (vec, pagination) =
             application::models::DriverStanding::filter(filter).load_and_count_pages(conn)?;
 
         Ok((
-            standing_and_driver
-                .into_iter()
-                .map(models::Tuple::<models::DriverStanding, models::Driver>::from)
+            vec.into_iter()
                 .map(DriverStanding::from)
-                .collect::<Vec<DriverStanding>>(),
+                .collect::<Vec<_>>(),
             pagination,
         ))
     };

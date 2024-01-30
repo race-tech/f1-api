@@ -23,7 +23,7 @@ tasks:
         -e MYSQL_DATABASE="$MYSQL_DATABASE"
         -e MYSQL_USER="$MYSQL_USER"
         -e MYSQL_PASSWORD="$MYSQL_PASSWORD"
-        mysql/mysql-server:latest
+        mysql/mysql-server:8.0.32
     silent: true
   db_down:
     cmds:

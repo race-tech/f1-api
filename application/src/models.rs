@@ -1,6 +1,14 @@
-use diesel::{Identifiable, Queryable, Selectable};
+use diesel::{Associations, Identifiable, Queryable, Selectable};
 
 use crate::prelude::*;
+
+#[derive(Identifiable, Queryable, Selectable, Debug)]
+#[diesel(primary_key(year))]
+#[diesel(table_name = seasons, check_for_backend(super::Backend))]
+pub struct Season {
+    pub year: i32,
+    pub url: String,
+}
 
 #[derive(Identifiable, Queryable, Selectable, Debug)]
 #[diesel(primary_key(constructor_id))]
@@ -13,8 +21,9 @@ pub struct Constructor {
     pub url: String,
 }
 
-#[derive(Queryable, Selectable, Identifiable, Debug, serde::Serialize)]
+#[derive(Queryable, Selectable, Identifiable, Associations, Debug, serde::Serialize)]
 #[diesel(primary_key(race_id))]
+#[diesel(belongs_to(Season, foreign_key = year))]
 #[diesel(table_name = races, check_for_backend(super::Backend))]
 pub struct Race {
     pub race_id: i32,
@@ -52,16 +61,30 @@ pub struct Driver {
     pub url: String,
 }
 
-#[derive(Queryable, Selectable, Identifiable, Debug, serde::Serialize)]
+#[derive(Queryable, Selectable, Identifiable, Debug)]
+#[diesel(primary_key(race_id))]
+#[diesel(table_name = races, check_for_backend(super::Backend))]
+pub struct RaceRoundAndYear {
+    pub race_id: i32,
+    pub year: i32,
+    pub round: i32,
+}
+
+#[derive(Identifiable, Queryable, Selectable, Debug)]
 #[diesel(primary_key(driver_standing_id))]
 #[diesel(table_name = driverStandings, check_for_backend(super::Backend))]
 pub struct DriverStanding {
     pub driver_standing_id: i32,
-    pub race_id: i32,
     pub points: f32,
     pub position: Option<i32>,
     pub position_text: Option<String>,
     pub wins: i32,
+    #[diesel(embed)]
+    pub driver: Driver,
+    #[diesel(embed)]
+    pub race_round_and_year: RaceRoundAndYear,
+    #[diesel(embed)]
+    pub constructor: Constructor,
 }
 
 impl From<Constructor> for shared::models::Constructor {
@@ -90,24 +113,34 @@ impl From<Driver> for shared::models::Driver {
     }
 }
 
-pub struct Tuple<L, R>(L, R);
-
-impl<L, R> From<(L, R)> for Tuple<L, R> {
-    fn from(value: (L, R)) -> Tuple<L, R> {
-        Tuple(value.0, value.1)
+impl From<Season> for shared::models::Season {
+    fn from(season: Season) -> shared::models::Season {
+        shared::models::Season {
+            year: season.year,
+            url: season.url,
+        }
     }
 }
 
-impl From<Tuple<DriverStanding, Driver>> for shared::models::DriverStanding {
-    fn from(value: Tuple<DriverStanding, Driver>) -> shared::models::DriverStanding {
-        let (standing, driver) = (value.0, value.1);
+pub struct Tuple<A, B, C>(A, B, C);
 
+impl<A, B, C> From<(A, B, C)> for Tuple<A, B, C> {
+    fn from(value: (A, B, C)) -> Tuple<A, B, C> {
+        Tuple(value.0, value.1, value.2)
+    }
+}
+
+impl From<DriverStanding> for shared::models::DriverStanding {
+    fn from(value: DriverStanding) -> shared::models::DriverStanding {
         shared::models::DriverStanding {
-            driver: driver.into(),
-            points: standing.points,
-            wins: standing.wins,
-            position: standing.position,
-            position_text: standing.position_text,
+            year: value.race_round_and_year.year,
+            round: value.race_round_and_year.round,
+            driver: value.driver.into(),
+            constructor: value.constructor.into(),
+            points: value.points,
+            wins: value.wins,
+            position: value.position,
+            position_text: value.position_text,
         }
     }
 }

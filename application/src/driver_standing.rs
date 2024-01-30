@@ -1,31 +1,94 @@
 use diesel::{
-    helper_types::{AsSelect, InnerJoin, InnerJoinQuerySource, IntoBoxed, Select},
+    alias,
+    helper_types::{
+        And, AsSelect, Eq, InnerJoin, InnerJoinOn, InnerJoinQuerySource, IntoBoxed, LeftJoinOn,
+        LeftJoinQuerySource, Lt, Select,
+    },
     prelude::*,
+    query_source::{Alias, AliasedField},
     sql_types::{Bool, Nullable},
 };
 use shared::filters::DriverStandingFilter;
 
-use crate::models::{Driver, DriverStanding};
+use crate::models::DriverStanding;
 use crate::prelude::*;
 
-type BoxedConditionSource = InnerJoinQuerySource<drivers::table, driverStandings::table>;
+type BoxedConditionSource = InnerJoinQuerySource<
+    InnerJoinQuerySource<
+        InnerJoinQuerySource<
+            InnerJoinQuerySource<
+                LeftJoinQuerySource<
+                    races::table,
+                    Alias<RaceAlias>,
+                    And<
+                        Eq<races::year, AliasedField<RaceAlias, races::year>>,
+                        Lt<races::round, AliasedField<RaceAlias, races::round>>,
+                    >,
+                >,
+                driverStandings::table,
+            >,
+            drivers::table,
+            Eq<drivers::driver_id, driverStandings::driver_id>,
+        >,
+        results::table,
+        And<Eq<drivers::driver_id, results::driver_id>, Eq<races::race_id, results::race_id>>,
+    >,
+    constructors::table,
+    Eq<results::constructor_id, constructors::constructor_id>,
+>;
 type BoxedCondition =
     Box<dyn BoxableExpression<BoxedConditionSource, super::Backend, SqlType = Nullable<Bool>>>;
 
-type BoxedQuerySource = InnerJoin<drivers::table, driverStandings::table>;
-type BoxedQuery = IntoBoxed<
+type BoxedQuerySource = InnerJoinOn<
+    InnerJoinOn<
+        InnerJoinOn<
+            InnerJoin<
+                LeftJoinOn<
+                    races::table,
+                    Alias<RaceAlias>,
+                    And<
+                        Eq<races::year, AliasedField<RaceAlias, races::year>>,
+                        Lt<races::round, AliasedField<RaceAlias, races::round>>,
+                    >,
+                >,
+                driverStandings::table,
+            >,
+            drivers::table,
+            Eq<drivers::driver_id, driverStandings::driver_id>,
+        >,
+        results::table,
+        And<Eq<drivers::driver_id, results::driver_id>, Eq<races::race_id, results::race_id>>,
+    >,
+    constructors::table,
+    Eq<results::constructor_id, constructors::constructor_id>,
+>;
+pub type BoxedQuery = IntoBoxed<
     'static,
-    Select<BoxedQuerySource, AsSelect<(DriverStanding, Driver), super::Backend>>,
+    Select<BoxedQuerySource, AsSelect<DriverStanding, super::Backend>>,
     super::Backend,
 >;
 
+alias!(races as r1: RaceAlias);
+
 impl DriverStanding {
     fn boxed() -> BoxedQuery {
-        drivers::table
+        races::table
+            .left_join(
+                r1.on(races::year
+                    .eq(r1.field(races::year))
+                    .and(races::round.lt(r1.field(races::round)))),
+            )
             .inner_join(driverStandings::table)
-            .select(<(DriverStanding, Driver)>::as_select())
-            .distinct()
-            .order(driverStandings::driver_standing_id.asc())
+            .inner_join(drivers::table.on(drivers::driver_id.eq(driverStandings::driver_id)))
+            .inner_join(
+                results::table.on(drivers::driver_id
+                    .eq(results::driver_id)
+                    .and(races::race_id.eq(results::race_id))),
+            )
+            .inner_join(
+                constructors::table.on(results::constructor_id.eq(constructors::constructor_id)),
+            )
+            .select(DriverStanding::as_select())
             .into_boxed()
     }
 
@@ -33,12 +96,12 @@ impl DriverStanding {
         let limit = filter.limit.unwrap_or_default().0 as i64;
         let page = filter.page.unwrap_or_default().0 as i64;
 
-        let conditions = fields_to_filter!(
+        let mut conditions = fields_to_filter!(
             filter,
             name => (DriverRef, StringFilter::Equal),
-            result => (Result, NumberFilter::Equal),
-            race_id => (RaceId, NumberFilter::Equal)
+            result => (Result, NumberFilter::Equal)
         );
+        conditions.push(Condition::RaceIdNull);
 
         let filter = match create_filter!(conditions, AndOr::And) {
             Some(boxed_condition) => boxed_condition,
@@ -52,7 +115,7 @@ impl DriverStanding {
 enum Condition {
     Result(NumberFilter<i32>),
     DriverRef(StringFilter),
-    RaceId(NumberFilter<i32>),
+    RaceIdNull,
 }
 
 impl Condition {
@@ -62,7 +125,7 @@ impl Condition {
         Some(match self {
             DriverRef(f) => string_filter!(f, drivers::driver_ref),
             Result(f) => number_filter!(f, driverStandings::position),
-            RaceId(f) => number_filter!(f, driverStandings::race_id),
+            RaceIdNull => Box::new(r1.fields(races::race_id).is_null().nullable()),
         })
     }
 }

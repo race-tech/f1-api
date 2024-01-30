@@ -6,6 +6,7 @@ pub mod models;
 mod pagination;
 mod races;
 mod schema;
+mod seasons;
 
 type Backend = diesel::mysql::Mysql;
 
