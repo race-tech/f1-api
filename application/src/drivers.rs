@@ -1,45 +1,27 @@
-use diesel::{
-    helper_types::{
-        AsSelect, Eq, Filter, InnerJoin, InnerJoinOn, InnerJoinQuerySource, IntoBoxed, Select,
-    },
-    prelude::*,
-    sql_types::{Bool, Nullable},
-};
+use diesel::prelude::*;
 
-use shared::{filters::DriverFilter, parameters::DriverId};
+use shared::filters::DriverFilter;
+
+use shared::models::Pagination;
+use types::*;
 
 use crate::models::Driver;
 use crate::prelude::*;
 
-type All = Select<drivers::table, AsSelect<Driver, super::Backend>>;
-type ByDriverId = Filter<All, diesel::dsl::Eq<drivers::driver_id, i32>>;
+pub struct DriverBuilder(DriverFilter);
 
-type BoxedConditionSource = InnerJoinQuerySource<
-    InnerJoinQuerySource<
-        InnerJoinQuerySource<
-            InnerJoinQuerySource<results::table, drivers::table>,
-            constructors::table,
-        >,
-        races::table,
-    >,
-    circuits::table,
-    Eq<circuits::circuit_id, races::circuit_id>,
->;
-type BoxedCondition =
-    Box<dyn BoxableExpression<BoxedConditionSource, super::Backend, SqlType = Nullable<Bool>>>;
+impl DriverBuilder {
+    pub fn new(filter: DriverFilter) -> Self {
+        Self(filter)
+    }
 
-type BoxedQuerySource = InnerJoinOn<
-    InnerJoin<
-        InnerJoin<InnerJoin<results::table, drivers::table>, constructors::table>,
-        races::table,
-    >,
-    circuits::table,
-    Eq<circuits::circuit_id, races::circuit_id>,
->;
-type BoxedQuery =
-    IntoBoxed<'static, Select<BoxedQuerySource, AsSelect<Driver, super::Backend>>, super::Backend>;
+    pub fn load(
+        self,
+        conn: &mut MysqlConnection,
+    ) -> Result<(Vec<Driver>, Pagination), diesel::result::Error> {
+        Self::filter(self.0).load_and_count_pages(conn)
+    }
 
-impl Driver {
     fn boxed() -> BoxedQuery {
         results::table
             .inner_join(drivers::table)
@@ -52,7 +34,7 @@ impl Driver {
             .into_boxed()
     }
 
-    pub fn filter(filter: DriverFilter) -> Paginated<BoxedQuery> {
+    fn filter(filter: DriverFilter) -> Paginated<BoxedQuery> {
         let limit = filter.limit.unwrap_or_default().0 as i64;
         let page = filter.page.unwrap_or_default().0 as i64;
 
@@ -74,12 +56,6 @@ impl Driver {
         };
 
         Self::boxed().filter(filter).paginate(page).per_page(limit)
-    }
-
-    pub fn by_id(driver_id: DriverId) -> ByDriverId {
-        drivers::table
-            .filter(drivers::driver_id.eq(driver_id.0))
-            .select(Driver::as_select())
     }
 }
 
@@ -109,4 +85,44 @@ impl Condition {
             Round(f) => number_filter!(f, races::round),
         })
     }
+}
+
+mod types {
+    use super::Driver;
+    use crate::prelude::*;
+    use diesel::{
+        helper_types::{
+            AsSelect, Eq, InnerJoin, InnerJoinOn, InnerJoinQuerySource, IntoBoxed, Select,
+        },
+        prelude::*,
+        sql_types::{Bool, Nullable},
+    };
+
+    pub type BoxedConditionSource = InnerJoinQuerySource<
+        InnerJoinQuerySource<
+            InnerJoinQuerySource<
+                InnerJoinQuerySource<results::table, drivers::table>,
+                constructors::table,
+            >,
+            races::table,
+        >,
+        circuits::table,
+        Eq<circuits::circuit_id, races::circuit_id>,
+    >;
+    pub type BoxedCondition =
+        Box<dyn BoxableExpression<BoxedConditionSource, crate::Backend, SqlType = Nullable<Bool>>>;
+
+    pub type BoxedQuerySource = InnerJoinOn<
+        InnerJoin<
+            InnerJoin<InnerJoin<results::table, drivers::table>, constructors::table>,
+            races::table,
+        >,
+        circuits::table,
+        Eq<circuits::circuit_id, races::circuit_id>,
+    >;
+    pub type BoxedQuery = IntoBoxed<
+        'static,
+        Select<BoxedQuerySource, AsSelect<Driver, crate::Backend>>,
+        crate::Backend,
+    >;
 }

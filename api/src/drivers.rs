@@ -75,8 +75,7 @@ fn driver_inner_handler(
     filter: DriverFilter,
 ) -> Result<(Vec<Driver>, Pagination)> {
     let pool = &mut db.from_series(series).get()?;
-    let res = pool
-        .transaction(|conn| application::models::Driver::filter(filter).load_and_count_pages(conn));
+    let res = pool.transaction(|conn| application::builders::DriverBuilder::new(filter).load(conn));
 
     Ok(res.map(|(drivers, pagination)| {
         (

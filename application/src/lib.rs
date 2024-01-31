@@ -19,6 +19,7 @@ mod prelude {
 
 pub mod builders {
     pub use super::driver_standing::DriverStandingBuilder;
+    pub use super::drivers::DriverBuilder;
 }
 
 pub mod filters {
