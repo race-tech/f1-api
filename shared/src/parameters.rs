@@ -54,61 +54,22 @@ impl<'r> FromParam<'r> for Round {
     }
 }
 
-macro_rules! query_parameters {
-    ($(($name:ident, $type:ty $([$($traits:ident),*])*)),*) => {
-        $(
-            #[derive(Debug, FromForm, Clone $($(, $traits)+)*)]
-            pub struct $name(pub $type);
-
-            impl From<$type> for $name {
-                fn from(t: $type) -> Self {
-                    Self(t)
-                }
-            }
-        )*
-    };
+macros::query_parameters! {
+    #[Copy] Page(i32);
+    #[Copy] Limit(i32);
+    DriverRef(String) => str;
+    #[Copy] DriverNumber(i32);
+    ConstructorName(String) => str;
+    Circuit(String) => str;
+    #[Copy] Grid(i32);
+    #[Copy] RaceResult(i32);
+    #[Copy] Year(i32);
+    #[Copy] Round(i32);
+    #[Copy] DriverId(i32);
+    #[Copy] RaceId(i32);
 }
 
-query_parameters!(
-    (Page, i32[Copy]),
-    (Limit, i32[Copy]),
-    (DriverRef, String),
-    (DriverNumber, i32),
-    (ConstructorName, String),
-    (Circuit, String),
-    (Grid, i32),
-    (RaceResult, i32),
-    (Year, i32),
-    (Round, i32),
-    (DriverId, i32),
-    (RaceId, i32)
-);
-
-macro_rules! struct_parameters {
-    ($($name:ident { $($field_name:ident: $field_type:ty),* } => $filter:path;)*) => {
-        $(
-            #[derive(Debug, FromForm)]
-            pub struct $name {
-                $(
-                    pub $field_name: Option<$field_type>,
-                )*
-            }
-
-            impl From<$name> for $filter {
-                fn from(p: $name) -> Self {
-                    Self {
-                        $(
-                            $field_name: p.$field_name,
-                        )*
-                        ..Default::default()
-                    }
-                }
-            }
-        )*
-    };
-}
-
-struct_parameters!(
+macros::struct_parameters!(
     DriverParameter {
         driver_ref: DriverRef,
         driver_number: DriverNumber,
@@ -149,4 +110,77 @@ impl Default for Limit {
     fn default() -> Self {
         Self(30)
     }
+}
+
+mod macros {
+    macro_rules! query_parameters {
+        ($(#[$($traits:ident),*])* $name:ident ($type:ty) => $deref:ty; $($rest:tt)*) => {
+            #[derive(Debug, Clone, FromForm $($(, $traits)*)*)]
+            pub struct $name(pub $type);
+
+            impl From<$type> for $name {
+                fn from(t: $type) -> Self {
+                    Self(t)
+                }
+            }
+
+            impl std::ops::Deref for $name {
+                type Target = $deref;
+
+                fn deref(&self) -> &Self::Target {
+                    &self.0
+                }
+            }
+
+            macros::query_parameters!{ $($rest)* }
+        };
+        ($(#[$($traits:ident),*])* $name:ident ($type:ty); $($rest:tt)*) => {
+            #[derive(Debug, Clone, FromForm $($(, $traits)*)*)]
+            pub struct $name(pub $type);
+
+            impl From<$type> for $name {
+                fn from(t: $type) -> Self {
+                    Self(t)
+                }
+            }
+
+            impl std::ops::Deref for $name {
+                type Target = $type;
+
+                fn deref(&self) -> &Self::Target {
+                    &self.0
+                }
+            }
+
+            macros::query_parameters! { $($rest)* }
+        };
+        () => {};
+    }
+
+    macro_rules! struct_parameters {
+        ($($name:ident { $($field_name:ident: $field_type:ty),* } => $filter:path;)*) => {
+            $(
+                #[derive(Debug, FromForm)]
+                pub struct $name {
+                    $(
+                        pub $field_name: Option<$field_type>,
+                    )*
+                }
+
+                impl From<$name> for $filter {
+                    fn from(p: $name) -> Self {
+                        Self {
+                            $(
+                                $field_name: p.$field_name,
+                            )*
+                            ..Default::default()
+                        }
+                    }
+                }
+            )*
+        };
+    }
+
+    pub(super) use query_parameters;
+    pub(super) use struct_parameters;
 }
