@@ -18,6 +18,7 @@ mod prelude {
 }
 
 pub mod builders {
+    pub use super::constructors::ConstructorBuilder;
     pub use super::driver_standing::DriverStandingBuilder;
     pub use super::drivers::DriverBuilder;
 }

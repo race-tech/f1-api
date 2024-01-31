@@ -1,43 +1,26 @@
-use diesel::{
-    helper_types::{AsSelect, Eq, InnerJoin, InnerJoinOn, InnerJoinQuerySource, IntoBoxed, Select},
-    prelude::*,
-    sql_types::{Bool, Nullable},
-};
+use diesel::prelude::*;
 
 use shared::filters::ConstructorFilter;
+use shared::models::Pagination;
+use types::*;
 
 use crate::models::Constructor;
 use crate::prelude::*;
 
-type BoxedConditionSource = InnerJoinQuerySource<
-    InnerJoinQuerySource<
-        InnerJoinQuerySource<
-            InnerJoinQuerySource<results::table, drivers::table>,
-            constructors::table,
-        >,
-        races::table,
-    >,
-    circuits::table,
-    Eq<circuits::circuit_id, races::circuit_id>,
->;
-type BoxedCondition =
-    Box<dyn BoxableExpression<BoxedConditionSource, super::Backend, SqlType = Nullable<Bool>>>;
+pub struct ConstructorBuilder(ConstructorFilter);
 
-type BoxedQuerySource = InnerJoinOn<
-    InnerJoin<
-        InnerJoin<InnerJoin<results::table, drivers::table>, constructors::table>,
-        races::table,
-    >,
-    circuits::table,
-    Eq<circuits::circuit_id, races::circuit_id>,
->;
-type BoxedQuery = IntoBoxed<
-    'static,
-    Select<BoxedQuerySource, AsSelect<Constructor, super::Backend>>,
-    super::Backend,
->;
+impl ConstructorBuilder {
+    pub fn new(filter: ConstructorFilter) -> Self {
+        Self(filter)
+    }
 
-impl Constructor {
+    pub fn load(
+        self,
+        conn: &mut MysqlConnection,
+    ) -> Result<(Vec<Constructor>, Pagination), diesel::result::Error> {
+        Self::filter(self.0).load_and_count_pages(conn)
+    }
+
     fn boxed() -> BoxedQuery {
         results::table
             .inner_join(drivers::table)
@@ -50,7 +33,7 @@ impl Constructor {
             .into_boxed()
     }
 
-    pub fn filter(filter: ConstructorFilter) -> Paginated<BoxedQuery> {
+    fn filter(filter: ConstructorFilter) -> Paginated<BoxedQuery> {
         let limit = filter.limit.unwrap_or_default().0 as i64;
         let page = filter.page.unwrap_or_default().0 as i64;
 
@@ -101,4 +84,45 @@ impl Condition {
             Round(f) => number_filter!(f, races::round),
         })
     }
+}
+
+mod types {
+    use diesel::{
+        helper_types::{
+            AsSelect, Eq, InnerJoin, InnerJoinOn, InnerJoinQuerySource, IntoBoxed, Select,
+        },
+        prelude::*,
+        sql_types::{Bool, Nullable},
+    };
+
+    use crate::models::Constructor;
+    use crate::prelude::*;
+
+    pub type BoxedConditionSource = InnerJoinQuerySource<
+        InnerJoinQuerySource<
+            InnerJoinQuerySource<
+                InnerJoinQuerySource<results::table, drivers::table>,
+                constructors::table,
+            >,
+            races::table,
+        >,
+        circuits::table,
+        Eq<circuits::circuit_id, races::circuit_id>,
+    >;
+    pub type BoxedCondition =
+        Box<dyn BoxableExpression<BoxedConditionSource, crate::Backend, SqlType = Nullable<Bool>>>;
+
+    pub type BoxedQuerySource = InnerJoinOn<
+        InnerJoin<
+            InnerJoin<InnerJoin<results::table, drivers::table>, constructors::table>,
+            races::table,
+        >,
+        circuits::table,
+        Eq<circuits::circuit_id, races::circuit_id>,
+    >;
+    pub type BoxedQuery = IntoBoxed<
+        'static,
+        Select<BoxedQuerySource, AsSelect<Constructor, crate::Backend>>,
+        crate::Backend,
+    >;
 }

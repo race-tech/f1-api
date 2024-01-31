@@ -14,7 +14,7 @@ pub struct DriverFilter {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default)]
 pub struct ConstructorFilter {
     pub limit: Option<Limit>,
     pub page: Option<Page>,

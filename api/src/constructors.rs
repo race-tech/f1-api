@@ -8,35 +8,13 @@ use shared::prelude::*;
 
 use crate::error::Result;
 
-#[get(
-    "/<series>/constructors?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
-)]
+#[get("/<series>/constructors?<param..>")]
 pub fn constructors(
     db: &State<ConnectionPool>,
     series: Series,
-    limit: Option<Limit>,
-    page: Option<Page>,
-    driver_number: Option<DriverNumber>,
-    driver_ref: Option<DriverRef>,
-    constructor: Option<ConstructorName>,
-    circuit: Option<Circuit>,
-    grid: Option<Grid>,
-    result: Option<RaceResult>,
+    param: ConstructorParameter,
 ) -> Result<Json<ConstructorResponse>> {
-    let filter = ConstructorFilter {
-        limit,
-        page,
-        driver_ref,
-        driver_number,
-        constructor,
-        circuit,
-        grid,
-        result,
-        year: None,
-        round: None,
-    };
-
-    let (constructors, pagination) = constructors_inner_handler(db, series, filter)?;
+    let (constructors, pagination) = constructors_inner_handler(db, series, param.into())?;
 
     let response = ConstructorResponse {
         pagination,
@@ -47,34 +25,15 @@ pub fn constructors(
     Ok(Json(response))
 }
 
-#[get(
-    "/<series>/<year>/constructor?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
-)]
+#[get("/<series>/<year>/constructors?<param..>")]
 pub fn constructors_by_year(
     db: &State<ConnectionPool>,
     series: Series,
     year: Year,
-    limit: Option<Limit>,
-    page: Option<Page>,
-    driver_number: Option<DriverNumber>,
-    driver_ref: Option<DriverRef>,
-    constructor: Option<ConstructorName>,
-    circuit: Option<Circuit>,
-    grid: Option<Grid>,
-    result: Option<RaceResult>,
+    param: ConstructorParameter,
 ) -> Result<Json<ConstructorResponse>> {
-    let filter = ConstructorFilter {
-        limit,
-        page,
-        driver_ref,
-        driver_number,
-        constructor,
-        circuit,
-        grid,
-        result,
-        year: Some(year),
-        round: None,
-    };
+    let mut filter: ConstructorFilter = param.into();
+    filter.year = Some(year);
 
     let (constructors, pagination) = constructors_inner_handler(db, series, filter)?;
 
@@ -87,35 +46,17 @@ pub fn constructors_by_year(
     Ok(Json(response))
 }
 
-#[get(
-    "/<series>/<year>/<round>/constructors?<limit>&<page>&<driver_number>&<driver_ref>&<constructor>&<circuit>&<grid>&<result>",
-)]
+#[get("/<series>/<year>/<round>/constructors?<param..>")]
 pub fn constructors_by_year_and_round(
     db: &State<ConnectionPool>,
     series: Series,
     year: Year,
     round: Round,
-    limit: Option<Limit>,
-    page: Option<Page>,
-    driver_number: Option<DriverNumber>,
-    driver_ref: Option<DriverRef>,
-    constructor: Option<ConstructorName>,
-    circuit: Option<Circuit>,
-    grid: Option<Grid>,
-    result: Option<RaceResult>,
+    param: ConstructorParameter,
 ) -> Result<Json<ConstructorResponse>> {
-    let filter = ConstructorFilter {
-        limit,
-        page,
-        driver_ref,
-        driver_number,
-        constructor,
-        circuit,
-        grid,
-        result,
-        year: Some(year),
-        round: Some(round),
-    };
+    let mut filter: ConstructorFilter = param.into();
+    filter.year = Some(year);
+    filter.round = Some(round);
 
     let (constructors, pagination) = constructors_inner_handler(db, series, filter)?;
 
@@ -134,9 +75,8 @@ fn constructors_inner_handler(
     filter: ConstructorFilter,
 ) -> Result<(Vec<Constructor>, Pagination)> {
     let pool = &mut db.from_series(series).get()?;
-    let res = pool.transaction(|conn| {
-        application::models::Constructor::filter(filter).load_and_count_pages(conn)
-    });
+    let res =
+        pool.transaction(|conn| application::builders::ConstructorBuilder::new(filter).load(conn));
 
     Ok(res.map(|(constructors, pagination)| {
         (

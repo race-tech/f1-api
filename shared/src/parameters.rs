@@ -119,6 +119,18 @@ struct_parameters!(
         limit: Limit,
         page: Page
     } => crate::filters::DriverFilter;
+
+    ConstructorParameter {
+        driver_ref: DriverRef,
+        driver_number: DriverNumber,
+        constructor: ConstructorName,
+        circuit: Circuit,
+        grid: Grid,
+        result: RaceResult,
+        limit: Limit,
+        page: Page
+    } => crate::filters::ConstructorFilter;
+
     DriverStandingParameter {
         name: DriverRef,
         result: RaceResult,
