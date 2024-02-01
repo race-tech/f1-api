@@ -22,6 +22,7 @@ impl std::fmt::Display for Error {
 pub enum ErrorKind {
     DieselError(diesel::result::Error),
     R2D2Error(r2d2::Error),
+    BadRequest,
 }
 
 impl std::fmt::Display for ErrorKind {
@@ -29,6 +30,7 @@ impl std::fmt::Display for ErrorKind {
         match self {
             ErrorKind::DieselError(e) => e.fmt(f),
             ErrorKind::R2D2Error(e) => e.fmt(f),
+            ErrorKind::BadRequest => write!(f, "bad request"),
         }
     }
 }
@@ -41,6 +43,7 @@ impl Serialize for ErrorKind {
         match self {
             ErrorKind::DieselError(_) => s.serialize_unit_variant("ErrorKind", 0, "DieselError"),
             ErrorKind::R2D2Error(_) => s.serialize_unit_variant("ErrorKind", 1, "R2D2Error"),
+            ErrorKind::BadRequest => s.serialize_unit_variant("ErrorKind", 2, "BadRequest"),
         }
     }
 }
@@ -88,6 +91,7 @@ impl From<&ErrorKind> for rocket::http::Status {
         match kind {
             ErrorKind::DieselError(_) => Self::InternalServerError,
             ErrorKind::R2D2Error(_) => Self::InternalServerError,
+            ErrorKind::BadRequest => Self::BadRequest,
         }
     }
 }
@@ -134,3 +138,20 @@ impl<'r> Responder<'r, 'static> for Error {
         Ok(response)
     }
 }
+
+macro_rules! error {
+    ($kind:ident => $string:ident) => {
+        $crate::error::Error {
+            kind: $crate::error::ErrorKind::$kind,
+            message: Some($string.to_string()),
+        }
+    };
+    ($kind:ident => $($tt:tt)*) => {
+        $crate::error::Error {
+            kind: $crate::error::ErrorKind::$kind,
+            message: Some(format!($($tt)*)),
+        }
+    };
+}
+
+pub(crate) use error;

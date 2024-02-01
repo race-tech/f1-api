@@ -6,7 +6,7 @@ use application;
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
-use crate::error::Result;
+use crate::error::{error, Result};
 
 #[get("/<series>/drivers?<param..>")]
 pub fn drivers(
@@ -74,6 +74,10 @@ fn driver_inner_handler(
     series: Series,
     filter: DriverFilter,
 ) -> Result<(Vec<Driver>, Pagination)> {
+    if let Err(e) = filter.validate() {
+        return Err(error! { BadRequest => e });
+    }
+
     let pool = &mut db.from_series(series).get()?;
     let res = pool.transaction(|conn| application::builders::DriverBuilder::new(filter).load(conn));
 

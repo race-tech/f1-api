@@ -63,6 +63,7 @@ macros::query_parameters! {
     Circuit(String) => str;
     #[Copy] Grid(i32);
     #[Copy] RaceResult(i32);
+    #[Copy] ChampionshipResult(i32);
     #[Copy] Year(i32);
     #[Copy] Round(i32);
     #[Copy] DriverId(i32);
@@ -94,7 +95,7 @@ macros::struct_parameters!(
 
     DriverStandingParameter {
         name: DriverRef,
-        result: RaceResult,
+        result: ChampionshipResult,
         limit: Limit,
         page: Page
     } => crate::filters::DriverStandingFilter;

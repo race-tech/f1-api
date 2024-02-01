@@ -1,6 +1,4 @@
 use diesel::prelude::*;
-use diesel::r2d2::ConnectionManager;
-use r2d2::PooledConnection;
 use rocket::serde::json::Json;
 use rocket::{get, routes, State};
 
@@ -8,7 +6,7 @@ use application;
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
-use crate::error::Result;
+use crate::error::{error, Result};
 
 #[get("/<series>/standings/drivers?<param..>", rank = 1)]
 pub fn standing(
@@ -53,19 +51,21 @@ fn driver_standing_inner_handler(
     round: Option<Round>,
     param: DriverStandingParameter,
 ) -> Result<StandingsResponse> {
-    let f = |conn: &mut PooledConnection<ConnectionManager<MysqlConnection>>| {
-        let mut filter: DriverStandingFilter = param.into();
-        filter.year = year;
-        filter.round = round;
+    let mut filter: DriverStandingFilter = param.into();
+    filter.year = year;
+    filter.round = round;
 
+    if let Err(e) = filter.validate() {
+        return Err(error! { BadRequest => e });
+    }
+
+    let pool = &mut db.from_series(series).get()?;
+    let (drivers_standings, pagination) = pool.transaction(|conn| {
         let (vec, pagination) =
             application::builders::DriverStandingBuilder::new(filter).load(conn)?;
 
         Ok::<_, crate::error::Error>((vec, pagination))
-    };
-
-    let pool = &mut db.from_series(series).get()?;
-    let (drivers_standings, pagination) = pool.transaction(f)?;
+    })?;
     let (season, round) = if let Some(f) = drivers_standings.first() {
         (
             Some(f.race_round_and_year.year),

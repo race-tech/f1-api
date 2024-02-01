@@ -1,12 +1,14 @@
 [package]
-name = "shared"
+name = "derives"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket = { version = "0.5.0", features = ["json"] }
-chrono = { version = "0.4.31", features = ["serde"] }
+proc-macro2 = "1.0.78"
+quote = "1.0.35"
+syn = { version = "2.0.48", features = ["parsing"] }
 
-derives = { path = "../derives" }
+[lib]
+proc-macro = true

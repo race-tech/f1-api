@@ -3,6 +3,7 @@ members = [
     "application",
     "api",
     "infrastructure",
-    "shared"
+    "shared",
+    "derives"
 ]
 resolver = "2"
