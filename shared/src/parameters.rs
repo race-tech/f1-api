@@ -36,9 +36,12 @@ impl<'r> FromParam<'r> for Year {
     type Error = ();
 
     fn from_param(param: &str) -> Result<Self, Self::Error> {
-        match param.parse::<i32>() {
-            Ok(year) => Ok(Year(year)),
-            Err(_) => Err(()),
+        match param {
+            "current" => Ok(Year::get_current_year()),
+            _ => match param.parse::<i32>() {
+                Ok(year) => Ok(Year(year)),
+                Err(_) => Err(()),
+            },
         }
     }
 }
@@ -68,6 +71,15 @@ macros::query_parameters! {
     #[Copy] Round(i32);
     #[Copy] DriverId(i32);
     #[Copy] RaceId(i32);
+}
+
+impl Year {
+    pub fn get_current_year() -> Self {
+        use chrono::Datelike;
+
+        let now = chrono::Utc::now();
+        Self(now.year())
+    }
 }
 
 macros::struct_parameters!(

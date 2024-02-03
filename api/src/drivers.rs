@@ -12,7 +12,7 @@ pub fn drivers(
     series: Series,
     param: DriverParameter,
 ) -> Result<Json<DriversResponse>> {
-    let (drivers, pagination) = driver_inner_handler(db, series, param.into())?;
+    let (drivers, pagination) = driver_inner_handler(db, series, None, None, param)?;
 
     let response = DriversResponse {
         pagination,
@@ -30,10 +30,7 @@ pub fn drivers_by_year(
     year: Year,
     param: DriverParameter,
 ) -> Result<Json<DriversResponse>> {
-    let mut filter: DriverFilter = param.into();
-    filter.year = Some(year);
-
-    let (drivers, pagination) = driver_inner_handler(db, series, filter)?;
+    let (drivers, pagination) = driver_inner_handler(db, series, Some(year), None, param)?;
 
     let response = DriversResponse {
         pagination,
@@ -52,11 +49,7 @@ pub fn drivers_by_year_and_round(
     round: Round,
     param: DriverParameter,
 ) -> Result<Json<DriversResponse>> {
-    let mut filter: DriverFilter = param.into();
-    filter.year = Some(year);
-    filter.round = Some(round);
-
-    let (drivers, pagination) = driver_inner_handler(db, series, filter)?;
+    let (drivers, pagination) = driver_inner_handler(db, series, Some(year), Some(round), param)?;
 
     let response = DriversResponse {
         pagination,
@@ -70,8 +63,14 @@ pub fn drivers_by_year_and_round(
 fn driver_inner_handler(
     db: &State<ConnectionPool>,
     series: Series,
-    filter: DriverFilter,
+    year: Option<Year>,
+    round: Option<Round>,
+    filter: DriverParameter,
 ) -> Result<(Vec<Driver>, Pagination)> {
+    let mut filter: DriverFilter = filter.into();
+    filter.year = year;
+    filter.round = round;
+
     filter.validate()?;
 
     let pool = &mut db.from_series(series).get()?;
