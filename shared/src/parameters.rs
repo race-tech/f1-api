@@ -15,23 +15,6 @@ impl<'r> FromParam<'r> for Series {
     }
 }
 
-pub enum Standing {
-    Drivers,
-    Constructors,
-}
-
-impl<'r> FromParam<'r> for Standing {
-    type Error = ();
-
-    fn from_param(param: &str) -> Result<Self, Self::Error> {
-        match param {
-            "drivers" => Ok(Standing::Drivers),
-            "constructors" => Ok(Standing::Constructors),
-            _ => Err(()),
-        }
-    }
-}
-
 impl<'r> FromParam<'r> for Year {
     type Error = ();
 
@@ -63,6 +46,7 @@ macros::query_parameters! {
     DriverRef(String) => str;
     #[Copy] DriverNumber(i32);
     ConstructorName(String) => str;
+    Name(String) => str;
     Circuit(String) => str;
     #[Copy] Grid(i32);
     #[Copy] RaceResult(i32);
@@ -111,6 +95,13 @@ macros::struct_parameters!(
         limit: Limit,
         page: Page
     } => crate::filters::DriverStandingFilter;
+
+    ConstructorStandingParameter {
+        name: ConstructorName,
+        result: ChampionshipResult,
+        limit: Limit,
+        page: Page
+    } => crate::filters::ConstructorStandingFilter;
 );
 
 impl Default for Page {
@@ -171,27 +162,31 @@ mod macros {
     }
 
     macro_rules! struct_parameters {
-        ($($name:ident { $($field_name:ident: $field_type:ty),* } => $filter:path;)*) => {
-            $(
-                #[derive(Debug, FromForm)]
-                pub struct $name {
-                    $(
-                        pub $field_name: Option<$field_type>,
-                    )*
-                }
+        ($name:ident { $($field_name:ident: $field_type:ty),* } => $filter:path; $($rest:tt)*) => {
+            #[derive(Debug, FromForm)]
+            pub struct $name {
+                $(
+                    pub $field_name: Option<$field_type>,
+                )*
+            }
 
-                impl From<$name> for $filter {
-                    fn from(p: $name) -> Self {
-                        Self {
-                            $(
-                                $field_name: p.$field_name,
-                            )*
-                            ..Default::default()
-                        }
+            macros::struct_parameters!{ impl From < $filter > { $($field_name: $field_type),* } for $name }
+
+            macros::struct_parameters!{ $($rest)* }
+        };
+        (impl $trait:ident < $filter:path > { $($field_name:ident: $field_type:ty),* } for $name:ident) => {
+            impl From<$name> for $filter {
+                fn from(p: $name) -> Self {
+                    Self {
+                        $(
+                            $field_name: p.$field_name,
+                        )*
+                        ..Default::default()
                     }
                 }
-            )*
+            }
         };
+        () => {};
     }
 
     pub(super) use query_parameters;

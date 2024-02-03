@@ -59,3 +59,17 @@ pub struct DriverStandingFilter {
     #[validation(skip)]
     pub round: Option<Round>,
 }
+
+#[derive(Debug, Default, FilterValidation)]
+pub struct ConstructorStandingFilter {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub name: Option<ConstructorName>,
+    pub result: Option<ChampionshipResult>,
+    #[validation(skip)]
+    pub year: Option<Year>,
+    #[validation(skip)]
+    pub round: Option<Round>,
+}

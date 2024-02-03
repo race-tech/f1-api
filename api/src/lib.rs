@@ -2,10 +2,11 @@
 
 pub mod constructors;
 pub mod drivers;
+pub mod seasons;
 pub mod standings;
 
 pub mod handlers {
-    use crate::{constructors, drivers, standings};
+    use crate::*;
     use rocket::Route;
 
     pub fn handlers() -> Vec<Route> {
@@ -13,6 +14,7 @@ pub mod handlers {
             .into_iter()
             .chain(constructors::handlers())
             .chain(standings::handlers())
+            .chain(seasons::handlers())
             .collect()
     }
 }

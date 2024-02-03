@@ -7,7 +7,7 @@ use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/standings/drivers?<param..>", rank = 1)]
-pub fn standing(
+pub fn drivers_standing(
     db: &State<ConnectionPool>,
     series: Series,
     param: DriverStandingParameter,
@@ -18,7 +18,7 @@ pub fn standing(
 }
 
 #[get("/<series>/<year>/standings/drivers?<param..>", rank = 1)]
-pub fn standing_with_year(
+pub fn drivers_standing_with_year(
     db: &State<ConnectionPool>,
     series: Series,
     param: DriverStandingParameter,
@@ -30,14 +30,50 @@ pub fn standing_with_year(
 }
 
 #[get("/<series>/<year>/<round>/standings/drivers?<param..>", rank = 1)]
-pub fn standing_with_year_and_round(
+pub fn drivers_standing_with_year_and_round(
     db: &State<ConnectionPool>,
     series: Series,
-    param: DriverStandingParameter,
     year: Year,
     round: Round,
+    param: DriverStandingParameter,
 ) -> Result<Json<StandingsResponse>> {
     let response = driver_standing_inner_handler(db, series, Some(year), Some(round), param)?;
+
+    Ok(Json(response))
+}
+
+#[get("/<series>/standings/constructors?<param..>", rank = 1)]
+pub fn constructors_standing(
+    db: &State<ConnectionPool>,
+    series: Series,
+    param: ConstructorStandingParameter,
+) -> Result<Json<StandingsResponse>> {
+    let response = constructors_standing_inner_handler(db, series, None, None, param)?;
+
+    Ok(Json(response))
+}
+
+#[get("/<series>/<year>/standings/constructors?<param..>", rank = 1)]
+pub fn constructors_standing_with_year(
+    db: &State<ConnectionPool>,
+    series: Series,
+    param: ConstructorStandingParameter,
+    year: Year,
+) -> Result<Json<StandingsResponse>> {
+    let response = constructors_standing_inner_handler(db, series, Some(year), None, param)?;
+
+    Ok(Json(response))
+}
+
+#[get("/<series>/<year>/<round>/constructors/drivers?<param..>", rank = 1)]
+pub fn constructors_standing_with_year_and_round(
+    db: &State<ConnectionPool>,
+    series: Series,
+    year: Year,
+    round: Round,
+    param: ConstructorStandingParameter,
+) -> Result<Json<StandingsResponse>> {
+    let response = constructors_standing_inner_handler(db, series, Some(year), Some(round), param)?;
 
     Ok(Json(response))
 }
@@ -85,6 +121,23 @@ fn driver_standing_inner_handler(
     })
 }
 
+fn constructors_standing_inner_handler(
+    db: &State<ConnectionPool>,
+    series: Series,
+    year: Option<Year>,
+    round: Option<Round>,
+    param: ConstructorStandingParameter,
+) -> Result<StandingsResponse> {
+    todo!()
+}
+
 pub fn handlers() -> Vec<rocket::Route> {
-    routes![standing, standing_with_year, standing_with_year_and_round]
+    routes![
+        drivers_standing,
+        drivers_standing_with_year,
+        drivers_standing_with_year_and_round,
+        constructors_standing,
+        constructors_standing_with_year,
+        constructors_standing_with_year_and_round
+    ]
 }
