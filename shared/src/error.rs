@@ -22,7 +22,7 @@ impl std::fmt::Display for Error {
 pub enum ErrorKind {
     DieselError(diesel::result::Error),
     R2D2Error(r2d2::Error),
-    BadRequest,
+    InvalidParameter,
 }
 
 impl std::fmt::Display for ErrorKind {
@@ -30,7 +30,7 @@ impl std::fmt::Display for ErrorKind {
         match self {
             ErrorKind::DieselError(e) => e.fmt(f),
             ErrorKind::R2D2Error(e) => e.fmt(f),
-            ErrorKind::BadRequest => write!(f, "bad request"),
+            ErrorKind::InvalidParameter => write!(f, "invalid parameter"),
         }
     }
 }
@@ -43,45 +43,18 @@ impl Serialize for ErrorKind {
         match self {
             ErrorKind::DieselError(_) => s.serialize_unit_variant("ErrorKind", 0, "DieselError"),
             ErrorKind::R2D2Error(_) => s.serialize_unit_variant("ErrorKind", 1, "R2D2Error"),
-            ErrorKind::BadRequest => s.serialize_unit_variant("ErrorKind", 2, "BadRequest"),
+            ErrorKind::InvalidParameter => {
+                s.serialize_unit_variant("ErrorKind", 2, "InvalidParameter")
+            }
         }
     }
 }
 
 impl std::error::Error for Error {}
 
-macro_rules! error_from {
-    ($($from:path),*) => {
-        $(
-            impl From<$from> for Error {
-                fn from(e: $from) -> Self {
-                    let kind = e.into();
+macros::error_from!(diesel::result::Error, r2d2::Error);
 
-                    Self {
-                        kind,
-                        message: None,
-                    }
-                }
-            }
-        )*
-    };
-}
-
-macro_rules! error_kind_from {
-    ($($kind:ident => $from:path),*) => {
-        $(
-            impl From<$from> for ErrorKind {
-                fn from(e: $from) -> Self {
-                    Self::$kind(e)
-                }
-            }
-        )*
-    };
-}
-
-error_from!(diesel::result::Error, r2d2::Error);
-
-error_kind_from!(
+macros::error_kind_from!(
     DieselError => diesel::result::Error,
     R2D2Error => r2d2::Error
 );
@@ -91,7 +64,7 @@ impl From<&ErrorKind> for rocket::http::Status {
         match kind {
             ErrorKind::DieselError(_) => Self::InternalServerError,
             ErrorKind::R2D2Error(_) => Self::InternalServerError,
-            ErrorKind::BadRequest => Self::BadRequest,
+            ErrorKind::InvalidParameter => Self::BadRequest,
         }
     }
 }
@@ -139,19 +112,52 @@ impl<'r> Responder<'r, 'static> for Error {
     }
 }
 
-macro_rules! error {
-    ($kind:ident => $string:ident) => {
-        $crate::error::Error {
-            kind: $crate::error::ErrorKind::$kind,
-            message: Some($string.to_string()),
-        }
-    };
-    ($kind:ident => $($tt:tt)*) => {
-        $crate::error::Error {
-            kind: $crate::error::ErrorKind::$kind,
-            message: Some(format!($($tt)*)),
-        }
-    };
-}
+mod macros {
+    macro_rules! error_from {
+        ($($from:path),*) => {
+            $(
+                impl From<$from> for Error {
+                    fn from(e: $from) -> Self {
+                        let kind = e.into();
 
-pub(crate) use error;
+                        Self {
+                            kind,
+                            message: None,
+                        }
+                    }
+                }
+            )*
+        };
+    }
+
+    macro_rules! error_kind_from {
+        ($($kind:ident => $from:path),*) => {
+            $(
+                impl From<$from> for ErrorKind {
+                    fn from(e: $from) -> Self {
+                        Self::$kind(e)
+                    }
+                }
+            )*
+        };
+    }
+
+    #[macro_export]
+    macro_rules! error {
+        ($kind:ident => $string:ident) => {
+            $crate::error::Error {
+                kind: $crate::error::ErrorKind::$kind,
+                message: Some($string.to_string()),
+            }
+        };
+        ($kind:ident => $($tt:tt)*) => {
+            $crate::error::Error {
+                kind: $crate::error::ErrorKind::$kind,
+                message: Some(format!($($tt)*)),
+            }
+        };
+    }
+
+    pub(super) use error_from;
+    pub(super) use error_kind_from;
+}

@@ -3,7 +3,7 @@ use derives::FilterValidation;
 use crate::parameters::*;
 
 pub trait FilterValidation {
-    fn validate(&self) -> Result<(), String>;
+    fn validate(&self) -> Result<(), crate::error::Error>;
 }
 
 #[derive(Debug, Default, FilterValidation)]

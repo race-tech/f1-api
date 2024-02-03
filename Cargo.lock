@@ -1244,7 +1244,11 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "derives",
+ "diesel",
+ "r2d2",
  "rocket",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

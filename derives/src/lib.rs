@@ -16,7 +16,7 @@ mod filter_validation;
 /// - `#[validation(compatible(...))]` - Check that this field is compatible with other fields in the filter
 ///
 /// # Example
-/// ```rust
+/// ```ignore
 /// #[derive(FilterValidation)]
 /// pub struct DriverFilter {
 ///     #[validation(skip)]

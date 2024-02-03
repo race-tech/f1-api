@@ -6,8 +6,6 @@ use application;
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
-use crate::error::{error, Result};
-
 #[get("/<series>/constructors?<param..>")]
 pub fn constructors(
     db: &State<ConnectionPool>,
@@ -74,9 +72,7 @@ fn constructors_inner_handler(
     series: Series,
     filter: ConstructorFilter,
 ) -> Result<(Vec<Constructor>, Pagination)> {
-    if let Err(e) = filter.validate() {
-        return Err(error! { BadRequest => e });
-    }
+    filter.validate()?;
 
     let pool = &mut db.from_series(series).get()?;
     let res =

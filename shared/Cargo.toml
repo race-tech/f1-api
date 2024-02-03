@@ -8,5 +8,9 @@ edition = "2021"
 [dependencies]
 rocket = { version = "0.5.0", features = ["json"] }
 chrono = { version = "0.4.31", features = ["serde"] }
+diesel = { version = "2.1.0", features = ["mysql", "chrono"] }
+serde_json = "1.0.64"
+r2d2 = "0.8.10"
+serde = "1.0.195"
 
 derives = { path = "../derives" }

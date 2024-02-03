@@ -11,7 +11,7 @@ pub fn expand(ast: DeriveInput) -> TokenStream {
 
     let expanded = quote! {
         impl FilterValidation for #name {
-            fn validate(&self) -> Result<(), String> {
+            fn validate(&self) -> Result<(), crate::error::Error> {
                 #expanded_unique
                 #expanded_compatible
 
@@ -27,6 +27,12 @@ fn expand_unique_fields(fields: &FieldCollection) -> TokenStream {
     fields.unique.iter().fold(quote! {}, |acc, f| {
         let incompatible = fields.unskiped.iter().filter(|o| o != &f);
         let error_msg = format!("field {} should be unique", f);
+        let error = quote! {
+            crate::error::Error {
+                kind: crate::error::ErrorKind::InvalidParameter,
+                message: Some(#error_msg.to_string()),
+            }
+        };
 
         quote! {
             #acc
@@ -34,7 +40,7 @@ fn expand_unique_fields(fields: &FieldCollection) -> TokenStream {
             if self.#f.is_some() {
                 #(
                     if self.#incompatible.is_some() {
-                        return Err(#error_msg.to_string());
+                        return Err(#error);
                     }
                 )*
             }
@@ -61,6 +67,12 @@ fn expand_compatible_fields(fields: &FieldCollection) -> TokenStream {
                     .collect::<Vec<_>>()
                     .join(", ")
             );
+            let error = quote! {
+                crate::error::Error {
+                    kind: crate::error::ErrorKind::InvalidParameter,
+                    message: Some(#error_msg.to_string()),
+                }
+            };
 
             quote! {
                 #acc
@@ -68,7 +80,7 @@ fn expand_compatible_fields(fields: &FieldCollection) -> TokenStream {
                 if self.#f.is_some() {
                     #(
                         if self.#incompatible.is_some() {
-                            return Err(#error_msg.to_string());
+                            return Err(#error);
                         }
                     )*
                 }

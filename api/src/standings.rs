@@ -6,8 +6,6 @@ use application;
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
-use crate::error::{error, Result};
-
 #[get("/<series>/standings/drivers?<param..>", rank = 1)]
 pub fn standing(
     db: &State<ConnectionPool>,
@@ -55,16 +53,14 @@ fn driver_standing_inner_handler(
     filter.year = year;
     filter.round = round;
 
-    if let Err(e) = filter.validate() {
-        return Err(error! { BadRequest => e });
-    }
+    filter.validate()?;
 
     let pool = &mut db.from_series(series).get()?;
     let (drivers_standings, pagination) = pool.transaction(|conn| {
         let (vec, pagination) =
             application::builders::DriverStandingBuilder::new(filter).load(conn)?;
 
-        Ok::<_, crate::error::Error>((vec, pagination))
+        Ok::<_, Error>((vec, pagination))
     })?;
     let (season, round) = if let Some(f) = drivers_standings.first() {
         (

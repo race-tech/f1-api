@@ -2,7 +2,6 @@
 
 pub mod constructors;
 pub mod drivers;
-mod error;
 pub mod standings;
 
 pub mod handlers {
