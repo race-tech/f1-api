@@ -37,8 +37,13 @@ impl DriverStandingBuilder {
                 .paginate(page)
                 .per_page(limit)
                 .load_and_count_pages(conn)
+        } else if let Some(result) = self.0.result {
+            Self::by_result(result.0)
+                .paginate(page)
+                .per_page(limit)
+                .load_and_count_pages(conn)
         } else {
-            Self::by_result(self.0.result.unwrap().0)
+            Self::all()
                 .paginate(page)
                 .per_page(limit)
                 .load_and_count_pages(conn)
@@ -62,6 +67,10 @@ impl DriverStandingBuilder {
             .inner_join(races::table)
             .inner_join(drivers::table.on(driverStandings::driver_id.eq(drivers::driver_id)))
             .select(DriverStanding::as_select())
+    }
+
+    fn all() -> By<All<DSLeftJoin>, R1IdIsNull> {
+        Self::all_left_join().filter(r1.field(races::race_id).is_null())
     }
 
     fn by_race_id(race_id: i32) -> By<All<DSDefaultJoin>, RaceId> {

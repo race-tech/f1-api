@@ -343,6 +343,8 @@ joinable!(results -> races (race_id));
 joinable!(races -> circuits (circuit_id));
 joinable!(driverStandings -> drivers (driver_id));
 joinable!(driverStandings -> races (race_id));
+joinable!(constructorStandings -> constructors (constructor_id));
+joinable!(constructorStandings -> races (race_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     circuits,

@@ -45,7 +45,7 @@ macros::query_parameters! {
     #[Copy] Limit(i32);
     DriverRef(String) => str;
     #[Copy] DriverNumber(i32);
-    ConstructorName(String) => str;
+    ConstructorRef(String) => str;
     Name(String) => str;
     Circuit(String) => str;
     #[Copy] Grid(i32);
@@ -70,7 +70,7 @@ macros::struct_parameters!(
     DriverParameter {
         driver_ref: DriverRef,
         driver_number: DriverNumber,
-        constructor: ConstructorName,
+        constructor: ConstructorRef,
         circuit: Circuit,
         grid: Grid,
         result: RaceResult,
@@ -81,7 +81,7 @@ macros::struct_parameters!(
     ConstructorParameter {
         driver_ref: DriverRef,
         driver_number: DriverNumber,
-        constructor: ConstructorName,
+        constructor: ConstructorRef,
         circuit: Circuit,
         grid: Grid,
         result: RaceResult,
@@ -97,7 +97,7 @@ macros::struct_parameters!(
     } => crate::filters::DriverStandingFilter;
 
     ConstructorStandingParameter {
-        name: ConstructorName,
+        name: ConstructorRef,
         result: ChampionshipResult,
         limit: Limit,
         page: Page

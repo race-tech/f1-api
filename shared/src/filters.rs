@@ -16,7 +16,7 @@ pub struct DriverFilter {
     pub driver_number: Option<DriverNumber>,
     #[validation(unique)]
     pub driver_ref: Option<DriverRef>,
-    pub constructor: Option<ConstructorName>,
+    pub constructor: Option<ConstructorRef>,
     pub circuit: Option<Circuit>,
     pub grid: Option<Grid>,
     pub result: Option<RaceResult>,
@@ -36,7 +36,7 @@ pub struct ConstructorFilter {
     pub driver_number: Option<DriverNumber>,
     #[validation(unique)]
     pub driver_ref: Option<DriverRef>,
-    pub constructor: Option<ConstructorName>,
+    pub constructor: Option<ConstructorRef>,
     pub circuit: Option<Circuit>,
     pub grid: Option<Grid>,
     pub result: Option<RaceResult>,
@@ -66,7 +66,7 @@ pub struct ConstructorStandingFilter {
     pub limit: Option<Limit>,
     #[validation(skip)]
     pub page: Option<Page>,
-    pub name: Option<ConstructorName>,
+    pub name: Option<ConstructorRef>,
     pub result: Option<ChampionshipResult>,
     #[validation(skip)]
     pub year: Option<Year>,

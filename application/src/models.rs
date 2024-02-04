@@ -84,6 +84,21 @@ pub struct DriverStanding {
     pub race_round_and_year: RaceRoundAndYear,
 }
 
+#[derive(Identifiable, Queryable, Selectable, Debug)]
+#[diesel(primary_key(constructor_standing_id))]
+#[diesel(table_name = constructorStandings, check_for_backend(super::Backend))]
+pub struct ConstructorStanding {
+    pub constructor_standing_id: i32,
+    pub points: f32,
+    pub position: Option<i32>,
+    pub position_text: Option<String>,
+    pub wins: i32,
+    #[diesel(embed)]
+    pub constructor: Constructor,
+    #[diesel(embed)]
+    pub race_round_and_year: RaceRoundAndYear,
+}
+
 impl From<Constructor> for shared::models::Constructor {
     fn from(constructor: Constructor) -> shared::models::Constructor {
         shared::models::Constructor {
@@ -127,6 +142,20 @@ impl From<DriverStanding> for shared::models::DriverStanding {
             wins: value.wins,
             position: value.position,
             position_text: value.position_text,
+        }
+    }
+}
+
+impl From<ConstructorStanding> for shared::models::ConstructorStanding {
+    fn from(value: ConstructorStanding) -> shared::models::ConstructorStanding {
+        shared::models::ConstructorStanding {
+            constructor: value.constructor.into(),
+            points: value.points,
+            wins: value.wins,
+            position: value.position,
+            position_text: value.position_text,
+            season: value.race_round_and_year.year,
+            round: value.race_round_and_year.round,
         }
     }
 }

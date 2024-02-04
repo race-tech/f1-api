@@ -1,36 +1,160 @@
-use diesel::dsl::{AsSelect, Filter, Select};
-use diesel::prelude::*;
-use diesel::{Identifiable, Queryable, Selectable};
+use diesel::{alias, prelude::*};
+use shared::models::Pagination;
 
-use super::schema::constructorStandings;
+use crate::models::ConstructorStanding;
+use crate::prelude::*;
+use types::*;
 
-#[derive(Queryable, Selectable, Identifiable, Debug, serde::Serialize)]
-#[diesel(primary_key(constructor_standing_id))]
-#[diesel(table_name = constructorStandings, check_for_backend(super::Backend))]
-pub struct ConstructorStanding {
-    pub constructor_standing_id: i32,
-    pub race_id: i32,
-    pub constructor_id: i32,
-    pub points: f32,
-    pub position: Option<i32>,
-    pub position_text: Option<String>,
-    pub wins: i32,
+alias!(races as r1: RaceAlias);
+
+pub struct ConstructorStandingBuilder(shared::filters::ConstructorStandingFilter);
+
+impl ConstructorStandingBuilder {
+    pub fn new(filter: shared::filters::ConstructorStandingFilter) -> Self {
+        Self(filter)
+    }
+
+    pub fn load(
+        self,
+        conn: &mut MysqlConnection,
+    ) -> Result<(Vec<ConstructorStanding>, Pagination), diesel::result::Error> {
+        let page = self.0.page.unwrap_or_default().0 as _;
+        let limit = self.0.limit.unwrap_or_default().0 as _;
+
+        if let Some(year) = self.0.year {
+            let race = if let Some(round) = self.0.round {
+                models::Race::by_year_and_round(year, round).first(conn)?
+            } else {
+                models::Race::last_race_of_year(year).first(conn)?
+            };
+
+            Self::by_race_id(race.race_id)
+                .paginate(page)
+                .per_page(limit)
+                .load_and_count_pages(conn)
+        } else if let Some(constructor_ref) = self.0.name {
+            Self::by_constructor_ref(constructor_ref.0)
+                .paginate(page)
+                .per_page(limit)
+                .load_and_count_pages(conn)
+        } else if let Some(result) = self.0.result {
+            Self::by_result(result.0)
+                .paginate(page)
+                .per_page(limit)
+                .load_and_count_pages(conn)
+        } else {
+            Self::all()
+                .paginate(page)
+                .per_page(limit)
+                .load_and_count_pages(conn)
+        }
+    }
+
+    fn all_left_join() -> All<CSLeftJoin> {
+        races::table
+            .left_join(
+                r1.on(races::year
+                    .eq(r1.field(races::year))
+                    .and(races::round.lt(r1.field(races::round)))),
+            )
+            .inner_join(constructorStandings::table)
+            .inner_join(
+                constructors::table
+                    .on(constructors::constructor_id.eq(constructorStandings::constructor_id)),
+            )
+            .select(ConstructorStanding::as_select())
+    }
+
+    fn default_join() -> All<CSDefaultJoin> {
+        constructorStandings::table
+            .inner_join(races::table)
+            .inner_join(
+                constructors::table
+                    .on(constructorStandings::constructor_id.eq(constructors::constructor_id)),
+            )
+            .select(ConstructorStanding::as_select())
+    }
+
+    fn all() -> By<All<CSLeftJoin>, R1IdIsNull> {
+        Self::all_left_join().filter(r1.field(races::race_id).is_null())
+    }
+
+    fn by_race_id(race_id: i32) -> By<All<CSDefaultJoin>, RaceId> {
+        Self::default_join().filter(races::race_id.eq(race_id))
+    }
+
+    fn by_constructor_ref(constructor_ref: String) -> By<All<CSLeftJoin>, ConstructorRef> {
+        Self::all_left_join().filter(
+            constructors::constructor_ref
+                .eq(constructor_ref)
+                .and(r1.field(races::race_id).is_null()),
+        )
+    }
+
+    fn by_result(result: i32) -> By<All<CSLeftJoin>, CSResult> {
+        Self::all_left_join().filter(
+            constructorStandings::position
+                .eq(result)
+                .and(r1.field(races::race_id).is_null()),
+        )
+    }
 }
 
-type All = Select<constructorStandings::table, AsSelect<ConstructorStanding, super::Backend>>;
-type ByRaceId = Filter<All, diesel::dsl::Eq<constructorStandings::race_id, i32>>;
-type ByConstructorId = Filter<All, diesel::dsl::Eq<constructorStandings::constructor_id, i32>>;
+mod types {
+    use diesel::{
+        helper_types::{And, AsSelect, Eq, Filter, InnerJoin, InnerJoinOn, LeftJoinOn, Lt, Select},
+        query_source::{Alias, AliasedField},
+    };
 
-impl ConstructorStanding {
-    pub fn all() -> All {
-        constructorStandings::table.select(ConstructorStanding::as_select())
+    use super::RaceAlias;
+    use crate::schema::*;
+
+    pub type All<T> = Select<T, AsSelect<super::ConstructorStanding, crate::Backend>>;
+    pub type By<S, F> = Filter<S, F>;
+    pub type CSLeftJoin = InnerJoinOn<
+        InnerJoin<
+            LeftJoinOn<
+                races::table,
+                Alias<RaceAlias>,
+                And<
+                    Eq<races::year, AliasedField<RaceAlias, races::year>>,
+                    Lt<races::round, AliasedField<RaceAlias, races::round>>,
+                >,
+            >,
+            constructorStandings::table,
+        >,
+        constructors::table,
+        Eq<constructors::constructor_id, constructorStandings::constructor_id>,
+    >;
+    pub type CSDefaultJoin = InnerJoinOn<
+        InnerJoin<constructorStandings::table, races::table>,
+        constructors::table,
+        Eq<constructorStandings::constructor_id, constructors::constructor_id>,
+    >;
+
+    macro_rules! operators {
+        ($name:ident => $op:ident { $column:path, $type:ty }; $($rest:tt)*) => {
+            pub type $name = diesel::helper_types::$op < $column, $type >;
+            operators! { $($rest)* }
+        };
+        ($name:ident => $op:ident { $type:ty }; $($rest:tt)*) => {
+            pub type $name = diesel::helper_types::$op < $type >;
+            operators! { $($rest)* }
+        };
+        ($name:ident => alias @ { $alias:ident, $column:path }; $($rest:tt)*) => {
+            pub type $name = diesel::query_source::AliasedField < $alias, $column >;
+            operators! { $($rest)* }
+        };
+        () => {}
     }
 
-    pub fn by_race_id(race_id: i32) -> ByRaceId {
-        Self::all().filter(constructorStandings::race_id.eq(race_id))
-    }
-
-    pub fn by_constructor_id(constructor_id: i32) -> ByConstructorId {
-        Self::all().filter(constructorStandings::constructor_id.eq(constructor_id))
+    operators! {
+        _R1IdIsNull => alias @ { RaceAlias, races::race_id };
+        R1IdIsNull => IsNull { _R1IdIsNull };
+        RaceId => Eq { races::race_id, i32 };
+        _ConstructorRef => Eq { constructors::constructor_ref, String };
+        _CSResult => Eq { constructorStandings::position, i32 };
+        ConstructorRef => And { _ConstructorRef, R1IdIsNull };
+        CSResult => And { _CSResult, R1IdIsNull };
     }
 }

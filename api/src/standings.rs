@@ -128,7 +128,40 @@ fn constructors_standing_inner_handler(
     round: Option<Round>,
     param: ConstructorStandingParameter,
 ) -> Result<StandingsResponse> {
-    todo!()
+    let mut filter: ConstructorStandingFilter = param.into();
+    filter.year = year;
+    filter.round = round;
+
+    filter.validate()?;
+
+    let pool = &mut db.from_series(series).get()?;
+    let (constructors_standings, pagination) = pool.transaction(|conn| {
+        let (vec, pagination) =
+            application::builders::ConstructorStandingBuilder::new(filter).load(conn)?;
+
+        Ok::<_, Error>((vec, pagination))
+    })?;
+    let (season, round) = if let Some(f) = constructors_standings.first() {
+        (
+            Some(f.race_round_and_year.year),
+            Some(f.race_round_and_year.round),
+        )
+    } else {
+        (None, None)
+    };
+    let constructors_standings = constructors_standings
+        .into_iter()
+        .map(|s| s.into())
+        .collect::<Vec<_>>();
+
+    Ok(StandingsResponse {
+        season,
+        round,
+        drivers_standings: Vec::new(),
+        constructors_standings,
+        pagination,
+        series,
+    })
 }
 
 pub fn handlers() -> Vec<rocket::Route> {

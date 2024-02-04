@@ -78,4 +78,6 @@ pub struct ConstructorStanding {
     pub position: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub position_text: Option<String>,
+    pub season: i32,
+    pub round: i32,
 }
