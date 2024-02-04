@@ -32,7 +32,7 @@ impl DriverStandingBuilder {
                 .paginate(page)
                 .per_page(limit)
                 .load_and_count_pages(conn)
-        } else if let Some(driver_ref) = self.0.name {
+        } else if let Some(driver_ref) = self.0.driver_ref {
             Self::by_driver_ref(driver_ref.0)
                 .paginate(page)
                 .per_page(limit)

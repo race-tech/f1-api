@@ -1,3 +1,5 @@
+#![allow(clippy::needless_update)]
+
 use rocket::form::FromForm;
 use rocket::request::FromParam;
 
@@ -70,8 +72,8 @@ macros::struct_parameters!(
     DriverParameter {
         driver_ref: DriverRef,
         driver_number: DriverNumber,
-        constructor: ConstructorRef,
-        circuit: Circuit,
+        constructor_ref: ConstructorRef,
+        circuit_ref: Circuit,
         grid: Grid,
         result: RaceResult,
         limit: Limit,
@@ -81,8 +83,8 @@ macros::struct_parameters!(
     ConstructorParameter {
         driver_ref: DriverRef,
         driver_number: DriverNumber,
-        constructor: ConstructorRef,
-        circuit: Circuit,
+        constructor_ref: ConstructorRef,
+        circuit_ref: Circuit,
         grid: Grid,
         result: RaceResult,
         limit: Limit,
@@ -90,18 +92,26 @@ macros::struct_parameters!(
     } => crate::filters::ConstructorFilter;
 
     DriverStandingParameter {
-        name: DriverRef,
+        driver_ref: DriverRef,
         result: ChampionshipResult,
         limit: Limit,
         page: Page
     } => crate::filters::DriverStandingFilter;
 
     ConstructorStandingParameter {
-        name: ConstructorRef,
+        constructor_ref: ConstructorRef,
         result: ChampionshipResult,
         limit: Limit,
         page: Page
     } => crate::filters::ConstructorStandingFilter;
+
+    SeasonParameter {
+        limit: Limit,
+        page: Page,
+        driver_ref: DriverRef,
+        constructor_ref: ConstructorRef,
+        circuit_ref: Circuit
+    } => crate::filters::SeasonFilter;
 );
 
 impl Default for Page {
