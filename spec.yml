@@ -51,8 +51,8 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/SeasonsDriverRef'
         - $ref: '#/components/parameters/SeasonsDriverNumber'
-        - $ref: '#/components/parameters/Constructor'
-        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/CircuitRef'
         - $ref: '#/components/parameters/SeasonsGrid'
         - $ref: '#/components/parameters/SeasonsResult'
       responses:
@@ -71,8 +71,8 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverRef'
         - $ref: '#/components/parameters/DriverNumber'
-        - $ref: '#/components/parameters/Constructor'
-        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/CircuitRef'
         - $ref: '#/components/parameters/Grid'
         - $ref: '#/components/parameters/Result'
       responses: 
@@ -91,8 +91,8 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverRef'
         - $ref: '#/components/parameters/DriverNumber'
-        - $ref: '#/components/parameters/Constructor'
-        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/CircuitRef'
         - $ref: '#/components/parameters/Grid'
         - $ref: '#/components/parameters/Result'
       responses: 
@@ -112,8 +112,8 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverRef'
         - $ref: '#/components/parameters/DriverNumber'
-        - $ref: '#/components/parameters/Constructor'
-        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/CircuitRef'
         - $ref: '#/components/parameters/Grid'
         - $ref: '#/components/parameters/Result'
       responses: 
@@ -132,8 +132,8 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverRef'
         - $ref: '#/components/parameters/DriverNumber'
-        - $ref: '#/components/parameters/Constructor'
-        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/CircuitRef'
         - $ref: '#/components/parameters/Grid'
         - $ref: '#/components/parameters/Result'
       responses: 
@@ -153,8 +153,8 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverRef'
         - $ref: '#/components/parameters/DriverNumber'
-        - $ref: '#/components/parameters/Constructor'
-        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/CircuitRef'
         - $ref: '#/components/parameters/Grid'
         - $ref: '#/components/parameters/Result'
       responses: 
@@ -174,8 +174,8 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/DriverRef'
-        - $ref: '#/components/parameters/Constructor'
-        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/CircuitRef'
         - $ref: '#/components/parameters/Grid'
         - $ref: '#/components/parameters/Result'
       responses: 
@@ -194,8 +194,8 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/DriverRef'
-        - $ref: '#/components/parameters/Constructor'
-        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/CircuitRef'
         - $ref: '#/components/parameters/Grid'
         - $ref: '#/components/parameters/Result'
       responses: 
@@ -215,8 +215,8 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/DriverRef'
-        - $ref: '#/components/parameters/Constructor'
-        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/CircuitRef'
         - $ref: '#/components/parameters/Grid'
         - $ref: '#/components/parameters/Result'
       responses: 
@@ -235,8 +235,8 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/DriverRef'
-        - $ref: '#/components/parameters/Constructor'
-        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/CircuitRef'
         - $ref: '#/components/parameters/Grid'
         - $ref: '#/components/parameters/Result'
       responses: 
@@ -256,25 +256,14 @@ paths:
         - $ref: '#/components/parameters/NbPerPage'
         - $ref: '#/components/parameters/DriverNumber'
         - $ref: '#/components/parameters/DriverRef'
-        - $ref: '#/components/parameters/Constructor'
-        - $ref: '#/components/parameters/Circuit'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/CircuitRef'
         - $ref: '#/components/parameters/Grid'
         - $ref: '#/components/parameters/Result'
       responses: 
         '200':
           $ref: '#/components/responses/DriversResponse'
 
-  /api/{series}/{year}/standings:
-    get:
-      tags:
-        - standings
-      description: Retrieve the constructors and drivers standings of a specific season.
-      parameters: 
-        - $ref: '#/components/parameters/Series'
-        - $ref: '#/components/parameters/Year'
-      responses: 
-        '200':
-          $ref: '#/components/responses/StandingsResponse'
   /api/{series}/{year}/standings/constructors:
     get:
       tags:
@@ -283,6 +272,8 @@ paths:
       parameters: 
         - $ref: '#/components/parameters/Series'
         - $ref: '#/components/parameters/Year'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/Result'
       responses: 
         '200':
           $ref: '#/components/responses/ConstructorsStandingsResponse'
@@ -294,6 +285,8 @@ paths:
       parameters: 
         - $ref: '#/components/parameters/Series'
         - $ref: '#/components/parameters/Year'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/Result'
       responses: 
         '200':
           $ref: '#/components/responses/DriversStandingsResponse'
@@ -306,6 +299,8 @@ paths:
         - $ref: '#/components/parameters/Series'
         - $ref: '#/components/parameters/Year'
         - $ref: '#/components/parameters/Round'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/Result'
       responses: 
         '200':
           $ref: '#/components/responses/ConstructorsStandingsResponse'
@@ -318,20 +313,11 @@ paths:
         - $ref: '#/components/parameters/Series'
         - $ref: '#/components/parameters/Year'
         - $ref: '#/components/parameters/Round'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/Result'
       responses: 
         '200':
           $ref: '#/components/responses/DriversStandingsResponse'
-  /api/{series}/current/standings:
-    get:
-      tags:
-        - standings
-        - current
-      description: Retrieve the constructors and drivers standings of the current season.
-      parameters: 
-        - $ref: '#/components/parameters/Series'
-      responses: 
-        '200':
-          $ref: '#/components/responses/StandingsResponse'
   /api/{series}/current/standings/constructors:
     get:
       tags:
@@ -340,6 +326,8 @@ paths:
       description: Retrieve the constructors standings of the current season.
       parameters: 
         - $ref: '#/components/parameters/Series'
+        - $ref: '#/components/parameters/ConstructorRef'
+        - $ref: '#/components/parameters/Result'
       responses: 
         '200':
           $ref: '#/components/responses/ConstructorsStandingsResponse'
@@ -351,6 +339,8 @@ paths:
       description: Retrieve the drivers standings of the current season.
       parameters: 
         - $ref: '#/components/parameters/Series'
+        - $ref: '#/components/parameters/DriverRef'
+        - $ref: '#/components/parameters/Result'
       responses: 
         '200':
           $ref: '#/components/responses/DriversStandingsResponse'
@@ -400,20 +390,20 @@ components:
         - alonso
         - hamilton
       required: false
-    Constructor:
+    ConstructorRef:
       name: constructor
       in: query
-      description: A constructor name. It will retrieve all drivers who has run for this constructor or the specific constructor.
+      description: A constructor ref. It will retrieve all drivers who has run for this constructor or the specific constructor.
       schema:
         type: string
         examples:
           - renault
           - redbull
       required: false
-    Circuit:
+    CircuitRef:
       name: circuit
       in: query
-      description: A circuit name. It will retrieve all drivers or constructors who has run on this specific circuit.
+      description: A circuit ref. It will retrieve all drivers or constructors who has run on this specific circuit.
       schema:
         type: string
         examples:
