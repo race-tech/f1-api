@@ -341,6 +341,7 @@ joinable!(results -> drivers (driver_id));
 joinable!(results -> constructors (constructor_id));
 joinable!(results -> races (race_id));
 joinable!(races -> circuits (circuit_id));
+joinable!(races -> seasons (year));
 joinable!(driverStandings -> drivers (driver_id));
 joinable!(driverStandings -> races (race_id));
 joinable!(constructorStandings -> constructors (constructor_id));

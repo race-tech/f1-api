@@ -83,4 +83,5 @@ pub struct SeasonFilter {
     pub circuit_ref: Option<Circuit>,
     pub constructor_ref: Option<ConstructorRef>,
     pub driver_ref: Option<DriverRef>,
+    pub grid: Option<Grid>,
 }

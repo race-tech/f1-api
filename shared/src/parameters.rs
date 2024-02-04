@@ -110,7 +110,8 @@ macros::struct_parameters!(
         page: Page,
         driver_ref: DriverRef,
         constructor_ref: ConstructorRef,
-        circuit_ref: Circuit
+        circuit_ref: Circuit,
+        grid: Grid
     } => crate::filters::SeasonFilter;
 );
 
