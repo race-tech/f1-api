@@ -8,6 +8,6 @@ fn rocket() -> _ {
     dotenv().ok();
 
     rocket::build()
-        .mount("/api", api::handlers::handlers())
+        .mount("/api", api_lib::handlers::handlers())
         .manage(infrastructure::ConnectionPool::try_new().unwrap())
 }

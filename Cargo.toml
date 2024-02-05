@@ -1,13 +1,13 @@
 [workspace]
 members = [
     "crates/*",
-    "api-cmd"
+    "bin/*"
 ]
 resolver = "2"
 
 [workspace.dependencies]
 # Local crates
-api = { path = "./crates/api", version = "0.1.0" }
+api-lib = { path = "./crates/api", version = "0.1.0" }
 application = { path = "./crates/application", version = "0.1.0" }
 derives = { path = "./crates/derives", version = "0.1.0" }
 infrastructure = { path = "./crates/infrastructure", version = "0.1.0" }

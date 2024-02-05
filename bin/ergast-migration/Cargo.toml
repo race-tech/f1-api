@@ -1,13 +1,8 @@
 [package]
-name = "api-cmd"
+name = "ergast-migration"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-rocket.workspace = true
-dotenvy.workspace = true
-
-api.workspace = true
-infrastructure.workspace = true

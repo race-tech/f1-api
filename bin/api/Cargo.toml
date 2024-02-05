@@ -1,5 +1,5 @@
 [package]
-name = "api-lib"
+name = "api"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,11 +7,7 @@ edition = "2021"
 
 [dependencies]
 rocket.workspace = true
-diesel.workspace = true
-serde.workspace = true
-r2d2.workspace = true
-serde_json.workspace = true
+dotenvy.workspace = true
 
-application.workspace = true
-shared.workspace = true
+api-lib.workspace = true
 infrastructure.workspace = true
