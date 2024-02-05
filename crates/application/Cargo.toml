@@ -1,14 +1,13 @@
 [package]
-name = "derives"
+name = "application"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-proc-macro2 = "1.0.78"
-quote = "1.0.35"
-syn = { version = "2.0.48", features = ["parsing"] }
+chrono.workspace = true
+serde.workspace = true
+diesel.workspace = true
 
-[lib]
-proc-macro = true
+shared.workspace = true

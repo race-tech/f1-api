@@ -47,13 +47,22 @@ version = "0.1.0"
 dependencies = [
  "application",
  "diesel",
- "dotenvy",
  "infrastructure",
  "r2d2",
  "rocket",
  "serde",
  "serde_json",
  "shared",
+]
+
+[[package]]
+name = "api-cmd"
+version = "0.1.0"
+dependencies = [
+ "api",
+ "dotenvy",
+ "infrastructure",
+ "rocket",
 ]
 
 [[package]]
