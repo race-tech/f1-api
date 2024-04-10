@@ -20,16 +20,12 @@ impl std::fmt::Display for Error {
 
 #[derive(Debug)]
 pub enum ErrorKind {
-    DieselError(diesel::result::Error),
-    R2D2Error(r2d2::Error),
     InvalidParameter,
 }
 
 impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ErrorKind::DieselError(e) => e.fmt(f),
-            ErrorKind::R2D2Error(e) => e.fmt(f),
             ErrorKind::InvalidParameter => write!(f, "invalid parameter"),
         }
     }
@@ -41,8 +37,6 @@ impl Serialize for ErrorKind {
         S: rocket::serde::Serializer,
     {
         match self {
-            ErrorKind::DieselError(_) => s.serialize_unit_variant("ErrorKind", 0, "DieselError"),
-            ErrorKind::R2D2Error(_) => s.serialize_unit_variant("ErrorKind", 1, "R2D2Error"),
             ErrorKind::InvalidParameter => {
                 s.serialize_unit_variant("ErrorKind", 2, "InvalidParameter")
             }
@@ -52,18 +46,9 @@ impl Serialize for ErrorKind {
 
 impl std::error::Error for Error {}
 
-macros::error_from!(diesel::result::Error, r2d2::Error);
-
-macros::error_kind_from!(
-    DieselError => diesel::result::Error,
-    R2D2Error => r2d2::Error
-);
-
 impl From<&ErrorKind> for rocket::http::Status {
     fn from(kind: &ErrorKind) -> Self {
         match kind {
-            ErrorKind::DieselError(_) => Self::InternalServerError,
-            ErrorKind::R2D2Error(_) => Self::InternalServerError,
             ErrorKind::InvalidParameter => Self::BadRequest,
         }
     }

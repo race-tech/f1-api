@@ -1,42 +1,97 @@
-use diesel::query_builder::SqlQuery;
-use diesel::QueryableByName;
+use diesel::QueryResult;
+use sea_query::{Expr, Query, SelectStatement};
+use sea_query_diesel::{DieselBinder, SeaQuery};
 
-use crate::{schema::circuits, sql::*};
+use crate::iden::*;
+use shared::filters::GetCircuitsFilter;
 
-#[derive(QueryableByName, Debug)]
-#[diesel(table_name = circuits, check_for_backend(super::Backend))]
-pub struct Circuit {
-    #[diesel(column_name = "circuitRef")]
-    circuit_ref: String,
-    name: String,
-    location: Option<String>,
-    country: Option<String>,
-    lat: Option<f32>,
-    lng: Option<f32>,
-    alt: Option<i32>,
-    url: String,
+pub struct CircuitQueryBuilder {
+    stmt: SelectStatement,
+    filter: GetCircuitsFilter,
 }
 
-const BASE_QUERY: &str = r#"SELECT DISTINCT circuits.circuitRef, circuits.name, circuits.location, circuits.country, circuits.lat, circuits.lng, circuits.alt, circuits.url FROM circuits"#;
+impl CircuitQueryBuilder {
+    pub fn filter(filter: GetCircuitsFilter) -> Self {
+        let mut stmt = Query::select();
+        stmt.distinct().from(Circuits::Table).columns(
+            [
+                Circuits::CircuitId,
+                Circuits::CircuitRef,
+                Circuits::Name,
+                Circuits::Location,
+                Circuits::Country,
+                Circuits::Latitude,
+                Circuits::Longitude,
+                Circuits::Altitude,
+                Circuits::Url,
+            ]
+            .into_iter()
+            .map(|c| (Circuits::Table, c)),
+        );
 
-pub fn get_circuits(params: GenericParams) -> String {
-    dbg!(format!(
-        "{}{} WHERE TRUE{}{}{}{}",
-        BASE_QUERY,
-        add_tables(&params),
-        and_circuits(&params),
-        and_races(&params),
-        and_constructors(&params),
-        and_drivers(&params)
-    ))
-}
+        Self { stmt, filter }
+    }
 
-fn add_tables(params: &GenericParams) -> String {
-    format!(
-        "{}{}{}{}",
-        append_race_table(params),
-        append_results_table(params),
-        append_drivers_table(params),
-        append_constructors_table(params)
-    )
+    pub fn build(self) -> QueryResult<SeaQuery<diesel::mysql::Mysql>> {
+        self.races_table()
+            .results_table()
+            .drivers_table()
+            .constructors_table()
+            .stmt
+            .build_diesel::<diesel::mysql::Mysql>()
+    }
+
+    fn one_of(&self) -> bool {
+        self.filter.driver_ref.is_some()
+            || self.filter.constructor_ref.is_some()
+            || self.filter.circuit_ref.is_some()
+            || self.filter.grid.is_some()
+            || self.filter.result.is_some()
+            || self.filter.year.is_some()
+            || self.filter.round.is_some()
+    }
+
+    fn races_table(mut self) -> Self {
+        if self.one_of() {
+            self.stmt.left_join(
+                Races::Table,
+                Expr::col((Circuits::Table, Circuits::CircuitId))
+                    .equals((Races::Table, Races::CircuitId)),
+            );
+        }
+        self
+    }
+
+    fn results_table(mut self) -> Self {
+        if self.one_of() {
+            self.stmt.left_join(
+                Results::Table,
+                Expr::col((Races::Table, Races::CircuitId))
+                    .equals((Results::Table, Results::RaceId)),
+            );
+        }
+        self
+    }
+
+    fn drivers_table(mut self) -> Self {
+        if self.filter.driver_ref.is_some() {
+            self.stmt.left_join(
+                Drivers::Table,
+                Expr::col((Results::Table, Results::DriverId))
+                    .equals((Drivers::Table, Drivers::DriverId)),
+            );
+        }
+        self
+    }
+
+    fn constructors_table(mut self) -> Self {
+        if self.filter.constructor_ref.is_some() {
+            self.stmt.left_join(
+                Constructors::Table,
+                Expr::col((Results::Table, Results::ConstructorId))
+                    .equals((Constructors::Table, Constructors::ConstructorId)),
+            );
+        }
+        self
+    }
 }

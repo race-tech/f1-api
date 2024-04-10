@@ -11,7 +11,8 @@ diesel.workspace = true
 serde.workspace = true
 r2d2.workspace = true
 serde_json.workspace = true
+sea-query-diesel.workspace = true
 
 application.workspace = true
-shared.workspace = true
 infrastructure.workspace = true
+shared.workspace = true

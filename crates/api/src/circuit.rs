@@ -1,4 +1,5 @@
 use diesel::{Connection, RunQueryDsl};
+use rocket::serde::json::Json;
 use rocket::{get, routes, State};
 
 use application;
@@ -9,15 +10,15 @@ use shared::prelude::*;
 pub fn circuits(
     db: &State<ConnectionPool>,
     series: Series,
-    param: shared::parameters::GetCircuitsQueryParams,
+    param: shared::parameters::GetCircuitsParameter,
 ) -> Result<()> {
-    let pool = &mut db.from_series(series).get()?;
-    let res = pool.transaction(|conn| {
-        let query = application::circuit::get_circuits(param.into());
-        diesel::sql_query(query).execute(conn)
-    });
+    let pool = &mut db.from_series(series).get().unwrap();
 
-    println!("{:?}", res);
+    let query = application::circuit::CircuitQueryBuilder::filter(param.into())
+        .build()
+        .unwrap();
+
+    let res = pool.transaction(|conn| query.load::<shared::models::(conn)).unwrap();
 
     Ok(())
 }

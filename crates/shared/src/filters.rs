@@ -7,6 +7,21 @@ pub trait FilterValidation {
 }
 
 #[derive(Debug, Default, FilterValidation)]
+pub struct GetCircuitsFilter {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub circuit_ref: Option<Circuit>,
+    pub driver_ref: Option<DriverRef>,
+    pub constructor_ref: Option<ConstructorRef>,
+    pub grid: Option<Grid>,
+    pub result: Option<RaceResult>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
+}
+
+#[derive(Debug, Default, FilterValidation)]
 pub struct DriverFilter {
     #[validation(skip)]
     pub limit: Option<Limit>,
