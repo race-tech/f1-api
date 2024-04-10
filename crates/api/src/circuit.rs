@@ -1,28 +1,29 @@
-use diesel::{Connection, RunQueryDsl};
-use mysql::prelude::Queryable;
-use mysql::Pool;
 use rocket::serde::json::Json;
 use rocket::{get, routes, State};
 
-use application;
+use application::{self, models::Circuits};
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/circuits?<param..>")]
 pub fn circuits(
-    db: &State<Pool>,
+    db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetCircuitsParameter,
-) -> Result<()> {
-    let mut conn = db.get_conn().unwrap();
+) -> Result<Json<Response<Vec<Circuits>>>> {
+    let conn = &mut db.from_series(series).get().unwrap();
 
     let query = application::circuit::CircuitQueryBuilder::filter(param.into()).build();
 
-    let res: Vec<application::models::Circuits> = conn.query(query).unwrap();
+    let res = query.query_and_count::<Circuits>(conn);
 
-    println!("{:?}", res);
+    let response = Response {
+        data: res.0,
+        pagination: res.1,
+        series,
+    };
 
-    Ok(())
+    Ok(Json(response))
 }
 
 pub fn handlers() -> Vec<rocket::Route> {

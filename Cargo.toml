@@ -20,12 +20,5 @@ proc-macro2 = "1.0.78"
 quote = "1.0.35"
 syn = { version = "2.0.48", features = ["parsing"] }
 sea-query = { version = "0.30.7", features = ["backend-mysql"] }
-sea-query-diesel = { version = "0.1.0", features = [
-    "mysql",
-    "with-chrono",
-    "with-rust_decimal",
-    "with-bigdecimal",
-] }
 r2d2 = "0.8.10"
-diesel = { version = "2.1.5", features = ["mysql", "chrono", "r2d2"] }
 mysql = { version = "25.0.0" }

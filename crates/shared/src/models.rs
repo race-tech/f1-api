@@ -3,10 +3,10 @@ use rocket::serde::Serialize;
 #[derive(Debug, Serialize, Default)]
 #[serde(crate = "rocket::serde")]
 pub struct Pagination {
-    pub limit: i64,
-    pub page: i64,
-    pub max_page: i64,
-    pub total: i64,
+    pub limit: u64,
+    pub page: u64,
+    pub max_page: u64,
+    pub total: u64,
 }
 
 #[derive(Debug, Default, Serialize, Clone, Copy)]

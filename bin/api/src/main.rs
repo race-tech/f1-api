@@ -9,5 +9,5 @@ fn rocket() -> _ {
 
     rocket::build()
         .mount("/api", api_lib::handlers::handlers())
-        .manage(mysql::Pool::new("mysql://user:password@localhost:3306/f1db").unwrap())
+        .manage(infrastructure::ConnectionPool::try_new().unwrap())
 }

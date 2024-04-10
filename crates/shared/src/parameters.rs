@@ -43,8 +43,8 @@ impl<'r> FromParam<'r> for Round {
 }
 
 macros::query_parameters! {
-    #[Copy] Page(i32);
-    #[Copy] Limit(i32);
+    #[Copy] Page(u64);
+    #[Copy] Limit(u64);
     DriverRef(String) => str;
     #[Copy] DriverNumber(i32);
     ConstructorRef(String) => str;

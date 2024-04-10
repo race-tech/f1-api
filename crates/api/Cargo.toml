@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 rocket.workspace = true
-diesel.workspace = true
 serde.workspace = true
 r2d2.workspace = true
 serde_json.workspace = true

@@ -86,7 +86,6 @@ name = "api-lib"
 version = "0.1.0"
 dependencies = [
  "application",
- "diesel",
  "infrastructure",
  "mysql",
  "r2d2",
@@ -100,10 +99,10 @@ dependencies = [
 name = "application"
 version = "0.1.0"
 dependencies = [
- "diesel",
+ "infrastructure",
  "mysql",
  "sea-query",
- "sea-query-diesel",
+ "serde",
  "shared",
 ]
 
@@ -193,17 +192,6 @@ name = "base64"
 version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9475866fec1451be56a3c2400fd081ff546538961565ccb5b7142cbd22bc7a51"
-
-[[package]]
-name = "bigdecimal"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a6773ddc0eafc0e509fb60e48dff7f450f8e674a0686ae8605e8d9901bd5eefa"
-dependencies = [
- "num-bigint",
- "num-integer",
- "num-traits",
-]
 
 [[package]]
 name = "bigdecimal"
@@ -633,47 +621,6 @@ dependencies = [
  "proc-macro2",
  "proc-macro2-diagnostics",
  "quote",
- "syn 2.0.48",
-]
-
-[[package]]
-name = "diesel"
-version = "2.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "03fc05c17098f21b89bc7d98fe1dd3cce2c11c2ad8e145f2a44fe08ed28eb559"
-dependencies = [
- "bigdecimal 0.3.1",
- "bitflags 2.4.1",
- "byteorder",
- "chrono",
- "diesel_derives",
- "mysqlclient-sys",
- "num-bigint",
- "num-integer",
- "num-traits",
- "percent-encoding",
- "r2d2",
- "url",
-]
-
-[[package]]
-name = "diesel_derives"
-version = "2.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d02eecb814ae714ffe61ddc2db2dd03e6c49a42e269b5001355500d431cce0c"
-dependencies = [
- "diesel_table_macro_syntax",
- "proc-macro2",
- "quote",
- "syn 2.0.48",
-]
-
-[[package]]
-name = "diesel_table_macro_syntax"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc5557efc453706fed5e4fa85006fe9817c224c3f480a34c7e5959fd700921c5"
-dependencies = [
  "syn 2.0.48",
 ]
 
@@ -1116,7 +1063,8 @@ dependencies = [
 name = "infrastructure"
 version = "0.1.0"
 dependencies = [
- "diesel",
+ "mysql",
+ "r2d2",
  "shared",
 ]
 
@@ -1399,7 +1347,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ccdc1fe2bb3ef97e07ba4397327ed45509a1e2e499e2f8265243879cbc7313c"
 dependencies = [
  "base64 0.21.7",
- "bigdecimal 0.4.3",
+ "bigdecimal",
  "bindgen",
  "bitflags 2.4.1",
  "bitvec",
@@ -1429,16 +1377,6 @@ dependencies = [
  "time",
  "uuid",
  "zstd",
-]
-
-[[package]]
-name = "mysqlclient-sys"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f61b381528ba293005c42a409dd73d034508e273bf90481f17ec2e964a6e969b"
-dependencies = [
- "pkg-config",
- "vcpkg",
 ]
 
 [[package]]
@@ -2103,10 +2041,7 @@ version = "0.30.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4166a1e072292d46dc91f31617c2a1cdaf55a8be4b5c9f4bf2ba248e3ac4999b"
 dependencies = [
- "bigdecimal 0.3.1",
- "chrono",
  "inherent",
- "rust_decimal",
  "sea-query-derive",
 ]
 
@@ -2121,19 +2056,6 @@ dependencies = [
  "quote",
  "syn 2.0.48",
  "thiserror",
-]
-
-[[package]]
-name = "sea-query-diesel"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a09ac7c3ff2bf910d468c9c8df7fe277322802d13e12d76dabb6a844914f04f6"
-dependencies = [
- "bigdecimal 0.3.1",
- "chrono",
- "diesel",
- "rust_decimal",
- "sea-query",
 ]
 
 [[package]]

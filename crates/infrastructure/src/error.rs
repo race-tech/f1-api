@@ -8,6 +8,7 @@ pub struct Error {
 pub enum ErrorKind {
     MissingEnvVar,
     ConnectionPoolError,
+    ParseIntError,
 }
 
 #[macro_export]

@@ -2,8 +2,6 @@
 
 pub mod circuit;
 
-type Backend = diesel::mysql::Mysql;
-
 pub mod handlers {
     use crate::*;
     use rocket::Route;

@@ -7,8 +7,8 @@ edition = "2021"
 
 [dependencies]
 sea-query.workspace = true
-sea-query-diesel.workspace = true
-diesel.workspace = true
 mysql.workspace = true
+serde.workspace = true
 
 shared.workspace = true
+infrastructure.workspace = true
