@@ -1,8 +1,9 @@
-use sea_query::{Expr, Query, SelectStatement};
+use sea_query::{Query, SelectStatement};
 
 use crate::{
     iden::*,
     pagination::{Paginate, Paginated},
+    sql::*,
 };
 use shared::filters::GetCircuitsFilter;
 
@@ -44,6 +45,10 @@ impl CircuitQueryBuilder {
             .results_table()
             .constructors_table()
             .drivers_table()
+            .and_races()
+            .and_results()
+            .and_drivers()
+            .and_constructors()
             .stmt
             .paginate(page)
             .per_page(limit)
@@ -59,51 +64,43 @@ impl CircuitQueryBuilder {
             || self.filter.round.is_some()
     }
 
-    fn races_table(mut self) -> Self {
-        if self.one_of() {
-            self.stmt.join(
-                sea_query::JoinType::Join,
-                Races::Table,
-                Expr::col((Circuits::Table, Circuits::CircuitId))
-                    .equals((Races::Table, Races::CircuitId)),
-            );
-        }
-        self
+    fn races_table(self) -> Self {
+        races_table(self, Self::one_of)
     }
 
-    fn results_table(mut self) -> Self {
-        if self.one_of() {
-            self.stmt.join(
-                sea_query::JoinType::Join,
-                Results::Table,
-                Expr::col((Races::Table, Races::CircuitId))
-                    .equals((Results::Table, Results::RaceId)),
-            );
-        }
-        self
+    fn results_table(self) -> Self {
+        results_table(self, Self::one_of)
     }
 
-    fn drivers_table(mut self) -> Self {
-        if self.filter.driver_ref.is_some() {
-            self.stmt.join(
-                sea_query::JoinType::Join,
-                Drivers::Table,
-                Expr::col((Results::Table, Results::DriverId))
-                    .equals((Drivers::Table, Drivers::DriverId)),
-            );
-        }
-        self
+    fn drivers_table(self) -> Self {
+        drivers_table(self, |b| b.filter.driver_ref.is_some())
     }
 
-    fn constructors_table(mut self) -> Self {
-        if self.filter.constructor_ref.is_some() {
-            self.stmt.join(
-                sea_query::JoinType::Join,
-                Constructors::Table,
-                Expr::col((Results::Table, Results::ConstructorId))
-                    .equals((Constructors::Table, Constructors::ConstructorId)),
-            );
-        }
-        self
+    fn constructors_table(self) -> Self {
+        constructors_table(self, |s| s.filter.constructor_ref.is_some())
+    }
+
+    fn and_races(self) -> Self {
+        and_races(self, Self::one_of)
+    }
+
+    fn and_results(self) -> Self {
+        and_results(self, Self::one_of)
+    }
+
+    fn and_drivers(self) -> Self {
+        and_drivers(self, |b| b.filter.driver_ref.as_ref().map(|d| d.0.clone()))
+    }
+
+    fn and_constructors(self) -> Self {
+        and_constructors(self, |b| {
+            b.filter.constructor_ref.as_ref().map(|d| d.0.clone())
+        })
+    }
+}
+
+impl SqlBuilder for CircuitQueryBuilder {
+    fn stmt(&mut self) -> &mut sea_query::SelectStatement {
+        &mut self.stmt
     }
 }

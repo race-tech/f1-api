@@ -44,17 +44,17 @@ impl Paginated {
     where
         U: FromRow,
     {
-        let query = dbg!(Query::select()
+        let query = Query::select()
             .column(Asterisk)
             .expr_window_as(
                 Expr::cust("COUNT(*)"),
                 WindowStatement::new(),
-                Alias::new("pagination_count_total")
+                Alias::new("pagination_count_total"),
             )
             .from_subquery(self.query, Alias::new("t"))
             .limit(self.per_page)
             .offset(self.offset)
-            .to_string(MysqlQueryBuilder));
+            .to_string(MysqlQueryBuilder);
 
         let res: Vec<PaginationResult<U>> = conn.query(query).unwrap();
         let total = res.first().map(|r| r.total).unwrap_or(0);

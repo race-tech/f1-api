@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use sea_query::Iden;
 
 #[derive(Iden)]
@@ -50,6 +52,7 @@ pub(crate) enum Results {
     RaceId,
     #[iden = "driverId"]
     DriverId,
+    #[iden = "constructorId"]
     ConstructorId,
     Number,
     Grid,
@@ -72,6 +75,7 @@ pub(crate) enum Drivers {
     Table,
     #[iden = "driverId"]
     DriverId,
+    #[iden = "driverRef"]
     DriverRef,
     Number,
     Code,
@@ -85,7 +89,9 @@ pub(crate) enum Drivers {
 #[derive(Iden)]
 pub(crate) enum Constructors {
     Table,
+    #[iden = "constructorId"]
     ConstructorId,
+    #[iden = "constructorRef"]
     ConstructorRef,
     Name,
     Nationality,
