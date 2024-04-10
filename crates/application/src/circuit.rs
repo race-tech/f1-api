@@ -20,9 +20,9 @@ impl CircuitQueryBuilder {
                 Circuits::Name,
                 Circuits::Location,
                 Circuits::Country,
-                Circuits::Latitude,
-                Circuits::Longitude,
-                Circuits::Altitude,
+                Circuits::Lat,
+                Circuits::Lng,
+                Circuits::Alt,
                 Circuits::Url,
             ]
             .into_iter()
@@ -32,13 +32,8 @@ impl CircuitQueryBuilder {
         Self { stmt, filter }
     }
 
-    pub fn build(self) -> QueryResult<SeaQuery<diesel::mysql::Mysql>> {
-        self.races_table()
-            .results_table()
-            .drivers_table()
-            .constructors_table()
-            .stmt
-            .build_diesel::<diesel::mysql::Mysql>()
+    pub fn build(self) -> String {
+        self.stmt.to_string(sea_query::MysqlQueryBuilder)
     }
 
     fn one_of(&self) -> bool {
@@ -53,7 +48,8 @@ impl CircuitQueryBuilder {
 
     fn races_table(mut self) -> Self {
         if self.one_of() {
-            self.stmt.left_join(
+            self.stmt.join(
+                sea_query::JoinType::Join,
                 Races::Table,
                 Expr::col((Circuits::Table, Circuits::CircuitId))
                     .equals((Races::Table, Races::CircuitId)),
@@ -64,7 +60,8 @@ impl CircuitQueryBuilder {
 
     fn results_table(mut self) -> Self {
         if self.one_of() {
-            self.stmt.left_join(
+            self.stmt.join(
+                sea_query::JoinType::Join,
                 Results::Table,
                 Expr::col((Races::Table, Races::CircuitId))
                     .equals((Results::Table, Results::RaceId)),
@@ -75,7 +72,8 @@ impl CircuitQueryBuilder {
 
     fn drivers_table(mut self) -> Self {
         if self.filter.driver_ref.is_some() {
-            self.stmt.left_join(
+            self.stmt.join(
+                sea_query::JoinType::Join,
                 Drivers::Table,
                 Expr::col((Results::Table, Results::DriverId))
                     .equals((Drivers::Table, Drivers::DriverId)),
@@ -86,7 +84,8 @@ impl CircuitQueryBuilder {
 
     fn constructors_table(mut self) -> Self {
         if self.filter.constructor_ref.is_some() {
-            self.stmt.left_join(
+            self.stmt.join(
+                sea_query::JoinType::Join,
                 Constructors::Table,
                 Expr::col((Results::Table, Results::ConstructorId))
                     .equals((Constructors::Table, Constructors::ConstructorId)),

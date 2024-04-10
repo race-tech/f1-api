@@ -3,23 +3,27 @@ use sea_query::Iden;
 #[derive(Iden)]
 pub(crate) enum Circuits {
     Table,
+    #[iden = "circuitId"]
     CircuitId,
+    #[iden = "circuitRef"]
     CircuitRef,
     Name,
     Location,
     Country,
-    Latitude,
-    Longitude,
-    Altitude,
+    Lat,
+    Lng,
+    Alt,
     Url,
 }
 
 #[derive(Iden)]
 pub(crate) enum Races {
     Table,
+    #[iden = "raceId"]
     RaceId,
     Year,
     Round,
+    #[iden = "circuitId"]
     CircuitId,
     Name,
     Date,
@@ -40,8 +44,11 @@ pub(crate) enum Races {
 #[derive(Iden)]
 pub(crate) enum Results {
     Table,
+    #[iden = "resultId"]
     ResultId,
+    #[iden = "raceId"]
     RaceId,
+    #[iden = "driverId"]
     DriverId,
     ConstructorId,
     Number,
@@ -63,6 +70,7 @@ pub(crate) enum Results {
 #[derive(Iden)]
 pub(crate) enum Drivers {
     Table,
+    #[iden = "driverId"]
     DriverId,
     DriverRef,
     Number,

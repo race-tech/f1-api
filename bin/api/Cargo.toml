@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 rocket.workspace = true
 dotenvy.workspace = true
-sea-orm.workspace = true
+mysql.workspace = true
 
 api-lib.workspace = true
 infrastructure.workspace = true

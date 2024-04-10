@@ -9,5 +9,6 @@ edition = "2021"
 sea-query.workspace = true
 sea-query-diesel.workspace = true
 diesel.workspace = true
+mysql.workspace = true
 
 shared.workspace = true
