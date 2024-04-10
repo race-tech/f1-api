@@ -1,4 +1,4 @@
-use sea_query::{Query, SelectStatement};
+use sea_query::{Expr, Query, SelectStatement, SimpleExpr};
 
 use crate::{
     iden::*,
@@ -49,6 +49,8 @@ impl CircuitQueryBuilder {
             .and_results()
             .and_drivers()
             .and_constructors()
+            .and_grid()
+            .and_result()
             .stmt
             .paginate(page)
             .per_page(limit)
@@ -63,44 +65,41 @@ impl CircuitQueryBuilder {
             || self.filter.year.is_some()
             || self.filter.round.is_some()
     }
-
-    fn races_table(self) -> Self {
-        races_table(self, Self::one_of)
-    }
-
-    fn results_table(self) -> Self {
-        results_table(self, Self::one_of)
-    }
-
-    fn drivers_table(self) -> Self {
-        drivers_table(self, |b| b.filter.driver_ref.is_some())
-    }
-
-    fn constructors_table(self) -> Self {
-        constructors_table(self, |s| s.filter.constructor_ref.is_some())
-    }
-
-    fn and_races(self) -> Self {
-        and_races(self, Self::one_of)
-    }
-
-    fn and_results(self) -> Self {
-        and_results(self, Self::one_of)
-    }
-
-    fn and_drivers(self) -> Self {
-        and_drivers(self, |b| b.filter.driver_ref.as_ref().map(|d| d.0.clone()))
-    }
-
-    fn and_constructors(self) -> Self {
-        and_constructors(self, |b| {
-            b.filter.constructor_ref.as_ref().map(|d| d.0.clone())
-        })
-    }
 }
 
 impl SqlBuilder for CircuitQueryBuilder {
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
+    }
+
+    fn check_and_races(&self) -> bool {
+        self.one_of()
+    }
+
+    fn check_and_results(&self) -> bool {
+        self.one_of()
+    }
+
+    fn check_and_drivers(&self) -> Option<SimpleExpr> {
+        self.filter.driver_ref.as_ref().map(|d| Expr::value(&**d))
+    }
+
+    fn check_and_constructors(&self) -> Option<SimpleExpr> {
+        self.filter
+            .constructor_ref
+            .as_ref()
+            .map(|c| Expr::value(&**c))
+    }
+
+    fn check_and_status(&self) -> Option<SimpleExpr> {
+        None
+    }
+
+    fn check_and_grid(&self) -> Option<SimpleExpr> {
+        self.filter.grid.as_ref().map(|g| Expr::value(**g))
+    }
+
+    fn check_and_result(&self) -> Option<SimpleExpr> {
+        self.filter.result.as_ref().map(|r| Expr::value(**r))
     }
 }

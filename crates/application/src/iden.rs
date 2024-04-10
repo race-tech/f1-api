@@ -57,6 +57,7 @@ pub(crate) enum Results {
     Number,
     Grid,
     Position,
+    #[iden = "positionText"]
     PositionText,
     PositionOrder,
     Points,
