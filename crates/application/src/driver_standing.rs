@@ -58,30 +58,30 @@ impl DriverStandingBuilder {
                     .and(races::round.lt(r1.field(races::round)))),
             )
             .inner_join(driverStandings::table)
-            .inner_join(drivers::table.on(drivers::driver_id.eq(driverStandings::driver_id)))
+            .inner_join(drivers::table.on(drivers::driverId.eq(driverStandings::driverId)))
             .select(DriverStanding::as_select())
     }
 
     fn default_join() -> All<DSDefaultJoin> {
         driverStandings::table
             .inner_join(races::table)
-            .inner_join(drivers::table.on(driverStandings::driver_id.eq(drivers::driver_id)))
+            .inner_join(drivers::table.on(driverStandings::driverId.eq(drivers::driverId)))
             .select(DriverStanding::as_select())
     }
 
     fn all() -> By<All<DSLeftJoin>, R1IdIsNull> {
-        Self::all_left_join().filter(r1.field(races::race_id).is_null())
+        Self::all_left_join().filter(r1.field(races::raceId).is_null())
     }
 
     fn by_race_id(race_id: i32) -> By<All<DSDefaultJoin>, RaceId> {
-        Self::default_join().filter(races::race_id.eq(race_id))
+        Self::default_join().filter(races::raceId.eq(race_id))
     }
 
     fn by_driver_ref(driver_ref: String) -> By<All<DSLeftJoin>, DriverRef> {
         Self::all_left_join().filter(
-            drivers::driver_ref
+            drivers::driverRef
                 .eq(driver_ref)
-                .and(r1.field(races::race_id).is_null()),
+                .and(r1.field(races::raceId).is_null()),
         )
     }
 
@@ -89,7 +89,7 @@ impl DriverStandingBuilder {
         Self::all_left_join().filter(
             driverStandings::position
                 .eq(result)
-                .and(r1.field(races::race_id).is_null()),
+                .and(r1.field(races::raceId).is_null()),
         )
     }
 }
@@ -118,12 +118,12 @@ mod types {
             driverStandings::table,
         >,
         drivers::table,
-        Eq<drivers::driver_id, driverStandings::driver_id>,
+        Eq<drivers::driverId, driverStandings::driverId>,
     >;
     pub type DSDefaultJoin = InnerJoinOn<
         InnerJoin<driverStandings::table, races::table>,
         drivers::table,
-        Eq<driverStandings::driver_id, drivers::driver_id>,
+        Eq<driverStandings::driverId, drivers::driverId>,
     >;
 
     macro_rules! operators {
@@ -143,10 +143,10 @@ mod types {
     }
 
     operators! {
-        _R1IdIsNull => alias @ { RaceAlias, races::race_id };
+        _R1IdIsNull => alias @ { RaceAlias, races::raceId };
         R1IdIsNull => IsNull { _R1IdIsNull };
-        RaceId => Eq { races::race_id, i32 };
-        _DriverRef => Eq { drivers::driver_ref, String };
+        RaceId => Eq { races::raceId, i32 };
+        _DriverRef => Eq { drivers::driverRef, String };
         _DSResult => Eq { driverStandings::position, i32 };
         DriverRef => And { _DriverRef, R1IdIsNull };
         DSResult => And { _DSResult, R1IdIsNull };

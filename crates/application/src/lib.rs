@@ -1,3 +1,4 @@
+pub mod circuit;
 mod constructor_standing;
 mod constructors;
 mod driver_standing;
@@ -7,8 +8,24 @@ mod pagination;
 mod races;
 mod schema;
 mod seasons;
+mod sql;
 
 type Backend = diesel::mysql::Mysql;
+
+mod joinable {
+    use super::schema::*;
+    use diesel::joinable;
+
+    joinable!(results -> drivers (driverId));
+    joinable!(results -> constructors (constructorId));
+    joinable!(results -> races (raceId));
+    joinable!(races -> circuits (circuitId));
+    joinable!(races -> seasons (year));
+    joinable!(driverStandings -> drivers (driverId));
+    joinable!(driverStandings -> races (raceId));
+    joinable!(constructorStandings -> constructors (constructorId));
+    joinable!(constructorStandings -> races (raceId));
+}
 
 mod prelude {
     pub use super::filters::*;

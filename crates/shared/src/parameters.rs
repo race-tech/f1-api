@@ -3,6 +3,26 @@
 use rocket::form::FromForm;
 use rocket::request::FromParam;
 
+#[derive(Debug, FromForm)]
+pub struct CommonQueryParams {
+    pub limit: Limit,
+    pub page: Page,
+}
+
+#[derive(Debug, FromForm)]
+pub struct GetCircuitsQueryParams {
+    pub common: Option<CommonQueryParams>,
+
+    pub driver_ref: Option<String>,
+    pub constructor_ref: Option<String>,
+    pub year: Option<i32>,
+    pub round: Option<i32>,
+    pub grid: Option<i32>,
+    pub result: Option<i32>,
+    pub fastest: Option<i32>,
+    pub status: Option<i32>,
+}
+
 pub use super::models::Series;
 
 impl<'r> FromParam<'r> for Series {

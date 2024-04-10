@@ -27,10 +27,10 @@ impl DriverBuilder {
             .inner_join(drivers::table)
             .inner_join(constructors::table)
             .inner_join(races::table)
-            .inner_join(circuits::table.on(circuits::circuit_id.eq(races::circuit_id)))
+            .inner_join(circuits::table.on(circuits::circuitId.eq(races::circuitId)))
             .select(Driver::as_select())
             .distinct()
-            .order(drivers::driver_id.asc())
+            .order(drivers::driverId.asc())
             .into_boxed()
     }
 
@@ -77,9 +77,9 @@ impl Condition {
         Some(match self {
             Grid(f) => number_filter!(f, results::grid),
             Result(f) => number_filter!(f, results::position),
-            Constructor(f) => string_filter!(f, constructors::constructor_ref),
-            Circuit(f) => string_filter!(f, circuits::circuit_ref),
-            DriverRef(f) => string_filter!(f, drivers::driver_ref),
+            Constructor(f) => string_filter!(f, constructors::constructorRef),
+            Circuit(f) => string_filter!(f, circuits::circuitRef),
+            DriverRef(f) => string_filter!(f, drivers::driverRef),
             DriverNumber(f) => number_filter!(f, drivers::number),
             Year(f) => number_filter!(f, races::year),
             Round(f) => number_filter!(f, races::round),
@@ -107,7 +107,7 @@ mod types {
             races::table,
         >,
         circuits::table,
-        Eq<circuits::circuit_id, races::circuit_id>,
+        Eq<circuits::circuitId, races::circuitId>,
     >;
     pub type BoxedCondition =
         Box<dyn BoxableExpression<BoxedConditionSource, crate::Backend, SqlType = Nullable<Bool>>>;
@@ -118,7 +118,7 @@ mod types {
             races::table,
         >,
         circuits::table,
-        Eq<circuits::circuit_id, races::circuit_id>,
+        Eq<circuits::circuitId, races::circuitId>,
     >;
     pub type BoxedQuery = IntoBoxed<
         'static,

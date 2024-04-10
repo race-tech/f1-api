@@ -1,5 +1,6 @@
 #![allow(clippy::too_many_arguments)]
 
+pub mod circuit;
 pub mod constructors;
 pub mod drivers;
 pub mod seasons;
@@ -15,6 +16,7 @@ pub mod handlers {
             .chain(constructors::handlers())
             .chain(standings::handlers())
             .chain(seasons::handlers())
+            .chain(circuit::handlers())
             .collect()
     }
 }

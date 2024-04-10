@@ -25,12 +25,12 @@ impl SeasonBuilder {
     fn boxed() -> BoxedQuery {
         seasons::table
             .inner_join(races::table)
-            .inner_join(results::table.on(races::race_id.eq(results::race_id)))
-            .inner_join(drivers::table.on(results::driver_id.eq(drivers::driver_id)))
+            .inner_join(results::table.on(races::raceId.eq(results::raceId)))
+            .inner_join(drivers::table.on(results::driverId.eq(drivers::driverId)))
             .inner_join(
-                constructors::table.on(results::constructor_id.eq(constructors::constructor_id)),
+                constructors::table.on(results::constructorId.eq(constructors::constructorId)),
             )
-            .inner_join(circuits::table.on(races::circuit_id.eq(circuits::circuit_id)))
+            .inner_join(circuits::table.on(races::circuitId.eq(circuits::circuitId)))
             .select(Season::as_select())
             .distinct()
             .into_boxed()
@@ -69,9 +69,9 @@ impl Condition {
         use Condition::*;
 
         Some(match self {
-            ConstructorRef(f) => string_filter!(f, constructors::constructor_ref),
-            CircuitRef(f) => string_filter!(f, circuits::circuit_ref),
-            DriverRef(f) => string_filter!(f, drivers::driver_ref),
+            ConstructorRef(f) => string_filter!(f, constructors::constructorRef),
+            CircuitRef(f) => string_filter!(f, circuits::circuitRef),
+            DriverRef(f) => string_filter!(f, drivers::driverRef),
             Grid(f) => number_filter!(f, results::grid),
         })
     }
@@ -94,16 +94,16 @@ mod types {
                 InnerJoinQuerySource<
                     InnerJoinQuerySource<seasons::table, races::table>,
                     results::table,
-                    Eq<races::race_id, results::race_id>,
+                    Eq<races::raceId, results::raceId>,
                 >,
                 drivers::table,
-                Eq<results::driver_id, drivers::driver_id>,
+                Eq<results::driverId, drivers::driverId>,
             >,
             constructors::table,
-            Eq<results::constructor_id, constructors::constructor_id>,
+            Eq<results::constructorId, constructors::constructorId>,
         >,
         circuits::table,
-        Eq<races::circuit_id, circuits::circuit_id>,
+        Eq<races::circuitId, circuits::circuitId>,
     >;
     pub type BoxedCondition =
         Box<dyn BoxableExpression<BoxedConditionSource, crate::Backend, SqlType = Nullable<Bool>>>;
@@ -114,16 +114,16 @@ mod types {
                 InnerJoinOn<
                     InnerJoin<seasons::table, races::table>,
                     results::table,
-                    Eq<races::race_id, results::race_id>,
+                    Eq<races::raceId, results::raceId>,
                 >,
                 drivers::table,
-                Eq<results::driver_id, drivers::driver_id>,
+                Eq<results::driverId, drivers::driverId>,
             >,
             constructors::table,
-            Eq<results::constructor_id, constructors::constructor_id>,
+            Eq<results::constructorId, constructors::constructorId>,
         >,
         circuits::table,
-        Eq<races::circuit_id, circuits::circuit_id>,
+        Eq<races::circuitId, circuits::circuitId>,
     >;
     pub type BoxedQuery = IntoBoxed<
         'static,

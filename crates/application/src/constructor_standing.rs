@@ -60,7 +60,7 @@ impl ConstructorStandingBuilder {
             .inner_join(constructorStandings::table)
             .inner_join(
                 constructors::table
-                    .on(constructors::constructor_id.eq(constructorStandings::constructor_id)),
+                    .on(constructors::constructorId.eq(constructorStandings::constructorId)),
             )
             .select(ConstructorStanding::as_select())
     }
@@ -70,24 +70,24 @@ impl ConstructorStandingBuilder {
             .inner_join(races::table)
             .inner_join(
                 constructors::table
-                    .on(constructorStandings::constructor_id.eq(constructors::constructor_id)),
+                    .on(constructorStandings::constructorId.eq(constructors::constructorId)),
             )
             .select(ConstructorStanding::as_select())
     }
 
     fn all() -> By<All<CSLeftJoin>, R1IdIsNull> {
-        Self::all_left_join().filter(r1.field(races::race_id).is_null())
+        Self::all_left_join().filter(r1.field(races::raceId).is_null())
     }
 
     fn by_race_id(race_id: i32) -> By<All<CSDefaultJoin>, RaceId> {
-        Self::default_join().filter(races::race_id.eq(race_id))
+        Self::default_join().filter(races::raceId.eq(race_id))
     }
 
     fn by_constructor_ref(constructor_ref: String) -> By<All<CSLeftJoin>, ConstructorRef> {
         Self::all_left_join().filter(
-            constructors::constructor_ref
+            constructors::constructorRef
                 .eq(constructor_ref)
-                .and(r1.field(races::race_id).is_null()),
+                .and(r1.field(races::raceId).is_null()),
         )
     }
 
@@ -95,7 +95,7 @@ impl ConstructorStandingBuilder {
         Self::all_left_join().filter(
             constructorStandings::position
                 .eq(result)
-                .and(r1.field(races::race_id).is_null()),
+                .and(r1.field(races::raceId).is_null()),
         )
     }
 }
@@ -124,15 +124,16 @@ mod types {
             constructorStandings::table,
         >,
         constructors::table,
-        Eq<constructors::constructor_id, constructorStandings::constructor_id>,
+        Eq<constructors::constructorId, constructorStandings::constructorId>,
     >;
     pub type CSDefaultJoin = InnerJoinOn<
         InnerJoin<constructorStandings::table, races::table>,
         constructors::table,
-        Eq<constructorStandings::constructor_id, constructors::constructor_id>,
+        Eq<constructorStandings::constructorId, constructors::constructorId>,
     >;
 
     macro_rules! operators {
+        () => {};
         ($name:ident => $op:ident { $column:path, $type:ty }; $($rest:tt)*) => {
             pub type $name = diesel::helper_types::$op < $column, $type >;
             operators! { $($rest)* }
@@ -145,14 +146,13 @@ mod types {
             pub type $name = diesel::query_source::AliasedField < $alias, $column >;
             operators! { $($rest)* }
         };
-        () => {}
     }
 
     operators! {
-        _R1IdIsNull => alias @ { RaceAlias, races::race_id };
+        _R1IdIsNull => alias @ { RaceAlias, races::raceId };
         R1IdIsNull => IsNull { _R1IdIsNull };
-        RaceId => Eq { races::race_id, i32 };
-        _ConstructorRef => Eq { constructors::constructor_ref, String };
+        RaceId => Eq { races::raceId, i32 };
+        _ConstructorRef => Eq { constructors::constructorRef, String };
         _CSResult => Eq { constructorStandings::position, i32 };
         ConstructorRef => And { _ConstructorRef, R1IdIsNull };
         CSResult => And { _CSResult, R1IdIsNull };
