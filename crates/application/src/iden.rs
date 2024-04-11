@@ -115,3 +115,20 @@ pub(crate) enum DriverStandings {
     PositionText,
     Wins,
 }
+
+#[derive(Iden)]
+pub(crate) enum ConstructorStandings {
+    #[iden = "constructorStandings"]
+    Table,
+    #[iden = "constructorStandingsId"]
+    Id,
+    #[iden = "raceId"]
+    RaceId,
+    #[iden = "constructorId"]
+    ConstructorId,
+    Points,
+    Position,
+    #[iden = "positionText"]
+    PositionText,
+    Wins,
+}

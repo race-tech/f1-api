@@ -218,7 +218,7 @@ where
     if let Some(v) = check(&builder) {
         builder
             .stmt()
-            .and_where(Expr::col((Results::Table, Results::Rank)).eq(v));
+            .and_where(Expr::col((Results::Table, Results::StatusId)).eq(v));
     }
     builder
 }

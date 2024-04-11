@@ -1,6 +1,7 @@
 #![allow(clippy::too_many_arguments)]
 
 mod circuit;
+mod constructor;
 mod driver;
 
 pub mod handlers {
@@ -11,6 +12,7 @@ pub mod handlers {
         circuit::handlers()
             .into_iter()
             .chain(driver::handlers())
+            .chain(constructor::handlers())
             .collect()
     }
 }

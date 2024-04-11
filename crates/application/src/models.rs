@@ -39,3 +39,15 @@ pub struct Drivers {
     nationality: Option<String>,
     url: String,
 }
+
+#[derive(FromRow, Debug, Serialize)]
+pub struct Constructors {
+    #[mysql(rename = "constructorId")]
+    constructor_id: i32,
+    #[mysql(rename = "constructorRef")]
+    constructor_ref: String,
+    name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    nationality: Option<String>,
+    url: String,
+}

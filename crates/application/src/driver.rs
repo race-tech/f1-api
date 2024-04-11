@@ -5,7 +5,6 @@ use shared::filters::GetDriversFilter;
 use crate::{
     iden::*,
     pagination::{Paginate, Paginated},
-    sql::*,
 };
 
 pub struct DriverQueryBuilder {

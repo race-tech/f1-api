@@ -57,6 +57,7 @@ macros::query_parameters! {
     ConstructorRef(String) => str;
     CircuitRef(String) => str;
     #[Copy] DriverStanding(i32);
+    #[Copy] ConstructorStanding(i32);
     #[Copy] Grid(i32);
     #[Copy] RaceResult(i32);
     #[Copy] Year(i32);
@@ -103,6 +104,22 @@ macros::struct_parameters!(
         limit: Limit,
         page: Page
     } => crate::filters::GetDriversFilter;
+);
+
+macros::struct_parameters!(
+    GetConstructorsParameter {
+        circuit_ref: CircuitRef,
+        driver_ref: DriverRef,
+        constructor_standing: ConstructorStanding,
+        status: Status,
+        grid: Grid,
+        fastest: Fastest,
+        result: RaceResult,
+        year: Year,
+        round: Round,
+        limit: Limit,
+        page: Page
+    } => crate::filters::GetConstructorsFilter;
 );
 
 impl Default for Page {
