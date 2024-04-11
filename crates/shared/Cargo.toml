@@ -10,5 +10,6 @@ rocket.workspace = true
 chrono.workspace = true
 serde_json.workspace = true
 serde.workspace = true
+r2d2.workspace = true
 
 derives.workspace = true
