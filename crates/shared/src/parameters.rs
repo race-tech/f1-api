@@ -122,6 +122,17 @@ macros::struct_parameters!(
     } => crate::filters::GetConstructorsFilter;
 );
 
+macros::struct_parameters!(
+    GetConstructorStandingsParameter {
+        constructor_ref: ConstructorRef,
+        position: ConstructorStanding,
+        year: Year,
+        round: Round,
+        limit: Limit,
+        page: Page
+    } => crate::filters::GetConstructorStandingsFilter;
+);
+
 impl Default for Page {
     fn default() -> Self {
         Self(1)

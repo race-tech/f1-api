@@ -2,6 +2,7 @@
 
 mod circuit;
 mod constructor;
+mod constructor_standing;
 mod driver;
 
 pub mod handlers {
@@ -13,6 +14,7 @@ pub mod handlers {
             .into_iter()
             .chain(driver::handlers())
             .chain(constructor::handlers())
+            .chain(constructor_standing::handlers())
             .collect()
     }
 }

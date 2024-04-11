@@ -55,3 +55,15 @@ pub struct GetConstructorsFilter {
     pub year: Option<Year>,
     pub round: Option<Round>,
 }
+
+#[derive(Debug, Default, FilterValidation)]
+pub struct GetConstructorStandingsFilter {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub constructor_ref: Option<ConstructorRef>,
+    pub position: Option<ConstructorStanding>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
+}

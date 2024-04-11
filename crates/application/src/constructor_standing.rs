@@ -1,0 +1,144 @@
+use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement, SimpleExpr};
+
+use shared::filters::GetConstructorStandingsFilter;
+
+use crate::{
+    iden::*,
+    pagination::{Paginate, Paginated},
+};
+
+pub struct ConstructorStandingQueryBuilder {
+    filter: GetConstructorStandingsFilter,
+    stmt: SelectStatement,
+}
+
+impl ConstructorStandingQueryBuilder {
+    pub fn filter(filter: GetConstructorStandingsFilter) -> Self {
+        let stmt = Query::select()
+            .distinct()
+            .columns(
+                [
+                    Constructors::ConstructorRef,
+                    Constructors::Name,
+                    Constructors::Nationality,
+                    Constructors::Url,
+                ]
+                .into_iter()
+                .map(|c| (Constructors::Table, c).into_column_ref())
+                .chain(
+                    [
+                        ConstructorStandings::Points,
+                        ConstructorStandings::Position,
+                        ConstructorStandings::PositionText,
+                        ConstructorStandings::Wins,
+                    ]
+                    .into_iter()
+                    .map(|c| (ConstructorStandings::Table, c).into_column_ref()),
+                )
+                .chain(
+                    [Races::Round, Races::Year]
+                        .into_iter()
+                        .map(|c| (Races::Table, c).into_column_ref()),
+                ),
+            )
+            .from(Constructors::Table)
+            .from(ConstructorStandings::Table)
+            .from(Races::Table)
+            .and_where(
+                Expr::col((ConstructorStandings::Table, ConstructorStandings::RaceId))
+                    .equals((Races::Table, Races::RaceId)),
+            )
+            .and_where(
+                Expr::col((
+                    ConstructorStandings::Table,
+                    ConstructorStandings::ConstructorId,
+                ))
+                .equals((Constructors::Table, Constructors::ConstructorId)),
+            )
+            .to_owned();
+
+        Self { filter, stmt }
+    }
+
+    pub fn build(self) -> Paginated {
+        let page: u64 = self.filter.page.unwrap_or_default().0;
+        let limit: u64 = self.filter.limit.unwrap_or_default().0;
+
+        self.and_where(|s| {
+            s.filter.position.map(|p| {
+                Expr::col((
+                    ConstructorStandings::Table,
+                    ConstructorStandings::PositionText,
+                ))
+                .eq(Expr::value(*p))
+            })
+        })
+        .and_where(|s| {
+            s.filter.constructor_ref.as_ref().map(|c| {
+                Expr::col((Constructors::Table, Constructors::ConstructorRef)).eq(Expr::value(&**c))
+            })
+        })
+        .and_where(|s| {
+            s.filter
+                .year
+                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(*y)))
+        })
+        .and_clause()
+        .stmt
+        .paginate(page)
+        .per_page(limit)
+    }
+
+    fn and_clause(self) -> Self {
+        if let Some(round) = self.filter.round {
+            return self.and_where(|_| {
+                Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(*round)))
+            });
+        }
+
+        let expr = self.filter.year.map_or(
+            Expr::tuple(
+                [
+                    Expr::col((Races::Table, Races::Year)),
+                    Expr::col((Races::Table, Races::Round)),
+                ]
+                .map(Into::into),
+            )
+            .in_subquery(
+                Query::select()
+                    .column(Races::Year)
+                    .expr(Func::max(Expr::col(Races::Round)))
+                    .from(Races::Table)
+                    .group_by_col(Races::Year)
+                    .to_owned(),
+            ),
+            |year| {
+                Expr::col((Races::Table, Races::Round)).in_subquery(
+                    Query::select()
+                        .from(Races::Table)
+                        .from(ConstructorStandings::Table)
+                        .expr(Func::max(Expr::col(Races::Round)))
+                        .and_where(
+                            Expr::col((ConstructorStandings::Table, ConstructorStandings::RaceId))
+                                .equals((Races::Table, Races::RaceId)),
+                        )
+                        .and_where(Expr::col((Races::Table, Races::Year)).eq(*year))
+                        .to_owned(),
+                )
+            },
+        );
+
+        self.and_where(|_| Some(expr))
+    }
+
+    fn and_where<F>(mut self, f: F) -> Self
+    where
+        F: FnOnce(&Self) -> Option<SimpleExpr>,
+    {
+        if let Some(expr) = f(&self) {
+            self.stmt.and_where(expr);
+        }
+
+        self
+    }
+}
