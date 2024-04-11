@@ -2164,6 +2164,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "derives",
+ "mysql",
  "r2d2",
  "rocket",
  "serde",

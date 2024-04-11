@@ -13,7 +13,7 @@ pub fn constructors(
 ) -> Result<Json<Response<Vec<Constructors>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let query = application::constructor::ConstructorQueryBuilder::filter(param.into()).build();
+    let query = application::constructor::ConstructorQueryBuilder::params(param).build();
 
     let res = query.query_and_count::<Constructors>(conn);
 

@@ -13,7 +13,7 @@ pub fn driver(
 ) -> Result<Json<Response<Vec<Drivers>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let query = application::driver::DriverQueryBuilder::filter(param.into()).build();
+    let query = application::driver::DriverQueryBuilder::params(param).build();
 
     let res = query.query_and_count::<Drivers>(conn);
 

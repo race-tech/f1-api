@@ -1,6 +1,6 @@
 use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement, SimpleExpr};
 
-use shared::filters::GetConstructorStandingsFilter;
+use shared::parameters::GetConstructorStandingsParameter;
 
 use crate::{
     iden::*,
@@ -8,12 +8,12 @@ use crate::{
 };
 
 pub struct ConstructorStandingQueryBuilder {
-    filter: GetConstructorStandingsFilter,
+    params: GetConstructorStandingsParameter,
     stmt: SelectStatement,
 }
 
 impl ConstructorStandingQueryBuilder {
-    pub fn filter(filter: GetConstructorStandingsFilter) -> Self {
+    pub fn params(params: GetConstructorStandingsParameter) -> Self {
         let stmt = Query::select()
             .distinct()
             .columns(
@@ -57,15 +57,15 @@ impl ConstructorStandingQueryBuilder {
             )
             .to_owned();
 
-        Self { filter, stmt }
+        Self { params, stmt }
     }
 
     pub fn build(self) -> Paginated {
-        let page: u64 = self.filter.page.unwrap_or_default().0;
-        let limit: u64 = self.filter.limit.unwrap_or_default().0;
+        let page: u64 = self.params.page.unwrap_or_default().0;
+        let limit: u64 = self.params.limit.unwrap_or_default().0;
 
         self.and_where(|s| {
-            s.filter.position.map(|p| {
+            s.params.position.map(|p| {
                 Expr::col((
                     ConstructorStandings::Table,
                     ConstructorStandings::PositionText,
@@ -74,12 +74,12 @@ impl ConstructorStandingQueryBuilder {
             })
         })
         .and_where(|s| {
-            s.filter.constructor_ref.as_ref().map(|c| {
+            s.params.constructor_ref.as_ref().map(|c| {
                 Expr::col((Constructors::Table, Constructors::ConstructorRef)).eq(Expr::value(&**c))
             })
         })
         .and_where(|s| {
-            s.filter
+            s.params
                 .year
                 .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(*y)))
         })
@@ -90,13 +90,13 @@ impl ConstructorStandingQueryBuilder {
     }
 
     fn and_clause(self) -> Self {
-        if let Some(round) = self.filter.round {
+        if let Some(round) = self.params.round {
             return self.and_where(|_| {
                 Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(*round)))
             });
         }
 
-        let expr = self.filter.year.map_or(
+        let expr = self.params.year.map_or(
             Expr::tuple(
                 [
                     Expr::col((Races::Table, Races::Year)),

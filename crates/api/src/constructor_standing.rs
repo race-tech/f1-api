@@ -14,8 +14,7 @@ pub fn constructor_standings(
     let conn = &mut db.from_series(series).get().unwrap();
 
     let query =
-        application::constructor_standing::ConstructorStandingQueryBuilder::filter(param.into())
-            .build();
+        application::constructor_standing::ConstructorStandingQueryBuilder::params(param).build();
 
     let res = query.query_and_count::<ConstructorStandings>(conn);
 

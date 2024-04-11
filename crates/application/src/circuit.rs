@@ -5,15 +5,15 @@ use crate::{
     pagination::{Paginate, Paginated},
     sql::*,
 };
-use shared::filters::GetCircuitsFilter;
+use shared::parameters::GetCircuitsParameter;
 
 pub struct CircuitQueryBuilder {
     stmt: SelectStatement,
-    filter: GetCircuitsFilter,
+    params: GetCircuitsParameter,
 }
 
 impl CircuitQueryBuilder {
-    pub fn filter(filter: GetCircuitsFilter) -> Self {
+    pub fn params(params: GetCircuitsParameter) -> Self {
         let stmt = Query::select()
             .distinct()
             .from(Circuits::Table)
@@ -34,12 +34,12 @@ impl CircuitQueryBuilder {
             )
             .to_owned();
 
-        Self { stmt, filter }
+        Self { stmt, params }
     }
 
     pub fn build(self) -> Paginated {
-        let page: u64 = self.filter.page.unwrap_or_default().0;
-        let limit: u64 = self.filter.limit.unwrap_or_default().0;
+        let page: u64 = self.params.page.unwrap_or_default().0;
+        let limit: u64 = self.params.limit.unwrap_or_default().0;
 
         self.races_table()
             .results_table()
@@ -61,14 +61,14 @@ impl CircuitQueryBuilder {
     }
 
     fn one_of(&self) -> bool {
-        self.filter.driver_ref.is_some()
-            || self.filter.constructor_ref.is_some()
-            || self.filter.status.is_some()
-            || self.filter.grid.is_some()
-            || self.filter.fastest.is_some()
-            || self.filter.result.is_some()
-            || self.filter.year.is_some()
-            || self.filter.round.is_some()
+        self.params.driver_ref.is_some()
+            || self.params.constructor_ref.is_some()
+            || self.params.status.is_some()
+            || self.params.grid.is_some()
+            || self.params.fastest.is_some()
+            || self.params.result.is_some()
+            || self.params.year.is_some()
+            || self.params.round.is_some()
     }
 }
 
@@ -86,37 +86,37 @@ impl SqlBuilder for CircuitQueryBuilder {
     }
 
     fn check_and_drivers(&self) -> Option<SimpleExpr> {
-        self.filter.driver_ref.as_ref().map(|d| Expr::value(&**d))
+        self.params.driver_ref.as_ref().map(|d| Expr::value(&**d))
     }
 
     fn check_and_constructors(&self) -> Option<SimpleExpr> {
-        self.filter
+        self.params
             .constructor_ref
             .as_ref()
             .map(|c| Expr::value(&**c))
     }
 
     fn check_and_status(&self) -> Option<SimpleExpr> {
-        self.filter.status.as_ref().map(|s| Expr::value(**s))
+        self.params.status.as_ref().map(|s| Expr::value(**s))
     }
 
     fn check_and_grid(&self) -> Option<SimpleExpr> {
-        self.filter.grid.as_ref().map(|g| Expr::value(**g))
+        self.params.grid.as_ref().map(|g| Expr::value(**g))
     }
 
     fn check_and_result(&self) -> Option<SimpleExpr> {
-        self.filter.result.as_ref().map(|r| Expr::value(**r))
+        self.params.result.as_ref().map(|r| Expr::value(**r))
     }
 
     fn check_and_round(&self) -> Option<SimpleExpr> {
-        self.filter.round.as_ref().map(|r| Expr::value(**r))
+        self.params.round.as_ref().map(|r| Expr::value(**r))
     }
 
     fn check_and_year(&self) -> Option<SimpleExpr> {
-        self.filter.year.as_ref().map(|y| Expr::value(**y))
+        self.params.year.as_ref().map(|y| Expr::value(**y))
     }
 
     fn check_and_fastest(&self) -> Option<SimpleExpr> {
-        self.filter.fastest.as_ref().map(|f| Expr::value(**f))
+        self.params.fastest.as_ref().map(|f| Expr::value(**f))
     }
 }

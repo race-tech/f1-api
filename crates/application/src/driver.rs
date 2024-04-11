@@ -1,6 +1,6 @@
 use sea_query::{Expr, Func, IntoTableRef, Query, SelectStatement, SimpleExpr};
 
-use shared::filters::GetDriversFilter;
+use shared::parameters::GetDriversParameter;
 
 use crate::{
     iden::*,
@@ -9,11 +9,11 @@ use crate::{
 
 pub struct DriverQueryBuilder {
     stmt: SelectStatement,
-    filter: GetDriversFilter,
+    params: GetDriversParameter,
 }
 
 impl DriverQueryBuilder {
-    pub fn filter(filter: GetDriversFilter) -> Self {
+    pub fn params(params: GetDriversParameter) -> Self {
         let stmt = Query::select()
             .distinct()
             .from(Drivers::Table)
@@ -34,42 +34,42 @@ impl DriverQueryBuilder {
             )
             .to_owned();
 
-        Self { stmt, filter }
+        Self { stmt, params }
     }
 
     fn one_of(&self) -> bool {
-        self.filter.year.is_some()
-            || self.filter.constructor_ref.is_some()
-            || self.filter.status.is_some()
-            || self.filter.grid.is_some()
-            || self.filter.result.is_some()
-            || self.filter.circuit_ref.is_some()
-            || self.filter.fastest.is_some()
+        self.params.year.is_some()
+            || self.params.constructor_ref.is_some()
+            || self.params.status.is_some()
+            || self.params.grid.is_some()
+            || self.params.result.is_some()
+            || self.params.circuit_ref.is_some()
+            || self.params.fastest.is_some()
     }
 
     pub fn build(mut self) -> Paginated {
-        let page: u64 = self.filter.page.unwrap_or_default().0;
-        let limit: u64 = self.filter.limit.unwrap_or_default().0;
+        let page: u64 = self.params.page.unwrap_or_default().0;
+        let limit: u64 = self.params.limit.unwrap_or_default().0;
 
         self.join(
             |s| {
-                s.filter.year.is_some()
-                    || s.filter.circuit_ref.is_some()
-                    || s.filter.driver_standing.is_some()
+                s.params.year.is_some()
+                    || s.params.circuit_ref.is_some()
+                    || s.params.driver_standing.is_some()
             },
             Races::Table,
         )
         .join(Self::one_of, Results::Table)
-        .join(|s| s.filter.circuit_ref.is_some(), Circuits::Table)
-        .join(|s| s.filter.constructor_ref.is_some(), Constructors::Table)
+        .join(|s| s.params.circuit_ref.is_some(), Circuits::Table)
+        .join(|s| s.params.constructor_ref.is_some(), Constructors::Table)
         .join(
-            |s| s.filter.driver_standing.is_some(),
+            |s| s.params.driver_standing.is_some(),
             DriverStandings::Table,
         )
         .and_clause_one()
         .and_clause_two()
         .and_where(|s| {
-            s.filter
+            s.params
                 .year
                 .map(|year| Expr::col((Races::Table, Races::Year)).eq(Expr::value(*year)))
         })
@@ -81,12 +81,12 @@ impl DriverQueryBuilder {
     }
 
     fn and_clause_one(&mut self) -> &mut Self {
-        if self.filter.driver_standing.is_none() {
+        if self.params.driver_standing.is_none() {
             return self;
         }
 
         self.and_where(|s| {
-            if s.filter.year.is_some() || s.filter.constructor_ref.is_some() {
+            if s.params.year.is_some() || s.params.constructor_ref.is_some() {
                 Some(
                     Expr::col((Drivers::Table, Drivers::DriverId))
                         .equals((Results::Table, Results::DriverId)),
@@ -96,12 +96,12 @@ impl DriverQueryBuilder {
             }
         })
         .and_where(|s| {
-            s.filter.year.map(|_| {
+            s.params.year.map(|_| {
                 Expr::col((Results::Table, Results::RaceId)).equals((Races::Table, Races::RaceId))
             })
         })
         .and_where(|s| {
-            s.filter.constructor_ref.as_ref().map(|constructor_ref| {
+            s.params.constructor_ref.as_ref().map(|constructor_ref| {
                 Expr::col((Results::Table, Results::ConstructorId))
                     .equals((Constructors::Table, Constructors::ConstructorId))
                     .and(
@@ -111,7 +111,7 @@ impl DriverQueryBuilder {
             })
         })
         .and_where(|s| {
-            s.filter.driver_standing.as_ref().map(|driver_standings| {
+            s.params.driver_standing.as_ref().map(|driver_standings| {
                 Expr::col((DriverStandings::Table, DriverStandings::PositionText))
                     .eq(Expr::value(**driver_standings))
             })
@@ -131,7 +131,7 @@ impl DriverQueryBuilder {
     }
 
     fn and_clause_two(&mut self) -> &mut Self {
-        if self.filter.driver_standing.is_some() {
+        if self.params.driver_standing.is_some() {
             return self;
         }
 
@@ -146,7 +146,7 @@ impl DriverQueryBuilder {
             }
         })
         .and_where(|s| {
-            if s.filter.year.is_some() || s.filter.circuit_ref.is_some() {
+            if s.params.year.is_some() || s.params.circuit_ref.is_some() {
                 Some(
                     Expr::col((Results::Table, Results::RaceId))
                         .equals((Races::Table, Races::RaceId)),
@@ -156,7 +156,7 @@ impl DriverQueryBuilder {
             }
         })
         .and_where(|s| {
-            s.filter.circuit_ref.as_ref().map(|circuit_ref| {
+            s.params.circuit_ref.as_ref().map(|circuit_ref| {
                 Expr::col((Races::Table, Races::CircuitId))
                     .equals((Circuits::Table, Circuits::CircuitId))
                     .and(
@@ -166,7 +166,7 @@ impl DriverQueryBuilder {
             })
         })
         .and_where(|s| {
-            s.filter.constructor_ref.as_ref().map(|constructor_ref| {
+            s.params.constructor_ref.as_ref().map(|constructor_ref| {
                 Expr::col((Results::Table, Results::ConstructorId))
                     .equals((Constructors::Table, Constructors::ConstructorId))
                     .and(
@@ -176,36 +176,36 @@ impl DriverQueryBuilder {
             })
         })
         .and_where(|s| {
-            s.filter.status.map(|status| {
+            s.params.status.map(|status| {
                 Expr::col((Results::Table, Results::StatusId)).eq(Expr::value(*status))
             })
         })
         .and_where(|s| {
-            s.filter
+            s.params
                 .grid
                 .map(|grid| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(*grid)))
         })
         .and_where(|s| {
-            s.filter
+            s.params
                 .fastest
                 .map(|fastest| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(*fastest)))
         })
         .and_where(|s| {
-            s.filter.result.map(|result| {
+            s.params.result.map(|result| {
                 Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(*result))
             })
         })
     }
 
     fn and_clause_three(&mut self) -> &mut Self {
-        if let Some(round) = self.filter.round.map(|r| *r) {
+        if let Some(round) = self.params.round.map(|r| *r) {
             return self.and_where(|_| {
                 Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(round)))
             });
         }
 
-        if self.filter.driver_standing.is_some() {
-            if let Some(year) = self.filter.year.map(|y| *y) {
+        if self.params.driver_standing.is_some() {
+            if let Some(year) = self.params.year.map(|y| *y) {
                 return self.and_where(|_| {
                     Some(
                         Expr::col((Races::Table, Races::Round)).in_subquery(

@@ -1,8 +1,11 @@
 #![allow(clippy::needless_update)]
+#![allow(clippy::blocks_in_conditions)]
 
 use rocket::form::FromForm;
 use rocket::request::FromParam;
 use serde::Serialize;
+
+use derives::FilterValidation;
 
 #[derive(Debug, Default, Serialize, Clone, Copy)]
 pub enum Series {
@@ -75,63 +78,71 @@ impl Year {
     }
 }
 
-macros::struct_parameters!(
-    GetCircuitsParameter {
-        driver_ref: DriverRef,
-        constructor_ref: ConstructorRef,
-        status: Status,
-        grid: Grid,
-        fastest: Fastest,
-        result: RaceResult,
-        year: Year,
-        round: Round,
-        limit: Limit,
-        page: Page
-    } => crate::filters::GetCircuitsFilter;
-);
+pub trait FilterValidation {
+    fn validate(&self) -> Result<(), crate::error::Error>;
+}
 
-macros::struct_parameters!(
-    GetDriversParameter {
-        circuit_ref: CircuitRef,
-        constructor_ref: ConstructorRef,
-        driver_standing: DriverStanding,
-        status: Status,
-        grid: Grid,
-        fastest: Fastest,
-        result: RaceResult,
-        year: Year,
-        round: Round,
-        limit: Limit,
-        page: Page
-    } => crate::filters::GetDriversFilter;
-);
+#[derive(Debug, Default, FilterValidation, FromForm)]
+pub struct GetCircuitsParameter {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub driver_ref: Option<DriverRef>,
+    pub constructor_ref: Option<ConstructorRef>,
+    pub status: Option<Status>,
+    pub grid: Option<Grid>,
+    pub fastest: Option<Fastest>,
+    pub result: Option<RaceResult>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
+}
 
-macros::struct_parameters!(
-    GetConstructorsParameter {
-        circuit_ref: CircuitRef,
-        driver_ref: DriverRef,
-        constructor_standing: ConstructorStanding,
-        status: Status,
-        grid: Grid,
-        fastest: Fastest,
-        result: RaceResult,
-        year: Year,
-        round: Round,
-        limit: Limit,
-        page: Page
-    } => crate::filters::GetConstructorsFilter;
-);
+#[derive(Debug, Default, FilterValidation, FromForm)]
+pub struct GetDriversParameter {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub circuit_ref: Option<CircuitRef>,
+    pub constructor_ref: Option<ConstructorRef>,
+    pub driver_standing: Option<DriverStanding>,
+    pub status: Option<Status>,
+    pub grid: Option<Grid>,
+    pub fastest: Option<Fastest>,
+    pub result: Option<RaceResult>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
+}
 
-macros::struct_parameters!(
-    GetConstructorStandingsParameter {
-        constructor_ref: ConstructorRef,
-        position: ConstructorStanding,
-        year: Year,
-        round: Round,
-        limit: Limit,
-        page: Page
-    } => crate::filters::GetConstructorStandingsFilter;
-);
+#[derive(Debug, Default, FilterValidation, FromForm)]
+pub struct GetConstructorsParameter {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub circuit_ref: Option<CircuitRef>,
+    pub driver_ref: Option<DriverRef>,
+    pub constructor_standing: Option<ConstructorStanding>,
+    pub status: Option<Status>,
+    pub grid: Option<Grid>,
+    pub fastest: Option<Fastest>,
+    pub result: Option<RaceResult>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
+}
+
+#[derive(Debug, Default, FilterValidation, FromForm)]
+pub struct GetConstructorStandingsParameter {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub constructor_ref: Option<ConstructorRef>,
+    pub position: Option<ConstructorStanding>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
+}
 
 impl Default for Page {
     fn default() -> Self {
@@ -190,34 +201,5 @@ mod macros {
         () => {};
     }
 
-    macro_rules! struct_parameters {
-        ($name:ident { $($field_name:ident: $field_type:ty),* } => $filter:path; $($rest:tt)*) => {
-            #[derive(Debug, FromForm)]
-            pub struct $name {
-                $(
-                    pub $field_name: Option<$field_type>,
-                )*
-            }
-
-            macros::struct_parameters!{ impl From < $filter > { $($field_name: $field_type),* } for $name }
-
-            macros::struct_parameters!{ $($rest)* }
-        };
-        (impl $trait:ident < $filter:path > { $($field_name:ident: $field_type:ty),* } for $name:ident) => {
-            impl From<$name> for $filter {
-                fn from(p: $name) -> Self {
-                    Self {
-                        $(
-                            $field_name: p.$field_name,
-                        )*
-                        ..Default::default()
-                    }
-                }
-            }
-        };
-        () => {};
-    }
-
     pub(super) use query_parameters;
-    pub(super) use struct_parameters;
 }
