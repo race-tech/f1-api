@@ -98,8 +98,11 @@ impl ConstructorQueryBuilder {
                 ))
                 .eq(*standing)
                 .and(
-                    Expr::col((ConstructorStandings::Table, ConstructorStandings::Id))
-                        .equals((Constructors::Table, Constructors::ConstructorId)),
+                    Expr::col((
+                        ConstructorStandings::Table,
+                        ConstructorStandings::ConstructorId,
+                    ))
+                    .equals((Constructors::Table, Constructors::ConstructorId)),
                 )
                 .and(
                     Expr::col((ConstructorStandings::Table, ConstructorStandings::RaceId))
