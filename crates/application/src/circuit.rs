@@ -45,12 +45,16 @@ impl CircuitQueryBuilder {
             .results_table()
             .constructors_table()
             .drivers_table()
+            .and_status()
+            .and_circuits()
             .and_races()
-            .and_results()
             .and_drivers()
             .and_constructors()
             .and_grid()
+            .and_fastest()
             .and_result()
+            .and_round()
+            .and_year()
             .stmt
             .paginate(page)
             .per_page(limit)
@@ -59,8 +63,9 @@ impl CircuitQueryBuilder {
     fn one_of(&self) -> bool {
         self.filter.driver_ref.is_some()
             || self.filter.constructor_ref.is_some()
-            || self.filter.circuit_ref.is_some()
+            || self.filter.status.is_some()
             || self.filter.grid.is_some()
+            || self.filter.fastest.is_some()
             || self.filter.result.is_some()
             || self.filter.year.is_some()
             || self.filter.round.is_some()
@@ -72,11 +77,11 @@ impl SqlBuilder for CircuitQueryBuilder {
         &mut self.stmt
     }
 
-    fn check_and_races(&self) -> bool {
+    fn check_and_circuits(&self) -> bool {
         self.one_of()
     }
 
-    fn check_and_results(&self) -> bool {
+    fn check_and_races(&self) -> bool {
         self.one_of()
     }
 
@@ -92,7 +97,7 @@ impl SqlBuilder for CircuitQueryBuilder {
     }
 
     fn check_and_status(&self) -> Option<SimpleExpr> {
-        None
+        self.filter.status.as_ref().map(|s| Expr::value(**s))
     }
 
     fn check_and_grid(&self) -> Option<SimpleExpr> {
@@ -101,5 +106,17 @@ impl SqlBuilder for CircuitQueryBuilder {
 
     fn check_and_result(&self) -> Option<SimpleExpr> {
         self.filter.result.as_ref().map(|r| Expr::value(**r))
+    }
+
+    fn check_and_round(&self) -> Option<SimpleExpr> {
+        self.filter.round.as_ref().map(|r| Expr::value(**r))
+    }
+
+    fn check_and_year(&self) -> Option<SimpleExpr> {
+        self.filter.year.as_ref().map(|y| Expr::value(**y))
+    }
+
+    fn check_and_fastest(&self) -> Option<SimpleExpr> {
+        self.filter.fastest.as_ref().map(|f| Expr::value(**f))
     }
 }

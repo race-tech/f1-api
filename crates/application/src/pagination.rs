@@ -5,7 +5,7 @@ use sea_query::{
 };
 
 use infrastructure::Connection;
-use shared::models::Pagination;
+use shared::prelude::Pagination;
 
 const DEFAULT_PER_PAGE: u64 = 20;
 
@@ -44,7 +44,7 @@ impl Paginated {
     where
         U: FromRow,
     {
-        let query = Query::select()
+        let query = dbg!(Query::select()
             .column(Asterisk)
             .expr_window_as(
                 Expr::cust("COUNT(*)"),
@@ -54,7 +54,7 @@ impl Paginated {
             .from_subquery(self.query, Alias::new("t"))
             .limit(self.per_page)
             .offset(self.offset)
-            .to_string(MysqlQueryBuilder);
+            .to_string(MysqlQueryBuilder));
 
         let res: Vec<PaginationResult<U>> = conn.query(query).unwrap();
         let total = res.first().map(|r| r.total).unwrap_or(0);

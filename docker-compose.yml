@@ -1,6 +1,4 @@
 ---
-version: "3"
-
 services:
   rust_race_engine_mysql_server:
     image: ergast_db

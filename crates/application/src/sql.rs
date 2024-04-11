@@ -4,20 +4,23 @@ use crate::iden::*;
 
 pub(crate) trait SqlBuilder: Sized {
     fn stmt(&mut self) -> &mut sea_query::SelectStatement;
-    fn check_and_results(&self) -> bool;
     fn check_and_races(&self) -> bool;
+    fn check_and_circuits(&self) -> bool;
     fn check_and_drivers(&self) -> Option<SimpleExpr>;
     fn check_and_constructors(&self) -> Option<SimpleExpr>;
     fn check_and_status(&self) -> Option<SimpleExpr>;
     fn check_and_grid(&self) -> Option<SimpleExpr>;
+    fn check_and_fastest(&self) -> Option<SimpleExpr>;
     fn check_and_result(&self) -> Option<SimpleExpr>;
+    fn check_and_round(&self) -> Option<SimpleExpr>;
+    fn check_and_year(&self) -> Option<SimpleExpr>;
 
     fn check_races_table(&self) -> bool {
-        self.check_and_races()
+        self.check_and_circuits()
     }
 
     fn check_results_table(&self) -> bool {
-        self.check_and_results()
+        self.check_and_races()
     }
 
     fn check_drivers_table(&self) -> bool {
@@ -44,12 +47,12 @@ pub(crate) trait SqlBuilder: Sized {
         constructors_table(self, Self::check_constructors_table)
     }
 
-    fn and_races(self) -> Self {
-        and_races(self, Self::check_and_races)
+    fn and_circuits(self) -> Self {
+        and_circuits(self, Self::check_and_circuits)
     }
 
-    fn and_results(self) -> Self {
-        and_results(self, Self::check_and_results)
+    fn and_races(self) -> Self {
+        and_races(self, Self::check_and_races)
     }
 
     fn and_drivers(self) -> Self {
@@ -68,8 +71,20 @@ pub(crate) trait SqlBuilder: Sized {
         and_grid(self, Self::check_and_grid)
     }
 
+    fn and_fastest(self) -> Self {
+        and_fastest(self, Self::check_and_fastest)
+    }
+
     fn and_result(self) -> Self {
         and_result(self, Self::check_and_result)
+    }
+
+    fn and_round(self) -> Self {
+        and_round(self, Self::check_and_round)
+    }
+
+    fn and_year(self) -> Self {
+        and_year(self, Self::check_and_year)
     }
 }
 
@@ -131,7 +146,7 @@ where
     builder
 }
 
-pub(crate) fn and_races<B, F>(mut builder: B, check: F) -> B
+pub(crate) fn and_circuits<B, F>(mut builder: B, check: F) -> B
 where
     B: SqlBuilder,
     F: FnOnce(&B) -> bool,
@@ -145,7 +160,7 @@ where
     builder
 }
 
-pub(crate) fn and_results<B, F>(mut builder: B, check: F) -> B
+pub(crate) fn and_races<B, F>(mut builder: B, check: F) -> B
 where
     B: SqlBuilder,
     F: FnOnce(&B) -> bool,
@@ -222,6 +237,20 @@ where
     builder
 }
 
+pub(crate) fn and_fastest<B, F, V>(mut builder: B, check: F) -> B
+where
+    B: SqlBuilder,
+    F: FnOnce(&B) -> Option<V>,
+    V: Into<SimpleExpr>,
+{
+    if let Some(v) = check(&builder) {
+        builder
+            .stmt()
+            .and_where(Expr::col((Results::Table, Results::Rank)).eq(v));
+    }
+    builder
+}
+
 pub(crate) fn and_result<B, F, V>(mut builder: B, check: F) -> B
 where
     B: SqlBuilder,
@@ -232,6 +261,34 @@ where
         builder
             .stmt()
             .and_where(Expr::col((Results::Table, Results::PositionText)).eq(v));
+    }
+    builder
+}
+
+pub(crate) fn and_round<B, F, V>(mut builder: B, check: F) -> B
+where
+    B: SqlBuilder,
+    F: FnOnce(&B) -> Option<V>,
+    V: Into<SimpleExpr>,
+{
+    if let Some(v) = check(&builder) {
+        builder
+            .stmt()
+            .and_where(Expr::col((Races::Table, Races::Round)).eq(v));
+    }
+    builder
+}
+
+pub(crate) fn and_year<B, F, V>(mut builder: B, check: F) -> B
+where
+    B: SqlBuilder,
+    F: FnOnce(&B) -> Option<V>,
+    V: Into<SimpleExpr>,
+{
+    if let Some(v) = check(&builder) {
+        builder
+            .stmt()
+            .and_where(Expr::col((Races::Table, Races::Year)).eq(v));
     }
     builder
 }

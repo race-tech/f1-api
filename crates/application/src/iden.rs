@@ -98,3 +98,20 @@ pub(crate) enum Constructors {
     Nationality,
     Url,
 }
+
+#[derive(Iden)]
+pub(crate) enum DriverStandings {
+    #[iden = "driverStandings"]
+    Table,
+    #[iden = "driverStandingsId"]
+    Id,
+    #[iden = "raceId"]
+    RaceId,
+    #[iden = "driverId"]
+    DriverId,
+    Points,
+    Position,
+    #[iden = "positionText"]
+    PositionText,
+    Wins,
+}

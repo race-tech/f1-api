@@ -2,8 +2,16 @@
 
 use rocket::form::FromForm;
 use rocket::request::FromParam;
+use serde::Serialize;
 
-pub use super::models::Series;
+#[derive(Debug, Default, Serialize, Clone, Copy)]
+pub enum Series {
+    #[default]
+    #[serde(rename = "f1")]
+    F1,
+    #[serde(rename = "f2")]
+    F2,
+}
 
 impl<'r> FromParam<'r> for Series {
     type Error = ();
@@ -46,17 +54,15 @@ macros::query_parameters! {
     #[Copy] Page(u64);
     #[Copy] Limit(u64);
     DriverRef(String) => str;
-    #[Copy] DriverNumber(i32);
     ConstructorRef(String) => str;
-    Name(String) => str;
-    Circuit(String) => str;
+    CircuitRef(String) => str;
+    #[Copy] DriverStanding(i32);
     #[Copy] Grid(i32);
     #[Copy] RaceResult(i32);
-    #[Copy] ChampionshipResult(i32);
     #[Copy] Year(i32);
     #[Copy] Round(i32);
-    #[Copy] DriverId(i32);
-    #[Copy] RaceId(i32);
+    #[Copy] Fastest(i32);
+    #[Copy] Status(i32);
 }
 
 impl Year {
@@ -72,8 +78,9 @@ macros::struct_parameters!(
     GetCircuitsParameter {
         driver_ref: DriverRef,
         constructor_ref: ConstructorRef,
-        circuit_ref: Circuit,
+        status: Status,
         grid: Grid,
+        fastest: Fastest,
         result: RaceResult,
         year: Year,
         round: Round,
@@ -83,50 +90,19 @@ macros::struct_parameters!(
 );
 
 macros::struct_parameters!(
-    DriverParameter {
-        driver_ref: DriverRef,
-        driver_number: DriverNumber,
+    GetDriversParameter {
+        circuit_ref: CircuitRef,
         constructor_ref: ConstructorRef,
-        circuit_ref: Circuit,
+        driver_standing: DriverStanding,
+        status: Status,
         grid: Grid,
+        fastest: Fastest,
         result: RaceResult,
+        year: Year,
+        round: Round,
         limit: Limit,
         page: Page
-    } => crate::filters::DriverFilter;
-
-    ConstructorParameter {
-        driver_ref: DriverRef,
-        driver_number: DriverNumber,
-        constructor_ref: ConstructorRef,
-        circuit_ref: Circuit,
-        grid: Grid,
-        result: RaceResult,
-        limit: Limit,
-        page: Page
-    } => crate::filters::ConstructorFilter;
-
-    DriverStandingParameter {
-        driver_ref: DriverRef,
-        result: ChampionshipResult,
-        limit: Limit,
-        page: Page
-    } => crate::filters::DriverStandingFilter;
-
-    ConstructorStandingParameter {
-        constructor_ref: ConstructorRef,
-        result: ChampionshipResult,
-        limit: Limit,
-        page: Page
-    } => crate::filters::ConstructorStandingFilter;
-
-    SeasonParameter {
-        limit: Limit,
-        page: Page,
-        driver_ref: DriverRef,
-        constructor_ref: ConstructorRef,
-        circuit_ref: Circuit,
-        grid: Grid
-    } => crate::filters::SeasonFilter;
+    } => crate::filters::GetDriversFilter;
 );
 
 impl Default for Page {
