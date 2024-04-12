@@ -17,6 +17,7 @@ pub struct PitStopsQueryBuilder {
 impl PitStopsQueryBuilder {
     pub fn params(params: GetPitStopsParameter) -> Self {
         let stmt = Query::select()
+            .distinct()
             .expr_as(
                 Expr::col((Races::Table, Races::Name)),
                 Alias::new("raceName"),

@@ -18,6 +18,7 @@ pub struct SeasonsQueryBuilder {
 impl SeasonsQueryBuilder {
     pub fn params(params: GetSeasonsParameters) -> Self {
         let stmt = Query::select()
+            .distinct()
             .column((Seasons::Table, Seasons::Year))
             .column((Seasons::Table, Seasons::Url))
             .from(Seasons::Table)

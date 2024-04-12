@@ -17,6 +17,7 @@ pub struct LapsQueryBuilder {
 impl LapsQueryBuilder {
     pub fn params(params: GetLapsParameter) -> Self {
         let stmt = Query::select()
+            .distinct()
             .expr_as(
                 Expr::col((Races::Table, Races::Name)),
                 Alias::new("raceName"),

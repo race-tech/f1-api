@@ -33,6 +33,7 @@ const DATE_AND_TIME_COLS: &[(Races, &str)] = &[
 impl RacesQueryBuilder {
     pub fn params(params: GetRacesParameters) -> Self {
         let stmt = Query::select()
+            .distinct()
             .column((Races::Table, Races::Year))
             .column((Races::Table, Races::Round))
             .expr_as(
