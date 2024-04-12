@@ -1,8 +1,8 @@
-pub mod circuit;
-pub mod constructor;
-pub mod constructor_standing;
-pub mod driver;
-pub mod driver_standing;
+pub mod circuits;
+pub mod constructor_standings;
+pub mod constructors;
+pub mod driver_standings;
+pub mod drivers;
 pub(crate) mod iden;
 pub mod laps;
 mod pagination;

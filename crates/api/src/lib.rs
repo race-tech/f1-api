@@ -1,10 +1,10 @@
 #![allow(clippy::too_many_arguments)]
 
-mod circuit;
-mod constructor;
-mod constructor_standing;
-mod driver;
-mod driver_standing;
+mod circuits;
+mod constructor_standings;
+mod constructors;
+mod driver_standings;
+mod drivers;
 mod laps;
 
 pub mod handlers {
@@ -12,12 +12,12 @@ pub mod handlers {
     use rocket::Route;
 
     pub fn handlers() -> Vec<Route> {
-        circuit::handlers()
+        circuits::handlers()
             .into_iter()
-            .chain(driver::handlers())
-            .chain(constructor::handlers())
-            .chain(constructor_standing::handlers())
-            .chain(driver_standing::handlers())
+            .chain(drivers::handlers())
+            .chain(constructors::handlers())
+            .chain(constructor_standings::handlers())
+            .chain(driver_standings::handlers())
             .chain(laps::handlers())
             .collect()
     }
