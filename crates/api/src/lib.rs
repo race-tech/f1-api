@@ -8,6 +8,7 @@ mod drivers;
 mod laps;
 mod pit_stops;
 mod races;
+mod seasons;
 
 pub mod handlers {
     use crate::*;
@@ -23,6 +24,7 @@ pub mod handlers {
             .chain(laps::handlers())
             .chain(pit_stops::handlers())
             .chain(races::handlers())
+            .chain(seasons::handlers())
             .collect()
     }
 }

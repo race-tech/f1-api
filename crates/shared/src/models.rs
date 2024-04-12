@@ -179,3 +179,9 @@ pub struct Race {
     pub alt: Option<i32>,
     pub url: String,
 }
+
+#[derive(FromRow, Debug)]
+pub struct Season {
+    pub year: i32,
+    pub url: String,
+}

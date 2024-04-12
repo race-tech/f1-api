@@ -8,4 +8,5 @@ pub mod laps;
 mod pagination;
 pub mod pit_stops;
 pub mod races;
+pub mod seasons;
 pub(crate) mod sql;

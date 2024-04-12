@@ -182,6 +182,21 @@ pub struct PitStop {
     duration: Option<String>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct Season {
+    year: i32,
+    url: String,
+}
+
+impl From<crate::models::Season> for Season {
+    fn from(value: crate::models::Season) -> Self {
+        Season {
+            year: value.year,
+            url: value.url,
+        }
+    }
+}
+
 impl From<Vec<crate::models::PitStop>> for PitStopsResponse {
     fn from(value: Vec<crate::models::PitStop>) -> Self {
         let circuit: Circuit = value.first().unwrap().into();

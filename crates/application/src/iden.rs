@@ -161,3 +161,10 @@ pub(crate) enum PitStops {
     Duration,
     Milliseconds,
 }
+
+#[derive(Iden)]
+pub(crate) enum Seasons {
+    Table,
+    Year,
+    Url,
+}
