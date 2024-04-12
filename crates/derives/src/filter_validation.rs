@@ -106,7 +106,7 @@ fn collect_fields(data: &Data) -> FieldCollection {
         })
         .fold(FieldCollection::default(), |mut acc, f| {
             match f {
-                FieldValidation::Skip(_) => (),
+                FieldValidation::Skip => (),
                 FieldValidation::Unique(ident) => {
                     acc.unique.push(ident.clone());
                     acc.unskiped.push(ident);
@@ -134,7 +134,7 @@ struct FieldCollection {
 }
 
 enum FieldValidation {
-    Skip(Ident),
+    Skip,
     Unique(Ident),
     Compatible(Ident, Vec<Ident>),
     All(Ident),
@@ -167,7 +167,7 @@ impl FieldValidation {
         });
 
         if skip {
-            Self::Skip(ident)
+            Self::Skip
         } else if unique {
             Self::Unique(ident)
         } else if let Some(compatible) = compatible {
