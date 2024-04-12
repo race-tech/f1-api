@@ -1,11 +1,13 @@
-use sea_query::{Expr, Func, IntoTableRef, Query, SelectStatement, SimpleExpr};
+use sea_query::{Expr, Func, Query, SelectStatement};
 
 use shared::models::Drivers as DriversModel;
 use shared::parameters::GetDriversParameter;
 
 use crate::{
     iden::*,
+    one_of,
     pagination::{Paginate, Paginated},
+    sql::SqlBuilder,
 };
 
 pub struct DriverQueryBuilder {
@@ -48,22 +50,24 @@ impl DriverQueryBuilder {
             || self.params.fastest.is_some()
     }
 
-    pub fn build(mut self) -> Paginated<DriversModel> {
+    pub fn build(self) -> Paginated<DriversModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 
-        self.join(
+        self.from(
             |s| {
-                s.params.year.is_some()
-                    || s.params.circuit_ref.is_some()
-                    || s.params.driver_standing.is_some()
+                one_of!(
+                    s.params.year,
+                    s.params.circuit_ref,
+                    s.params.driver_standing
+                )
             },
             Races::Table,
         )
-        .join(Self::one_of, Results::Table)
-        .join(|s| s.params.circuit_ref.is_some(), Circuits::Table)
-        .join(|s| s.params.constructor_ref.is_some(), Constructors::Table)
-        .join(
+        .from(Self::one_of, Results::Table)
+        .from(|s| s.params.circuit_ref.is_some(), Circuits::Table)
+        .from(|s| s.params.constructor_ref.is_some(), Constructors::Table)
+        .from(
             |s| s.params.driver_standing.is_some(),
             DriverStandings::Table,
         )
@@ -81,13 +85,13 @@ impl DriverQueryBuilder {
         .per_page(limit)
     }
 
-    fn and_clause_one(&mut self) -> &mut Self {
+    fn and_clause_one(self) -> Self {
         if self.params.driver_standing.is_none() {
             return self;
         }
 
         self.and_where(|s| {
-            if s.params.year.is_some() || s.params.constructor_ref.is_some() {
+            if one_of!(s.params.year, s.params.constructor_ref) {
                 Some(
                     Expr::col((Drivers::Table, Drivers::DriverId))
                         .equals((Results::Table, Results::DriverId)),
@@ -131,7 +135,7 @@ impl DriverQueryBuilder {
         })
     }
 
-    fn and_clause_two(&mut self) -> &mut Self {
+    fn and_clause_two(self) -> Self {
         if self.params.driver_standing.is_some() {
             return self;
         }
@@ -198,7 +202,7 @@ impl DriverQueryBuilder {
         })
     }
 
-    fn and_clause_three(&mut self) -> &mut Self {
+    fn and_clause_three(self) -> Self {
         if let Some(round) = self.params.round.map(|r| *r) {
             return self.and_where(|_| {
                 Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(round)))
@@ -245,28 +249,10 @@ impl DriverQueryBuilder {
 
         self
     }
+}
 
-    fn join<F, R>(&mut self, f: F, table: R) -> &mut Self
-    where
-        F: FnOnce(&Self) -> bool,
-        R: IntoTableRef,
-    {
-        if f(self) {
-            self.stmt
-                .join(sea_query::JoinType::Join, table, Expr::val(1).eq(1));
-        }
-
-        self
-    }
-
-    fn and_where<F>(&mut self, f: F) -> &mut Self
-    where
-        F: FnOnce(&Self) -> Option<SimpleExpr>,
-    {
-        if let Some(expr) = f(self) {
-            self.stmt.and_where(expr);
-        }
-
-        self
+impl SqlBuilder for DriverQueryBuilder {
+    fn stmt(&mut self) -> &mut sea_query::SelectStatement {
+        &mut self.stmt
     }
 }

@@ -1,10 +1,11 @@
-use sea_query::{Expr, Query, SelectStatement, SimpleExpr};
+use sea_query::{Expr, Query, SelectStatement};
 
 use shared::models::Circuits as CircuitsModel;
 use shared::parameters::GetCircuitsParameter;
 
 use crate::{
     iden::*,
+    one_of,
     pagination::{Paginate, Paginated},
     sql::*,
 };
@@ -34,6 +35,10 @@ impl CircuitQueryBuilder {
                 .into_iter()
                 .map(|c| (Circuits::Table, c)),
             )
+            .order_by(
+                (Circuits::Table, Circuits::CircuitRef),
+                sea_query::Order::Asc,
+            )
             .to_owned();
 
         Self { stmt, params }
@@ -43,82 +48,118 @@ impl CircuitQueryBuilder {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 
-        self.races_table()
-            .results_table()
-            .constructors_table()
-            .drivers_table()
-            .and_status()
-            .and_circuits()
-            .and_races()
-            .and_drivers()
-            .and_constructors()
-            .and_grid()
-            .and_fastest()
-            .and_result()
-            .and_round()
-            .and_year()
-            .stmt
-            .paginate(page)
-            .per_page(limit)
-    }
-
-    fn one_of(&self) -> bool {
-        self.params.driver_ref.is_some()
-            || self.params.constructor_ref.is_some()
-            || self.params.status.is_some()
-            || self.params.grid.is_some()
-            || self.params.fastest.is_some()
-            || self.params.result.is_some()
-            || self.params.year.is_some()
-            || self.params.round.is_some()
+        self.from(
+            |s| {
+                one_of!(
+                    s.params.year,
+                    s.params.driver_ref,
+                    s.params.constructor_ref,
+                    s.params.status,
+                    s.params.grid,
+                    s.params.fastest,
+                    s.params.result
+                )
+            },
+            Races::Table,
+        )
+        .from(
+            |s| {
+                one_of!(
+                    s.params.driver_ref,
+                    s.params.constructor_ref,
+                    s.params.status,
+                    s.params.grid,
+                    s.params.fastest,
+                    s.params.result
+                )
+            },
+            Results::Table,
+        )
+        .from(|s| s.params.driver_ref.is_some(), Drivers::Table)
+        .from(|s| s.params.constructor_ref.is_some(), Constructors::Table)
+        .and_where(|s| {
+            one_of!(
+                s.params.year,
+                s.params.driver_ref,
+                s.params.constructor_ref,
+                s.params.status,
+                s.params.grid,
+                s.params.fastest,
+                s.params.result
+            )
+            .then_some(
+                Expr::col((Circuits::Table, Circuits::CircuitId))
+                    .equals((Races::Table, Races::CircuitId)),
+            )
+        })
+        .and_where(|s| {
+            one_of!(
+                s.params.driver_ref,
+                s.params.constructor_ref,
+                s.params.status,
+                s.params.grid,
+                s.params.fastest,
+                s.params.result
+            )
+            .then_some(
+                Expr::col((Results::Table, Results::RaceId)).equals((Races::Table, Races::RaceId)),
+            )
+        })
+        .and_where(|s| {
+            s.params.constructor_ref.as_ref().map(|c| {
+                Expr::col((Constructors::Table, Constructors::ConstructorId))
+                    .equals((Results::Table, Results::ConstructorId))
+                    .and(
+                        Expr::col((Constructors::Table, Constructors::ConstructorRef))
+                            .eq(Expr::value(&**c)),
+                    )
+            })
+        })
+        .and_where(|s| {
+            s.params.driver_ref.as_ref().map(|d| {
+                Expr::col((Drivers::Table, Drivers::DriverId))
+                    .equals((Results::Table, Results::DriverId))
+                    .and(Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(&**d)))
+            })
+        })
+        .and_where(|s| {
+            s.params
+                .status
+                .map(|s| Expr::col((Results::Table, Results::StatusId)).eq(Expr::value(*s)))
+        })
+        .and_where(|s| {
+            s.params
+                .grid
+                .map(|g| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(*g)))
+        })
+        .and_where(|s| {
+            s.params
+                .fastest
+                .map(|f| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(*f)))
+        })
+        .and_where(|s| {
+            s.params
+                .result
+                .map(|r| Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(*r)))
+        })
+        .and_where(|s| {
+            s.params
+                .round
+                .map(|r| Expr::col((Races::Table, Races::Round)).eq(Expr::value(*r)))
+        })
+        .and_where(|s| {
+            s.params
+                .year
+                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::value(*y)))
+        })
+        .stmt
+        .paginate(page)
+        .per_page(limit)
     }
 }
 
 impl SqlBuilder for CircuitQueryBuilder {
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
-    }
-
-    fn check_and_circuits(&self) -> bool {
-        self.one_of()
-    }
-
-    fn check_and_races(&self) -> bool {
-        self.one_of()
-    }
-
-    fn check_and_drivers(&self) -> Option<SimpleExpr> {
-        self.params.driver_ref.as_ref().map(|d| Expr::value(&**d))
-    }
-
-    fn check_and_constructors(&self) -> Option<SimpleExpr> {
-        self.params
-            .constructor_ref
-            .as_ref()
-            .map(|c| Expr::value(&**c))
-    }
-
-    fn check_and_status(&self) -> Option<SimpleExpr> {
-        self.params.status.as_ref().map(|s| Expr::value(**s))
-    }
-
-    fn check_and_grid(&self) -> Option<SimpleExpr> {
-        self.params.grid.as_ref().map(|g| Expr::value(**g))
-    }
-
-    fn check_and_result(&self) -> Option<SimpleExpr> {
-        self.params.result.as_ref().map(|r| Expr::value(**r))
-    }
-
-    fn check_and_round(&self) -> Option<SimpleExpr> {
-        self.params.round.as_ref().map(|r| Expr::value(**r))
-    }
-
-    fn check_and_year(&self) -> Option<SimpleExpr> {
-        self.params.year.as_ref().map(|y| Expr::value(**y))
-    }
-
-    fn check_and_fastest(&self) -> Option<SimpleExpr> {
-        self.params.fastest.as_ref().map(|f| Expr::value(**f))
     }
 }

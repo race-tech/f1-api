@@ -1,11 +1,13 @@
-use sea_query::{Expr, Func, IntoTableRef, Query, SelectStatement, SimpleExpr};
+use sea_query::{Expr, Func, Query, SelectStatement};
 
 use shared::models::Constructors as ConstructorsModel;
 use shared::parameters::GetConstructorsParameter;
 
 use crate::{
     iden::*,
+    one_of,
     pagination::{Paginate, Paginated},
+    sql::SqlBuilder,
 };
 
 pub struct ConstructorQueryBuilder {
@@ -34,22 +36,24 @@ impl ConstructorQueryBuilder {
         Self { params, stmt }
     }
 
-    pub fn build(mut self) -> Paginated<ConstructorsModel> {
+    pub fn build(self) -> Paginated<ConstructorsModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 
-        self.join(
+        self.from(
             |s| {
-                s.params.year.is_some()
-                    || s.params.circuit_ref.is_some()
-                    || s.params.constructor_standing.is_some()
+                one_of!(
+                    s.params.year,
+                    s.params.circuit_ref,
+                    s.params.constructor_standing
+                )
             },
             Races::Table,
         )
-        .join(Self::one_of, Results::Table)
-        .join(|s| s.params.driver_ref.is_some(), Drivers::Table)
-        .join(|s| s.params.circuit_ref.is_some(), Circuits::Table)
-        .join(
+        .from(Self::one_of, Results::Table)
+        .from(|s| s.params.driver_ref.is_some(), Drivers::Table)
+        .from(|s| s.params.circuit_ref.is_some(), Circuits::Table)
+        .from(
             |s| s.params.constructor_standing.is_some(),
             ConstructorStandings::Table,
         )
@@ -60,7 +64,7 @@ impl ConstructorQueryBuilder {
             )
         })
         .and_where(|s| {
-            (s.params.year.is_some() || s.params.circuit_ref.is_some()).then_some(
+            one_of!(s.params.year, s.params.circuit_ref).then_some(
                 Expr::col((Results::Table, Results::RaceId)).equals((Races::Table, Races::RaceId)),
             )
         })
@@ -123,7 +127,7 @@ impl ConstructorQueryBuilder {
         .per_page(limit)
     }
 
-    fn and_clause(&mut self) -> &mut Self {
+    fn and_clause(self) -> Self {
         if let Some(round) = self.params.round {
             return self.and_where(|_| {
                 Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(*round)))
@@ -158,43 +162,27 @@ impl ConstructorQueryBuilder {
                 },
             );
 
-            self.and_where(|_| Some(expr));
+            self.and_where(|_| Some(expr))
+        } else {
+            self
         }
-
-        self
     }
 
     fn one_of(&self) -> bool {
-        self.params.year.is_some()
-            || self.params.driver_ref.is_some()
-            || self.params.status.is_some()
-            || self.params.grid.is_some()
-            || self.params.result.is_some()
-            || self.params.circuit_ref.is_some()
-            || self.params.fastest.is_some()
+        one_of!(
+            self.params.year,
+            self.params.driver_ref,
+            self.params.status,
+            self.params.grid,
+            self.params.result,
+            self.params.circuit_ref,
+            self.params.fastest
+        )
     }
+}
 
-    fn join<F, R>(&mut self, f: F, table: R) -> &mut Self
-    where
-        F: FnOnce(&Self) -> bool,
-        R: IntoTableRef,
-    {
-        if f(self) {
-            self.stmt
-                .join(sea_query::JoinType::Join, table, Expr::val(1).eq(1));
-        }
-
-        self
-    }
-
-    fn and_where<F>(&mut self, f: F) -> &mut Self
-    where
-        F: FnOnce(&Self) -> Option<SimpleExpr>,
-    {
-        if let Some(expr) = f(self) {
-            self.stmt.and_where(expr);
-        }
-
-        self
+impl SqlBuilder for ConstructorQueryBuilder {
+    fn stmt(&mut self) -> &mut sea_query::SelectStatement {
+        &mut self.stmt
     }
 }

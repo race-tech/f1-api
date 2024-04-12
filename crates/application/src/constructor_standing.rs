@@ -1,4 +1,4 @@
-use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement, SimpleExpr};
+use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement};
 
 use shared::models::ConstructorStandings as ConstructorStandingsModel;
 use shared::parameters::GetConstructorStandingsParameter;
@@ -6,6 +6,7 @@ use shared::parameters::GetConstructorStandingsParameter;
 use crate::{
     iden::*,
     pagination::{Paginate, Paginated},
+    sql::SqlBuilder,
 };
 
 pub struct ConstructorStandingQueryBuilder {
@@ -131,15 +132,10 @@ impl ConstructorStandingQueryBuilder {
 
         self.and_where(|_| Some(expr))
     }
+}
 
-    fn and_where<F>(mut self, f: F) -> Self
-    where
-        F: FnOnce(&Self) -> Option<SimpleExpr>,
-    {
-        if let Some(expr) = f(&self) {
-            self.stmt.and_where(expr);
-        }
-
-        self
+impl SqlBuilder for ConstructorStandingQueryBuilder {
+    fn stmt(&mut self) -> &mut SelectStatement {
+        &mut self.stmt
     }
 }
