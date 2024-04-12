@@ -10,28 +10,30 @@ use shared::prelude::Pagination;
 const DEFAULT_PER_PAGE: u64 = 20;
 
 pub trait Paginate {
-    fn paginate(self, page: u64) -> Paginated;
+    fn paginate<U>(self, page: u64) -> Paginated<U>;
 }
 
 impl Paginate for SelectStatement {
-    fn paginate(self, page: u64) -> Paginated {
+    fn paginate<U>(self, page: u64) -> Paginated<U> {
         Paginated {
             query: self,
             page,
             per_page: DEFAULT_PER_PAGE,
             offset: offset(page, DEFAULT_PER_PAGE),
+            data: std::marker::PhantomData,
         }
     }
 }
 
-pub struct Paginated {
+pub struct Paginated<U> {
     query: SelectStatement,
     page: u64,
     per_page: u64,
     offset: u64,
+    data: std::marker::PhantomData<U>,
 }
 
-impl Paginated {
+impl<U: FromRow> Paginated<U> {
     pub fn per_page(self, per_page: u64) -> Self {
         Paginated {
             per_page,
@@ -40,10 +42,7 @@ impl Paginated {
         }
     }
 
-    pub fn query_and_count<U>(self, conn: &mut Connection) -> (Vec<U>, Pagination)
-    where
-        U: FromRow,
-    {
+    pub fn query_and_count(self, conn: &mut Connection) -> (Vec<U>, Pagination) {
         let query = dbg!(Query::select()
             .column(Asterisk)
             .expr_window_as(

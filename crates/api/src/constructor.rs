@@ -1,7 +1,6 @@
 use rocket::serde::json::Json;
 use rocket::{get, routes, State};
 
-use application::{self, models::Constructors};
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
@@ -15,7 +14,7 @@ pub fn constructors(
 
     let query = application::constructor::ConstructorQueryBuilder::params(param).build();
 
-    let res = query.query_and_count::<Constructors>(conn);
+    let res = query.query_and_count(conn);
 
     let response = Response {
         data: res.0,

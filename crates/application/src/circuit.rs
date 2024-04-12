@@ -1,11 +1,13 @@
 use sea_query::{Expr, Query, SelectStatement, SimpleExpr};
 
+use shared::models::Circuits as CircuitsModel;
+use shared::parameters::GetCircuitsParameter;
+
 use crate::{
     iden::*,
     pagination::{Paginate, Paginated},
     sql::*,
 };
-use shared::parameters::GetCircuitsParameter;
 
 pub struct CircuitQueryBuilder {
     stmt: SelectStatement,
@@ -37,7 +39,7 @@ impl CircuitQueryBuilder {
         Self { stmt, params }
     }
 
-    pub fn build(self) -> Paginated {
+    pub fn build(self) -> Paginated<CircuitsModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

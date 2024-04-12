@@ -1,7 +1,6 @@
 use rocket::serde::json::Json;
 use rocket::{get, routes, State};
 
-use application::{self, models::Circuits};
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
@@ -15,7 +14,7 @@ pub fn circuits(
 
     let query = application::circuit::CircuitQueryBuilder::params(param).build();
 
-    let res = query.query_and_count::<Circuits>(conn);
+    let res = query.query_and_count(conn);
 
     let response = Response {
         data: res.0,

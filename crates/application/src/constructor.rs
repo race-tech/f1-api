@@ -1,5 +1,6 @@
 use sea_query::{Expr, Func, IntoTableRef, Query, SelectStatement, SimpleExpr};
 
+use shared::models::Constructors as ConstructorsModel;
 use shared::parameters::GetConstructorsParameter;
 
 use crate::{
@@ -33,7 +34,7 @@ impl ConstructorQueryBuilder {
         Self { params, stmt }
     }
 
-    pub fn build(mut self) -> Paginated {
+    pub fn build(mut self) -> Paginated<ConstructorsModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

@@ -1,5 +1,6 @@
 use sea_query::{Expr, Func, IntoTableRef, Query, SelectStatement, SimpleExpr};
 
+use shared::models::Drivers as DriversModel;
 use shared::parameters::GetDriversParameter;
 
 use crate::{
@@ -47,7 +48,7 @@ impl DriverQueryBuilder {
             || self.params.fastest.is_some()
     }
 
-    pub fn build(mut self) -> Paginated {
+    pub fn build(mut self) -> Paginated<DriversModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

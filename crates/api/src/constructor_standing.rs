@@ -1,7 +1,6 @@
 use rocket::serde::json::Json;
 use rocket::{get, routes, State};
 
-use application::{self, models::ConstructorStandings};
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
@@ -16,7 +15,7 @@ pub fn constructor_standings(
     let query =
         application::constructor_standing::ConstructorStandingQueryBuilder::params(param).build();
 
-    let res = query.query_and_count::<ConstructorStandings>(conn);
+    let res = query.query_and_count(conn);
 
     let response = Response {
         data: res.0,

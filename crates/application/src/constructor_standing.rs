@@ -1,5 +1,6 @@
 use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement, SimpleExpr};
 
+use shared::models::ConstructorStandings as ConstructorStandingsModel;
 use shared::parameters::GetConstructorStandingsParameter;
 
 use crate::{
@@ -60,7 +61,7 @@ impl ConstructorStandingQueryBuilder {
         Self { params, stmt }
     }
 
-    pub fn build(self) -> Paginated {
+    pub fn build(self) -> Paginated<ConstructorStandingsModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 
