@@ -1,19 +1,22 @@
 ---
-name: Lint, Build & Test
+name: fmt, lint & build
 
-on: push
-
-env:
-  CARGO_TERM_COLOR: always
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  test:
+  cache:
     runs-on: ubuntu-latest
-    name: CI
+    name: Setup
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up cargo cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         continue-on-error: false
         with:
           path: |
@@ -31,15 +34,66 @@ jobs:
           rustc --version
           cargo clippy --version
 
-      - name: Lint
-        run: |
-          cargo fmt -- --check
-          cargo clippy -- -D warnings
+  fmt:
+    runs-on: ubuntu-latest
+    name: Codestyle
+    needs: cache
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up cargo cache
+        uses: actions/cache@v4
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+      - name: fmt
+        run: cargo fmt --all -- --check
 
-      - name: Build
-        run: cargo build --verbose --release
+  clippy:
+    runs-on: ubuntu-latest
+    name: clippy
+    needs: cache
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up cargo cache
+        uses: actions/cache@v4
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+      - name: clippy
+        run: cargo clippy -- -D warnings
 
-      - name: Run tests
-        run: |
-          cargo check
-          cargo test --verbose --all
+  build:
+    runs-on: ubuntu-latest
+    name: build
+    needs: cache
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up cargo cache
+        uses: actions/cache@v4
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: build
+        run: cargo check --workspace --release --all-features
