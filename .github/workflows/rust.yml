@@ -1,5 +1,5 @@
 ---
-name: Rust Continuous Integration
+name: Lint, Build & Test
 
 on: push
 
