@@ -34,7 +34,7 @@ impl<'r> FromParam<'r> for Year {
     fn from_param(param: &str) -> Result<Self, Self::Error> {
         match param {
             "current" => Ok(Year::get_current_year()),
-            _ => match param.parse::<i32>() {
+            _ => match param.parse::<u32>() {
                 Ok(year) => Ok(Year(year)),
                 Err(_) => Err(()),
             },
@@ -46,7 +46,7 @@ impl<'r> FromParam<'r> for Round {
     type Error = ();
 
     fn from_param(param: &str) -> Result<Self, Self::Error> {
-        match param.parse::<i32>() {
+        match param.parse::<u32>() {
             Ok(round) => Ok(Round(round)),
             Err(_) => Err(()),
         }
@@ -59,15 +59,16 @@ macros::query_parameters! {
     DriverRef(String) => str;
     ConstructorRef(String) => str;
     CircuitRef(String) => str;
-    #[Copy] DriverStanding(i32);
-    #[Copy] ConstructorStanding(i32);
-    #[Copy] Grid(i32);
-    #[Copy] RaceResult(i32);
-    #[Copy] Year(i32);
-    #[Copy] Round(i32);
+    #[Copy] DriverStanding(u32);
+    #[Copy] ConstructorStanding(u32);
+    #[Copy] Grid(u32);
+    #[Copy] RaceResult(u32);
+    #[Copy] Year(u32);
+    #[Copy] Round(u32);
     #[Copy] Fastest(i32);
     #[Copy] Status(i32);
-    #[Copy] LapNumber(i32);
+    #[Copy] LapNumber(u32);
+    #[Copy] PitStopNumber(u32);
 }
 
 impl Year {
@@ -75,7 +76,7 @@ impl Year {
         use chrono::Datelike;
 
         let now = chrono::Utc::now();
-        Self(now.year())
+        Self(now.year() as u32)
     }
 }
 
@@ -169,6 +170,19 @@ pub struct GetLapsParameter {
     #[validation(skip)]
     pub round: Round,
     pub lap_number: Option<LapNumber>,
+}
+
+#[derive(Debug, Default, FilterValidation, FromForm)]
+pub struct GetPitStopsParameter {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub driver_ref: Option<DriverRef>,
+    pub year: Year,
+    pub round: Round,
+    pub lap_number: Option<LapNumber>,
+    pub pit_stop_number: Option<PitStopNumber>,
 }
 
 impl Default for Page {

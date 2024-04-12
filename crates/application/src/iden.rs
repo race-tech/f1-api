@@ -146,3 +146,18 @@ pub(crate) enum LapTimes {
     Time,
     Milliseconds,
 }
+
+#[derive(Iden)]
+pub(crate) enum PitStops {
+    #[iden = "pitStops"]
+    Table,
+    #[iden = "raceId"]
+    RaceId,
+    #[iden = "driverId"]
+    DriverId,
+    Stop,
+    Lap,
+    Time,
+    Duration,
+    Milliseconds,
+}

@@ -6,6 +6,7 @@ mod constructors;
 mod driver_standings;
 mod drivers;
 mod laps;
+mod pit_stops;
 
 pub mod handlers {
     use crate::*;
@@ -19,6 +20,7 @@ pub mod handlers {
             .chain(constructor_standings::handlers())
             .chain(driver_standings::handlers())
             .chain(laps::handlers())
+            .chain(pit_stops::handlers())
             .collect()
     }
 }

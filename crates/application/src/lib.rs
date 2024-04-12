@@ -6,4 +6,5 @@ pub mod drivers;
 pub(crate) mod iden;
 pub mod laps;
 mod pagination;
+pub mod pit_stops;
 pub(crate) mod sql;

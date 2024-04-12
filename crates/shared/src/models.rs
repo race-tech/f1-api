@@ -107,7 +107,7 @@ pub struct Laps {
     race_date: chrono::NaiveDate,
     #[mysql(rename = "raceTime")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    race_time: Option<String>,
+    race_time: Option<chrono::NaiveTime>,
     #[mysql(rename = "raceUrl")]
     #[serde(skip_serializing_if = "Option::is_none")]
     race_url: Option<String>,
@@ -139,4 +139,45 @@ pub struct Laps {
     position: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     time: Option<String>,
+}
+
+#[derive(FromRow, Debug, Serialize)]
+pub struct PitStops {
+    #[mysql(rename = "raceName")]
+    race_name: String,
+    #[mysql(rename = "raceDate")]
+    race_date: chrono::NaiveDate,
+    #[mysql(rename = "raceTime")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    race_time: Option<chrono::NaiveTime>,
+    #[mysql(rename = "raceUrl")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    race_url: Option<String>,
+    #[mysql(rename = "circuitRef")]
+    circuit_ref: String,
+    #[mysql(rename = "circuitName")]
+    circuit_name: String,
+    #[mysql(rename = "circuitLocation")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    circuit_location: Option<String>,
+    #[mysql(rename = "circuitCountry")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    circuit_country: Option<String>,
+    #[mysql(rename = "circuitLat")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    circuit_lat: Option<f32>,
+    #[mysql(rename = "circuitLng")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    circuit_lng: Option<f32>,
+    #[mysql(rename = "circuitAlt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    circuit_alt: Option<i32>,
+    #[mysql(rename = "circuitUrl")]
+    circuit_url: String,
+    #[mysql(rename = "driverRef")]
+    driver_ref: String,
+    stop: i32,
+    lap: i32,
+    time: chrono::NaiveTime,
+    duration: Option<String>,
 }
