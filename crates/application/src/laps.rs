@@ -1,6 +1,6 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
-use shared::models::Laps as LapsModel;
+use shared::models::Lap as LapsModel;
 use shared::parameters::GetLapsParameter;
 
 use crate::{

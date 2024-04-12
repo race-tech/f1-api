@@ -1,6 +1,6 @@
 use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement};
 
-use shared::models::ConstructorStandings as ConstructorStandingsModel;
+use shared::models::ConstructorStanding as ConstructorStandingsModel;
 use shared::parameters::GetConstructorStandingsParameter;
 
 use crate::{

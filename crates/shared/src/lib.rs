@@ -5,7 +5,6 @@ pub mod responses;
 
 pub mod prelude {
     pub use crate::error::*;
-    pub use crate::models::*;
     pub use crate::parameters::*;
     pub use crate::responses::*;
 }

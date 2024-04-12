@@ -1,6 +1,6 @@
 use sea_query::{Expr, Func, Query, SelectStatement};
 
-use shared::models::Drivers as DriversModel;
+use shared::models::Driver as DriversModel;
 use shared::parameters::GetDriversParameter;
 
 use crate::{

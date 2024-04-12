@@ -9,7 +9,7 @@ pub fn laps(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetLapsParameter,
-) -> Result<Json<Response<Vec<Laps>>>> {
+) -> Result<Json<Response<LapsResponse>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
     let query = application::laps::LapsQueryBuilder::params(param).build();
@@ -17,7 +17,7 @@ pub fn laps(
     let res = query.query_and_count(conn);
 
     let response = Response {
-        data: res.0,
+        data: res.0.into(),
         pagination: res.1,
         series,
     };

@@ -1,6 +1,6 @@
 use sea_query::{Expr, Func, Query, SelectStatement};
 
-use shared::models::Constructors as ConstructorsModel;
+use shared::models::Constructor as ConstructorsModel;
 use shared::parameters::GetConstructorsParameter;
 
 use crate::{

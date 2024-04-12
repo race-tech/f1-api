@@ -1,6 +1,6 @@
 use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement};
 
-use shared::models::DriverStandings as DriverStandingsModel;
+use shared::models::DriverStanding as DriverStandingsModel;
 use shared::parameters::GetDriverStandingsParameter;
 
 use crate::{

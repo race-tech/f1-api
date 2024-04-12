@@ -185,6 +185,23 @@ pub struct GetPitStopsParameter {
     pub pit_stop_number: Option<PitStopNumber>,
 }
 
+#[derive(Debug, Default, FilterValidation, FromForm)]
+pub struct GetRacesParameters {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub circuit_ref: Option<CircuitRef>,
+    pub driver_ref: Option<DriverRef>,
+    pub constructor_ref: Option<ConstructorRef>,
+    pub status: Option<Status>,
+    pub grid: Option<Grid>,
+    pub fastest: Option<Fastest>,
+    pub result: Option<RaceResult>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
+}
+
 impl Default for Page {
     fn default() -> Self {
         Self(1)

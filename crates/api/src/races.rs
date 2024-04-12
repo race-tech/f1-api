@@ -4,16 +4,15 @@ use rocket::{get, routes, State};
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
-#[get("/<series>/constructors/standing?<param..>")]
-pub fn constructor_standings(
+#[get("/<series>/races?<param..>")]
+pub fn races(
     db: &State<ConnectionPool>,
     series: Series,
-    param: shared::parameters::GetConstructorStandingsParameter,
-) -> Result<Json<Response<Vec<ConstructorStandingResponse>>>> {
+    param: shared::parameters::GetRacesParameters,
+) -> Result<Json<Response<Vec<RaceResponse>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let query =
-        application::constructor_standings::ConstructorStandingsQueryBuilder::params(param).build();
+    let query = application::races::RacesQueryBuilder::params(param).build();
 
     let res = query.query_and_count(conn);
 
@@ -23,5 +22,5 @@ pub fn constructor_standings(
 }
 
 pub fn handlers() -> Vec<rocket::Route> {
-    routes![constructor_standings]
+    routes![races]
 }

@@ -9,18 +9,14 @@ pub fn driver(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetDriversParameter,
-) -> Result<Json<Response<Vec<Drivers>>>> {
+) -> Result<Json<Response<Vec<Driver>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
     let query = application::drivers::DriversQueryBuilder::params(param).build();
 
     let res = query.query_and_count(conn);
 
-    let response = Response {
-        data: res.0,
-        pagination: res.1,
-        series,
-    };
+    let response = Response::new(res.0, res.1, series);
 
     Ok(Json(response))
 }

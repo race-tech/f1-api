@@ -1,6 +1,6 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
-use shared::models::PitStops as PitStopsModel;
+use shared::models::PitStop as PitStopsModel;
 use shared::parameters::GetPitStopsParameter;
 
 use crate::{

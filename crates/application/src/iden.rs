@@ -18,7 +18,7 @@ pub(crate) enum Circuits {
     Url,
 }
 
-#[derive(Iden)]
+#[derive(Iden, Clone, Copy)]
 pub(crate) enum Races {
     Table,
     #[iden = "raceId"]

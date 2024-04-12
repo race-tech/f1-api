@@ -9,7 +9,7 @@ pub fn pit_stops(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetPitStopsParameter,
-) -> Result<Json<Response<Vec<PitStops>>>> {
+) -> Result<Json<Response<PitStopsResponse>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
     let query = application::pit_stops::PitStopsQueryBuilder::params(param).build();
@@ -17,7 +17,7 @@ pub fn pit_stops(
     let res = query.query_and_count(conn);
 
     let response = Response {
-        data: res.0,
+        data: res.0.into(),
         pagination: res.1,
         series,
     };

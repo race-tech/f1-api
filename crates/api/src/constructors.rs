@@ -9,18 +9,14 @@ pub fn constructors(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetConstructorsParameter,
-) -> Result<Json<Response<Vec<Constructors>>>> {
+) -> Result<Json<Response<Vec<Constructor>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
     let query = application::constructors::ConstructorsQueryBuilder::params(param).build();
 
     let res = query.query_and_count(conn);
 
-    let response = Response {
-        data: res.0,
-        pagination: res.1,
-        series,
-    };
+    let response = Response::new(res.0, res.1, series);
 
     Ok(Json(response))
 }

@@ -9,18 +9,14 @@ pub fn driver_standings(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetDriverStandingsParameter,
-) -> Result<Json<Response<Vec<DriverStandings>>>> {
+) -> Result<Json<Response<Vec<DriverStandingResponse>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
     let query = application::driver_standings::DriverStandingsQueryBuilder::params(param).build();
 
     let res = query.query_and_count(conn);
 
-    let response = Response {
-        data: res.0,
-        pagination: res.1,
-        series,
-    };
+    let response = Response::new(res.0, res.1, series);
 
     Ok(Json(response))
 }

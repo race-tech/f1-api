@@ -1,6 +1,6 @@
 use sea_query::{Expr, Query, SelectStatement};
 
-use shared::models::Circuits as CircuitsModel;
+use shared::models::Circuit as CircuitsModel;
 use shared::parameters::GetCircuitsParameter;
 
 use crate::{
