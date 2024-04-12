@@ -144,6 +144,18 @@ pub struct GetConstructorStandingsParameter {
     pub round: Option<Round>,
 }
 
+#[derive(Debug, Default, FilterValidation, FromForm)]
+pub struct GetDriverStandingsParameter {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub driver_ref: Option<DriverRef>,
+    pub position: Option<ConstructorStanding>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
+}
+
 impl Default for Page {
     fn default() -> Self {
         Self(1)

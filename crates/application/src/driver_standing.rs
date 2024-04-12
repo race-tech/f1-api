@@ -1,7 +1,7 @@
 use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement};
 
-use shared::models::ConstructorStandings as ConstructorStandingsModel;
-use shared::parameters::GetConstructorStandingsParameter;
+use shared::models::DriverStandings as DriverStandingsModel;
+use shared::parameters::GetDriverStandingsParameter;
 
 use crate::{
     iden::*,
@@ -9,34 +9,38 @@ use crate::{
     sql::SqlBuilder,
 };
 
-pub struct ConstructorStandingQueryBuilder {
-    params: GetConstructorStandingsParameter,
+pub struct DriverStandingQueryBuilder {
+    params: GetDriverStandingsParameter,
     stmt: SelectStatement,
 }
 
-impl ConstructorStandingQueryBuilder {
-    pub fn params(params: GetConstructorStandingsParameter) -> Self {
+impl DriverStandingQueryBuilder {
+    pub fn params(params: GetDriverStandingsParameter) -> Self {
         let stmt = Query::select()
             .distinct()
             .columns(
                 [
-                    Constructors::ConstructorId,
-                    Constructors::ConstructorRef,
-                    Constructors::Name,
-                    Constructors::Nationality,
-                    Constructors::Url,
+                    Drivers::DriverId,
+                    Drivers::DriverRef,
+                    Drivers::Number,
+                    Drivers::Code,
+                    Drivers::Forename,
+                    Drivers::Surname,
+                    Drivers::Dob,
+                    Drivers::Nationality,
+                    Drivers::Url,
                 ]
                 .into_iter()
-                .map(|c| (Constructors::Table, c).into_column_ref())
+                .map(|c| (Drivers::Table, c).into_column_ref())
                 .chain(
                     [
-                        ConstructorStandings::Points,
-                        ConstructorStandings::Position,
-                        ConstructorStandings::PositionText,
-                        ConstructorStandings::Wins,
+                        DriverStandings::Points,
+                        DriverStandings::Position,
+                        DriverStandings::PositionText,
+                        DriverStandings::Wins,
                     ]
                     .into_iter()
-                    .map(|c| (ConstructorStandings::Table, c).into_column_ref()),
+                    .map(|c| (DriverStandings::Table, c).into_column_ref()),
                 )
                 .chain(
                     [Races::Round, Races::Year]
@@ -44,42 +48,37 @@ impl ConstructorStandingQueryBuilder {
                         .map(|c| (Races::Table, c).into_column_ref()),
                 ),
             )
-            .from(Constructors::Table)
-            .from(ConstructorStandings::Table)
+            .from(Drivers::Table)
+            .from(DriverStandings::Table)
             .from(Races::Table)
             .and_where(
-                Expr::col((ConstructorStandings::Table, ConstructorStandings::RaceId))
+                Expr::col((DriverStandings::Table, DriverStandings::RaceId))
                     .equals((Races::Table, Races::RaceId)),
             )
             .and_where(
-                Expr::col((
-                    ConstructorStandings::Table,
-                    ConstructorStandings::ConstructorId,
-                ))
-                .equals((Constructors::Table, Constructors::ConstructorId)),
+                Expr::col((DriverStandings::Table, DriverStandings::DriverId))
+                    .equals((Drivers::Table, Drivers::DriverId)),
             )
             .to_owned();
 
         Self { params, stmt }
     }
 
-    pub fn build(self) -> Paginated<ConstructorStandingsModel> {
+    pub fn build(self) -> Paginated<DriverStandingsModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 
         self.and_where(|s| {
             s.params.position.map(|p| {
-                Expr::col((
-                    ConstructorStandings::Table,
-                    ConstructorStandings::PositionText,
-                ))
-                .eq(Expr::value(*p))
+                Expr::col((DriverStandings::Table, DriverStandings::PositionText))
+                    .eq(Expr::value(*p))
             })
         })
         .and_where(|s| {
-            s.params.constructor_ref.as_ref().map(|c| {
-                Expr::col((Constructors::Table, Constructors::ConstructorRef)).eq(Expr::value(&**c))
-            })
+            s.params
+                .driver_ref
+                .as_ref()
+                .map(|c| Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(&**c)))
         })
         .and_where(|s| {
             s.params
@@ -119,10 +118,10 @@ impl ConstructorStandingQueryBuilder {
                 Expr::col((Races::Table, Races::Round)).in_subquery(
                     Query::select()
                         .from(Races::Table)
-                        .from(ConstructorStandings::Table)
+                        .from(DriverStandings::Table)
                         .expr(Func::max(Expr::col(Races::Round)))
                         .and_where(
-                            Expr::col((ConstructorStandings::Table, ConstructorStandings::RaceId))
+                            Expr::col((DriverStandings::Table, DriverStandings::RaceId))
                                 .equals((Races::Table, Races::RaceId)),
                         )
                         .and_where(Expr::col((Races::Table, Races::Year)).eq(*year))
@@ -135,7 +134,7 @@ impl ConstructorStandingQueryBuilder {
     }
 }
 
-impl SqlBuilder for ConstructorStandingQueryBuilder {
+impl SqlBuilder for DriverStandingQueryBuilder {
     fn stmt(&mut self) -> &mut SelectStatement {
         &mut self.stmt
     }

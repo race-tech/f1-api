@@ -4,6 +4,7 @@ mod circuit;
 mod constructor;
 mod constructor_standing;
 mod driver;
+mod driver_standing;
 
 pub mod handlers {
     use crate::*;
@@ -15,6 +16,7 @@ pub mod handlers {
             .chain(driver::handlers())
             .chain(constructor::handlers())
             .chain(constructor_standing::handlers())
+            .chain(driver_standing::handlers())
             .collect()
     }
 }
