@@ -12,5 +12,6 @@ serde_json.workspace = true
 serde.workspace = true
 r2d2.workspace = true
 mysql.workspace = true
+mysql_common.workspace = true
 
 derives.workspace = true

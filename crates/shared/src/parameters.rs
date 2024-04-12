@@ -67,6 +67,7 @@ macros::query_parameters! {
     #[Copy] Round(i32);
     #[Copy] Fastest(i32);
     #[Copy] Status(i32);
+    #[Copy] LapNumber(i32);
 }
 
 impl Year {
@@ -156,6 +157,20 @@ pub struct GetDriverStandingsParameter {
     pub round: Option<Round>,
 }
 
+#[derive(Debug, Default, FilterValidation, FromForm)]
+pub struct GetLapsParameter {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub driver_ref: Option<DriverRef>,
+    #[validation(skip)]
+    pub year: Year,
+    #[validation(skip)]
+    pub round: Round,
+    pub lap_number: Option<LapNumber>,
+}
+
 impl Default for Page {
     fn default() -> Self {
         Self(1)
@@ -165,6 +180,18 @@ impl Default for Page {
 impl Default for Limit {
     fn default() -> Self {
         Self(30)
+    }
+}
+
+impl Default for Year {
+    fn default() -> Self {
+        Self::get_current_year()
+    }
+}
+
+impl Default for Round {
+    fn default() -> Self {
+        Self(1)
     }
 }
 

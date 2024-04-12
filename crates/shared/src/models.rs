@@ -34,7 +34,7 @@ pub struct Drivers {
     forename: String,
     surname: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    dob: Option<String>,
+    dob: Option<chrono::NaiveDate>,
     #[serde(skip_serializing_if = "Option::is_none")]
     nationality: Option<String>,
     url: String,
@@ -85,7 +85,7 @@ pub struct DriverStandings {
     forename: String,
     surname: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    dob: Option<String>,
+    dob: Option<chrono::NaiveDate>,
     #[serde(skip_serializing_if = "Option::is_none")]
     nationality: Option<String>,
     url: String,
@@ -97,4 +97,46 @@ pub struct DriverStandings {
     wins: i32,
     year: i32,
     round: i32,
+}
+
+#[derive(FromRow, Debug, Serialize)]
+pub struct Laps {
+    #[mysql(rename = "raceName")]
+    race_name: String,
+    #[mysql(rename = "raceDate")]
+    race_date: chrono::NaiveDate,
+    #[mysql(rename = "raceTime")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    race_time: Option<String>,
+    #[mysql(rename = "raceUrl")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    race_url: Option<String>,
+    #[mysql(rename = "circuitRef")]
+    circuit_ref: String,
+    #[mysql(rename = "circuitName")]
+    circuit_name: String,
+    #[mysql(rename = "circuitLocation")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    circuit_location: Option<String>,
+    #[mysql(rename = "circuitCountry")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    circuit_country: Option<String>,
+    #[mysql(rename = "circuitLat")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    circuit_lat: Option<f32>,
+    #[mysql(rename = "circuitLng")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    circuit_lng: Option<f32>,
+    #[mysql(rename = "circuitAlt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    circuit_alt: Option<i32>,
+    #[mysql(rename = "circuitUrl")]
+    circuit_url: String,
+    #[mysql(rename = "driverRef")]
+    driver_ref: String,
+    lap: i32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    position: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    time: Option<String>,
 }

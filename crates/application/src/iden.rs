@@ -132,3 +132,17 @@ pub(crate) enum ConstructorStandings {
     PositionText,
     Wins,
 }
+
+#[derive(Iden)]
+pub(crate) enum LapTimes {
+    #[iden = "lapTimes"]
+    Table,
+    #[iden = "raceId"]
+    RaceId,
+    #[iden = "driverId"]
+    DriverId,
+    Lap,
+    Position,
+    Time,
+    Milliseconds,
+}

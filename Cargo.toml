@@ -21,4 +21,5 @@ quote = "1.0.35"
 syn = { version = "2.0.48", features = ["parsing"] }
 sea-query = { version = "0.30.7", features = ["backend-mysql"] }
 r2d2 = "0.8.10"
-mysql = { version = "25.0.0" }
+mysql = { version = "25.0.0", default-features = false, features = ["minimal"] }
+mysql_common = { version = "0.32.2", default-features = false, features = ["chrono", "derive", "bigdecimal"] }

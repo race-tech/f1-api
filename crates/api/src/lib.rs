@@ -5,6 +5,7 @@ mod constructor;
 mod constructor_standing;
 mod driver;
 mod driver_standing;
+mod laps;
 
 pub mod handlers {
     use crate::*;
@@ -17,6 +18,7 @@ pub mod handlers {
             .chain(constructor::handlers())
             .chain(constructor_standing::handlers())
             .chain(driver_standing::handlers())
+            .chain(laps::handlers())
             .collect()
     }
 }
