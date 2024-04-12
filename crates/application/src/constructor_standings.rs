@@ -9,12 +9,12 @@ use crate::{
     sql::SqlBuilder,
 };
 
-pub struct ConstructorStandingQueryBuilder {
+pub struct ConstructorStandingsQueryBuilder {
     params: GetConstructorStandingsParameter,
     stmt: SelectStatement,
 }
 
-impl ConstructorStandingQueryBuilder {
+impl ConstructorStandingsQueryBuilder {
     pub fn params(params: GetConstructorStandingsParameter) -> Self {
         let stmt = Query::select()
             .distinct()
@@ -135,7 +135,7 @@ impl ConstructorStandingQueryBuilder {
     }
 }
 
-impl SqlBuilder for ConstructorStandingQueryBuilder {
+impl SqlBuilder for ConstructorStandingsQueryBuilder {
     fn stmt(&mut self) -> &mut SelectStatement {
         &mut self.stmt
     }

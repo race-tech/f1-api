@@ -9,12 +9,12 @@ use crate::{
     sql::SqlBuilder,
 };
 
-pub struct DriverStandingQueryBuilder {
+pub struct DriverStandingsQueryBuilder {
     params: GetDriverStandingsParameter,
     stmt: SelectStatement,
 }
 
-impl DriverStandingQueryBuilder {
+impl DriverStandingsQueryBuilder {
     pub fn params(params: GetDriverStandingsParameter) -> Self {
         let stmt = Query::select()
             .distinct()
@@ -134,7 +134,7 @@ impl DriverStandingQueryBuilder {
     }
 }
 
-impl SqlBuilder for DriverStandingQueryBuilder {
+impl SqlBuilder for DriverStandingsQueryBuilder {
     fn stmt(&mut self) -> &mut SelectStatement {
         &mut self.stmt
     }

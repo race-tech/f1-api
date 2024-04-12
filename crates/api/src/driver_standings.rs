@@ -12,7 +12,7 @@ pub fn driver_standings(
 ) -> Result<Json<Response<Vec<DriverStandings>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let query = application::driver_standings::DriverStandingQueryBuilder::params(param).build();
+    let query = application::driver_standings::DriverStandingsQueryBuilder::params(param).build();
 
     let res = query.query_and_count(conn);
 

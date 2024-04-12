@@ -10,12 +10,12 @@ use crate::{
     sql::SqlBuilder,
 };
 
-pub struct ConstructorQueryBuilder {
+pub struct ConstructorsQueryBuilder {
     params: GetConstructorsParameter,
     stmt: SelectStatement,
 }
 
-impl ConstructorQueryBuilder {
+impl ConstructorsQueryBuilder {
     pub fn params(params: GetConstructorsParameter) -> Self {
         let stmt = Query::select()
             .distinct()
@@ -181,7 +181,7 @@ impl ConstructorQueryBuilder {
     }
 }
 
-impl SqlBuilder for ConstructorQueryBuilder {
+impl SqlBuilder for ConstructorsQueryBuilder {
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

@@ -10,12 +10,12 @@ use crate::{
     sql::*,
 };
 
-pub struct CircuitQueryBuilder {
+pub struct CircuitsQueryBuilder {
     stmt: SelectStatement,
     params: GetCircuitsParameter,
 }
 
-impl CircuitQueryBuilder {
+impl CircuitsQueryBuilder {
     pub fn params(params: GetCircuitsParameter) -> Self {
         let stmt = Query::select()
             .distinct()
@@ -158,7 +158,7 @@ impl CircuitQueryBuilder {
     }
 }
 
-impl SqlBuilder for CircuitQueryBuilder {
+impl SqlBuilder for CircuitsQueryBuilder {
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

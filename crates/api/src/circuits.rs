@@ -12,7 +12,7 @@ pub fn circuits(
 ) -> Result<Json<Response<Vec<Circuits>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let query = application::circuits::CircuitQueryBuilder::params(param).build();
+    let query = application::circuits::CircuitsQueryBuilder::params(param).build();
 
     let res = query.query_and_count(conn);
 
