@@ -60,17 +60,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "api"
-version = "0.1.0"
-dependencies = [
- "api-lib",
- "dotenvy",
- "infrastructure",
- "mysql",
- "rocket",
-]
-
-[[package]]
 name = "api-lib"
 version = "0.1.0"
 dependencies = [
@@ -1436,6 +1425,17 @@ dependencies = [
  "syn 2.0.48",
  "version_check",
  "yansi",
+]
+
+[[package]]
+name = "purple-sector"
+version = "0.1.0"
+dependencies = [
+ "api-lib",
+ "dotenvy",
+ "infrastructure",
+ "mysql",
+ "rocket",
 ]
 
 [[package]]

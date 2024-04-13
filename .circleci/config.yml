@@ -10,4 +10,4 @@ jobs:
       - run: cargo --version
       - run:
           name: Build
-          command: cargo build --release
+          command: cargo build --release --bin purple-sector
