@@ -1,6 +1,6 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
-use shared::models::PitStop as PitStopsModel;
+use shared::models::PitStop as PitStopModel;
 use shared::parameters::GetPitStopsParameter;
 
 use crate::{
@@ -98,7 +98,7 @@ impl PitStopsQueryBuilder {
         Self { stmt, params }
     }
 
-    pub fn build(self) -> Paginated<PitStopsModel> {
+    pub fn build(self) -> Paginated<PitStopModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

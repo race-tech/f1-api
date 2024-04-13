@@ -1,7 +1,7 @@
 use mysql::prelude::*;
 use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 
-use shared::models::Constructor as ConstructorsModel;
+use shared::models::Constructor as ConstructorModel;
 use shared::parameters::{ConstructorRef, GetConstructorsParameter};
 
 use crate::{
@@ -20,7 +20,7 @@ impl ConstructorsQueryBuilder {
     pub fn get(
         constructor_ref: ConstructorRef,
         conn: &mut infrastructure::Connection,
-    ) -> ConstructorsModel {
+    ) -> ConstructorModel {
         let query = Query::select()
             .distinct()
             .columns(
@@ -64,7 +64,7 @@ impl ConstructorsQueryBuilder {
         Self { params, stmt }
     }
 
-    pub fn build(self) -> Paginated<ConstructorsModel> {
+    pub fn build(self) -> Paginated<ConstructorModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

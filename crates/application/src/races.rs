@@ -1,6 +1,6 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
-use shared::models::Race as RacesModel;
+use shared::models::Race as RaceModel;
 use shared::parameters::GetRacesParameters;
 
 use crate::{
@@ -86,7 +86,7 @@ impl RacesQueryBuilder {
         Self { stmt, params }
     }
 
-    pub fn build(self) -> Paginated<RacesModel> {
+    pub fn build(self) -> Paginated<RaceModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

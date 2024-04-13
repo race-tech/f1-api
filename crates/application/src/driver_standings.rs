@@ -1,6 +1,6 @@
 use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement};
 
-use shared::models::DriverStanding as DriverStandingsModel;
+use shared::models::DriverStanding as DriverStandingModel;
 use shared::parameters::GetDriverStandingsParameter;
 
 use crate::{
@@ -64,7 +64,7 @@ impl DriverStandingsQueryBuilder {
         Self { params, stmt }
     }
 
-    pub fn build(self) -> Paginated<DriverStandingsModel> {
+    pub fn build(self) -> Paginated<DriverStandingModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

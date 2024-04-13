@@ -1,7 +1,7 @@
 use mysql::prelude::*;
 use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 
-use shared::models::Driver as DriversModel;
+use shared::models::Driver as DriverModel;
 use shared::parameters::{DriverRef, GetDriversParameter};
 
 use crate::{
@@ -17,7 +17,7 @@ pub struct DriversQueryBuilder {
 }
 
 impl DriversQueryBuilder {
-    pub fn get(driver_ref: DriverRef, conn: &mut infrastructure::Connection) -> DriversModel {
+    pub fn get(driver_ref: DriverRef, conn: &mut infrastructure::Connection) -> DriverModel {
         let query = Query::select()
             .distinct()
             .from(Drivers::Table)
@@ -78,7 +78,7 @@ impl DriversQueryBuilder {
             || self.params.fastest.is_some()
     }
 
-    pub fn build(self) -> Paginated<DriversModel> {
+    pub fn build(self) -> Paginated<DriverModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

@@ -1,6 +1,6 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
-use shared::models::Lap as LapsModel;
+use shared::models::Lap as LapModel;
 use shared::parameters::GetLapsParameter;
 
 use crate::{
@@ -93,7 +93,7 @@ impl LapsQueryBuilder {
         Self { stmt, params }
     }
 
-    pub fn build(self) -> Paginated<LapsModel> {
+    pub fn build(self) -> Paginated<LapModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 
