@@ -12,9 +12,7 @@ pub fn laps(
 ) -> Result<Json<Response<LapsResponse>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let query = application::laps::LapsQueryBuilder::params(param).build();
-
-    let res = query.query_and_count(conn)?;
+    let res = application::laps::LapsQueryBuilder::params(param).query_and_count(conn)?;
 
     let response = Response {
         data: res.0.into(),

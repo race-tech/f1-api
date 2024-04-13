@@ -15,7 +15,7 @@ pub struct ConstructorStandingsQueryBuilder {
 }
 
 impl ConstructorStandingsQueryBuilder {
-    pub fn params(params: GetConstructorStandingsParameter) -> Self {
+    pub fn params(params: GetConstructorStandingsParameter) -> Paginated<ConstructorStandingModel> {
         let stmt = Query::select()
             .distinct()
             .columns(
@@ -60,10 +60,10 @@ impl ConstructorStandingsQueryBuilder {
             )
             .to_owned();
 
-        Self { params, stmt }
+        Self { params, stmt }.build()
     }
 
-    pub fn build(self) -> Paginated<ConstructorStandingModel> {
+    fn build(self) -> Paginated<ConstructorStandingModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

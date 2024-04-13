@@ -31,9 +31,7 @@ pub fn status(
 ) -> Result<Json<Response<Vec<Status>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let query = application::status::StatusQueryBuilder::params(param).build();
-
-    let res = query.query_and_count(conn)?;
+    let res = application::status::StatusQueryBuilder::params(param).query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 

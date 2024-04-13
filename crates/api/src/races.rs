@@ -12,9 +12,7 @@ pub fn races(
 ) -> Result<Json<Response<Vec<RaceResponse>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let query = application::races::RacesQueryBuilder::params(param).build();
-
-    let res = query.query_and_count(conn)?;
+    let res = application::races::RacesQueryBuilder::params(param).query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 

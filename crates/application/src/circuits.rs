@@ -1,4 +1,3 @@
-use infrastructure::Connection;
 use mysql::prelude::Queryable;
 use sea_query::{Expr, MysqlQueryBuilder, Query, SelectStatement};
 
@@ -7,12 +6,8 @@ use shared::error::Result;
 use shared::models::Circuit as CircuitModel;
 use shared::parameters::{CircuitRef, GetCircuitsParameter};
 
-use crate::{
-    iden::*,
-    one_of,
-    pagination::{Paginate, Paginated},
-    sql::*,
-};
+use crate::pagination::Paginated;
+use crate::{iden::*, one_of, pagination::Paginate, sql::*};
 
 pub struct CircuitsQueryBuilder {
     stmt: SelectStatement,
@@ -20,7 +15,10 @@ pub struct CircuitsQueryBuilder {
 }
 
 impl CircuitsQueryBuilder {
-    pub fn get(circuit_ref: CircuitRef, conn: &mut Connection) -> Result<CircuitModel> {
+    pub fn get(
+        circuit_ref: CircuitRef,
+        conn: &mut infrastructure::Connection,
+    ) -> Result<CircuitModel> {
         let query = Query::select()
             .distinct()
             .from(Circuits::Table)
@@ -48,7 +46,10 @@ impl CircuitsQueryBuilder {
             .ok_or(error!(EntityNotFound => "circuit with reference `{}` not found", circuit_ref.0))
     }
 
-    pub fn params(params: GetCircuitsParameter) -> Self {
+    pub fn params(params: GetCircuitsParameter) -> Paginated<CircuitModel> {
+        let page = params.page.unwrap_or_default().0;
+        let per_page = params.limit.unwrap_or_default().0;
+
         let stmt = Query::select()
             .distinct()
             .from(Circuits::Table)
@@ -74,12 +75,13 @@ impl CircuitsQueryBuilder {
             .to_owned();
 
         Self { stmt, params }
+            .build()
+            .stmt
+            .paginate(page)
+            .per_page(per_page)
     }
 
-    pub fn build(self) -> Paginated<CircuitModel> {
-        let page: u64 = self.params.page.unwrap_or_default().0;
-        let limit: u64 = self.params.limit.unwrap_or_default().0;
-
+    fn build(self) -> Self {
         self.from(
             |s| {
                 one_of!(
@@ -184,9 +186,6 @@ impl CircuitsQueryBuilder {
                 .year
                 .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::value(*y)))
         })
-        .stmt
-        .paginate(page)
-        .per_page(limit)
     }
 }
 

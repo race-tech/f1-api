@@ -31,9 +31,7 @@ pub fn drivers(
 ) -> Result<Json<Response<Vec<Driver>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let query = application::drivers::DriversQueryBuilder::params(param).build();
-
-    let res = query.query_and_count(conn)?;
+    let res = application::drivers::DriversQueryBuilder::params(param).query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 

@@ -50,7 +50,7 @@ impl DriversQueryBuilder {
             .ok_or(error!(EntityNotFound => "driver with reference `{}` not found", driver_ref.0))
     }
 
-    pub fn params(params: GetDriversParameter) -> Self {
+    pub fn params(params: GetDriversParameter) -> Paginated<DriverModel> {
         let stmt = Query::select()
             .distinct()
             .from(Drivers::Table)
@@ -71,7 +71,7 @@ impl DriversQueryBuilder {
             )
             .to_owned();
 
-        Self { stmt, params }
+        Self { stmt, params }.build()
     }
 
     fn one_of(&self) -> bool {
@@ -84,7 +84,7 @@ impl DriversQueryBuilder {
             || self.params.fastest.is_some()
     }
 
-    pub fn build(self) -> Paginated<DriverModel> {
+    fn build(self) -> Paginated<DriverModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

@@ -15,7 +15,7 @@ pub struct LapsQueryBuilder {
 }
 
 impl LapsQueryBuilder {
-    pub fn params(params: GetLapsParameter) -> Self {
+    pub fn params(params: GetLapsParameter) -> Paginated<LapModel> {
         let stmt = Query::select()
             .distinct()
             .expr_as(
@@ -90,10 +90,10 @@ impl LapsQueryBuilder {
             .order_by((LapTimes::Table, LapTimes::Position), sea_query::Order::Asc)
             .to_owned();
 
-        Self { stmt, params }
+        Self { stmt, params }.build()
     }
 
-    pub fn build(self) -> Paginated<LapModel> {
+    fn build(self) -> Paginated<LapModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

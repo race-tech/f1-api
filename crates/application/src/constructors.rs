@@ -46,7 +46,7 @@ impl ConstructorsQueryBuilder {
         conn.query_first(query)?.ok_or(error!(EntityNotFound => "constructor with reference `{}` not found", constructor_ref.0))
     }
 
-    pub fn params(params: GetConstructorsParameter) -> Self {
+    pub fn params(params: GetConstructorsParameter) -> Paginated<ConstructorModel> {
         let stmt = Query::select()
             .distinct()
             .columns(
@@ -63,10 +63,10 @@ impl ConstructorsQueryBuilder {
             .from(Constructors::Table)
             .to_owned();
 
-        Self { params, stmt }
+        Self { params, stmt }.build()
     }
 
-    pub fn build(self) -> Paginated<ConstructorModel> {
+    fn build(self) -> Paginated<ConstructorModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

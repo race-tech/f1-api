@@ -12,9 +12,7 @@ pub fn pit_stops(
 ) -> Result<Json<Response<PitStopsResponse>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let query = application::pit_stops::PitStopsQueryBuilder::params(param).build();
-
-    let res = query.query_and_count(conn)?;
+    let res = application::pit_stops::PitStopsQueryBuilder::params(param).query_and_count(conn)?;
 
     let response = Response {
         data: res.0.into(),
