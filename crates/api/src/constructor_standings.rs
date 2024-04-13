@@ -15,7 +15,7 @@ pub fn constructor_standings(
     let query =
         application::constructor_standings::ConstructorStandingsQueryBuilder::params(param).build();
 
-    let res = query.query_and_count(conn);
+    let res = query.query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 

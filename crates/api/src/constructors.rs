@@ -13,7 +13,7 @@ pub fn constructors_ref(
     let conn = &mut db.from_series(series).get().unwrap();
 
     let constructor =
-        application::constructors::ConstructorsQueryBuilder::get(constructor_ref, conn);
+        application::constructors::ConstructorsQueryBuilder::get(constructor_ref, conn)?;
 
     let response = Response {
         data: constructor.into(),
@@ -34,7 +34,7 @@ pub fn constructors(
 
     let query = application::constructors::ConstructorsQueryBuilder::params(param).build();
 
-    let res = query.query_and_count(conn);
+    let res = query.query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 

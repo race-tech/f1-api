@@ -12,7 +12,7 @@ pub fn circuits_ref(
 ) -> Result<Json<Response<Circuit>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let circuit = application::circuits::CircuitsQueryBuilder::get(circuit_ref, conn);
+    let circuit = application::circuits::CircuitsQueryBuilder::get(circuit_ref, conn)?;
 
     let response = Response {
         data: circuit.into(),
@@ -33,7 +33,7 @@ pub fn circuits(
 
     let query = application::circuits::CircuitsQueryBuilder::params(param).build();
 
-    let res = query.query_and_count(conn);
+    let res = query.query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 

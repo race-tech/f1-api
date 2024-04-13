@@ -1,7 +1,9 @@
 use infrastructure::Connection;
-use mysql::prelude::*;
+use mysql::prelude::Queryable;
 use sea_query::{Expr, MysqlQueryBuilder, Query, SelectStatement};
 
+use shared::error;
+use shared::error::Result;
 use shared::models::Circuit as CircuitModel;
 use shared::parameters::{CircuitRef, GetCircuitsParameter};
 
@@ -18,7 +20,7 @@ pub struct CircuitsQueryBuilder {
 }
 
 impl CircuitsQueryBuilder {
-    pub fn get(circuit_ref: CircuitRef, conn: &mut Connection) -> CircuitModel {
+    pub fn get(circuit_ref: CircuitRef, conn: &mut Connection) -> Result<CircuitModel> {
         let query = Query::select()
             .distinct()
             .from(Circuits::Table)
@@ -42,7 +44,8 @@ impl CircuitsQueryBuilder {
             )
             .to_string(MysqlQueryBuilder);
 
-        conn.query(query).unwrap().swap_remove(0)
+        conn.query_first(query)?
+            .ok_or(error!(EntityNotFound => "circuit with reference `{}` not found", circuit_ref.0))
     }
 
     pub fn params(params: GetCircuitsParameter) -> Self {

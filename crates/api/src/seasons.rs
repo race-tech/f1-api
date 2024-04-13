@@ -12,7 +12,7 @@ pub fn seasons_year(
 ) -> Result<Json<Response<Season>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let season = application::seasons::SeasonsQueryBuilder::get(season, conn);
+    let season = application::seasons::SeasonsQueryBuilder::get(season, conn)?;
 
     let response = Response {
         data: season.into(),
@@ -33,7 +33,7 @@ pub fn seasons(
 
     let query = application::seasons::SeasonsQueryBuilder::params(param).build();
 
-    let res = query.query_and_count(conn);
+    let res = query.query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 

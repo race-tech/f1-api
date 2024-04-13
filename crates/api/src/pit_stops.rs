@@ -14,7 +14,7 @@ pub fn pit_stops(
 
     let query = application::pit_stops::PitStopsQueryBuilder::params(param).build();
 
-    let res = query.query_and_count(conn);
+    let res = query.query_and_count(conn)?;
 
     let response = Response {
         data: res.0.into(),

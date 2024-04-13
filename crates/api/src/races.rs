@@ -14,7 +14,7 @@ pub fn races(
 
     let query = application::races::RacesQueryBuilder::params(param).build();
 
-    let res = query.query_and_count(conn);
+    let res = query.query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 

@@ -1,11 +1,11 @@
-use mysql::prelude::*;
-use mysql::*;
+use mysql::prelude::{FromRow, Queryable};
+use mysql::{FromRowError, Row};
 use sea_query::{
     Alias, Asterisk, Expr, MysqlQueryBuilder, Query, SelectStatement, WindowStatement,
 };
 
 use infrastructure::Connection;
-use shared::prelude::Pagination;
+use shared::prelude::{Pagination, Result};
 
 const DEFAULT_PER_PAGE: u64 = 20;
 
@@ -42,7 +42,7 @@ impl<U: FromRow> Paginated<U> {
         }
     }
 
-    pub fn query_and_count(self, conn: &mut Connection) -> (Vec<U>, Pagination) {
+    pub fn query_and_count(self, conn: &mut Connection) -> Result<(Vec<U>, Pagination)> {
         let query = dbg!(Query::select()
             .column(Asterisk)
             .expr_window_as(
@@ -55,7 +55,7 @@ impl<U: FromRow> Paginated<U> {
             .offset(self.offset)
             .to_string(MysqlQueryBuilder));
 
-        let res: Vec<PaginationResult<U>> = conn.query(query).unwrap();
+        let res: Vec<PaginationResult<U>> = conn.query(query)?;
         let total = res.first().map(|r| r.total).unwrap_or(0);
         let records = res.into_iter().map(|r| r.data).collect();
         let total_pages = (total as f64 / self.per_page as f64).ceil() as u64;
@@ -67,7 +67,7 @@ impl<U: FromRow> Paginated<U> {
             max_page: total_pages,
         };
 
-        (records, pagination)
+        Ok((records, pagination))
     }
 }
 

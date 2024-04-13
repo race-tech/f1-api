@@ -1,6 +1,8 @@
-use mysql::prelude::*;
+use mysql::prelude::Queryable;
 use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 
+use shared::error;
+use shared::error::Result;
 use shared::models::Season as SeasonModel;
 use shared::parameters::{GetSeasonsParameters, Year};
 
@@ -17,7 +19,7 @@ pub struct SeasonsQueryBuilder {
 }
 
 impl SeasonsQueryBuilder {
-    pub fn get(season: Year, conn: &mut infrastructure::Connection) -> SeasonModel {
+    pub fn get(season: Year, conn: &mut infrastructure::Connection) -> Result<SeasonModel> {
         let query = Query::select()
             .distinct()
             .column((Seasons::Table, Seasons::Year))
@@ -26,7 +28,8 @@ impl SeasonsQueryBuilder {
             .and_where(Expr::col((Seasons::Table, Seasons::Year)).eq(Expr::value(*season)))
             .to_string(MysqlQueryBuilder);
 
-        conn.query(query).unwrap().swap_remove(0)
+        conn.query_first(query)?
+            .ok_or(error!(EntityNotFound => "season with year `{}` not found", season.0))
     }
 
     pub fn params(params: GetSeasonsParameters) -> Self {

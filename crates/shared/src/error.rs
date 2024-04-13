@@ -1,6 +1,5 @@
-use r2d2::Error as R2D2Error;
 use rocket::response::Responder;
-use serde::ser::{Serialize, SerializeTupleVariant};
+use serde::ser::Serialize;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -22,12 +21,26 @@ impl std::fmt::Display for Error {
 #[derive(Debug)]
 pub enum ErrorKind {
     InvalidParameter,
-    R2D2(String),
+    R2D2,
+    Mysql,
+    EntityNotFound,
 }
 
-impl From<R2D2Error> for ErrorKind {
-    fn from(e: R2D2Error) -> Self {
-        ErrorKind::R2D2(e.to_string())
+impl From<r2d2::Error> for Error {
+    fn from(e: r2d2::Error) -> Self {
+        Error {
+            kind: ErrorKind::R2D2,
+            message: Some(e.to_string()),
+        }
+    }
+}
+
+impl From<mysql::Error> for Error {
+    fn from(e: mysql::Error) -> Self {
+        Error {
+            kind: ErrorKind::Mysql,
+            message: Some(e.to_string()),
+        }
     }
 }
 
@@ -37,7 +50,9 @@ impl std::fmt::Display for ErrorKind {
 
         match self {
             InvalidParameter => write!(f, "invalid parameter"),
-            R2D2(e) => e.fmt(f),
+            R2D2 => write!(f, "r2d2 error"),
+            Mysql => write!(f, "mysql error"),
+            EntityNotFound => write!(f, "entity not found"),
         }
     }
 }
@@ -51,11 +66,9 @@ impl Serialize for ErrorKind {
 
         match self {
             InvalidParameter => s.serialize_unit_variant("ErrorKind", 0, "InvalidParameter"),
-            R2D2(ref e) => {
-                let mut sv = s.serialize_tuple_variant("ErrorKind", 1, "R2D2", 1)?;
-                sv.serialize_field(e)?;
-                sv.end()
-            }
+            R2D2 => s.serialize_unit_variant("ErrorKind", 1, "R2D2"),
+            Mysql => s.serialize_unit_variant("ErrorKind", 2, "Mysql"),
+            EntityNotFound => s.serialize_unit_variant("ErrorKind", 3, "EntityNotFound"),
         }
     }
 }
@@ -68,7 +81,9 @@ impl From<&ErrorKind> for rocket::http::Status {
 
         match kind {
             InvalidParameter => Self::BadRequest,
-            R2D2(_) => Self::InternalServerError,
+            R2D2 => Self::InternalServerError,
+            Mysql => Self::InternalServerError,
+            EntityNotFound => Self::NotFound,
         }
     }
 }

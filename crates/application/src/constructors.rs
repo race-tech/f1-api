@@ -1,6 +1,8 @@
-use mysql::prelude::*;
+use mysql::prelude::Queryable;
 use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 
+use shared::error;
+use shared::error::Result;
 use shared::models::Constructor as ConstructorModel;
 use shared::parameters::{ConstructorRef, GetConstructorsParameter};
 
@@ -20,7 +22,7 @@ impl ConstructorsQueryBuilder {
     pub fn get(
         constructor_ref: ConstructorRef,
         conn: &mut infrastructure::Connection,
-    ) -> ConstructorModel {
+    ) -> Result<ConstructorModel> {
         let query = Query::select()
             .distinct()
             .columns(
@@ -41,7 +43,7 @@ impl ConstructorsQueryBuilder {
             )
             .to_string(MysqlQueryBuilder);
 
-        conn.query(query).unwrap().swap_remove(0)
+        conn.query_first(query)?.ok_or(error!(EntityNotFound => "constructor with reference `{}` not found", constructor_ref.0))
     }
 
     pub fn params(params: GetConstructorsParameter) -> Self {

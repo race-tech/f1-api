@@ -14,7 +14,7 @@ pub fn driver_standings(
 
     let query = application::driver_standings::DriverStandingsQueryBuilder::params(param).build();
 
-    let res = query.query_and_count(conn);
+    let res = query.query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 

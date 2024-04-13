@@ -12,7 +12,7 @@ pub fn status_id(
 ) -> Result<Json<Response<Status>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let status = application::status::StatusQueryBuilder::get(status_id, conn);
+    let status = application::status::StatusQueryBuilder::get(status_id, conn)?;
 
     let response = Response {
         data: status.into(),
@@ -33,7 +33,7 @@ pub fn status(
 
     let query = application::status::StatusQueryBuilder::params(param).build();
 
-    let res = query.query_and_count(conn);
+    let res = query.query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 

@@ -1,6 +1,8 @@
-use mysql::prelude::*;
+use mysql::prelude::Queryable;
 use sea_query::{Alias, Expr, MysqlQueryBuilder, Query, SelectStatement};
 
+use shared::error;
+use shared::error::Result;
 use shared::models::Status as StatusModel;
 use shared::parameters::{GetStatusParameters, StatusId};
 
@@ -17,7 +19,7 @@ pub struct StatusQueryBuilder {
 }
 
 impl StatusQueryBuilder {
-    pub fn get(status_id: StatusId, conn: &mut infrastructure::Connection) -> StatusModel {
+    pub fn get(status_id: StatusId, conn: &mut infrastructure::Connection) -> Result<StatusModel> {
         let query = Query::select()
             .distinct()
             .column((Status::Table, Status::Id))
@@ -26,7 +28,8 @@ impl StatusQueryBuilder {
             .and_where(Expr::col((Status::Table, Status::Id)).eq(Expr::value(*status_id)))
             .to_string(MysqlQueryBuilder);
 
-        conn.query(query).unwrap().swap_remove(0)
+        conn.query_first(query)?
+            .ok_or(error!(EntityNotFound => "status with id `{}` not found", status_id.0))
     }
 
     pub fn params(params: GetStatusParameters) -> Self {

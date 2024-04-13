@@ -14,7 +14,7 @@ pub fn laps(
 
     let query = application::laps::LapsQueryBuilder::params(param).build();
 
-    let res = query.query_and_count(conn);
+    let res = query.query_and_count(conn)?;
 
     let response = Response {
         data: res.0.into(),

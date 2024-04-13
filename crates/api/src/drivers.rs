@@ -12,7 +12,7 @@ pub fn drivers_ref(
 ) -> Result<Json<Response<Driver>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let driver = application::drivers::DriversQueryBuilder::get(driver_ref, conn);
+    let driver = application::drivers::DriversQueryBuilder::get(driver_ref, conn)?;
 
     let response = Response {
         data: driver.into(),
@@ -33,7 +33,7 @@ pub fn drivers(
 
     let query = application::drivers::DriversQueryBuilder::params(param).build();
 
-    let res = query.query_and_count(conn);
+    let res = query.query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 
