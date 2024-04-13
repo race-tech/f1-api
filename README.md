@@ -6,12 +6,12 @@
 
 # Rust race engine
 
-This is a Fomula API build in Rust.
-This is currently under development.
+This is a Fomula API build in Rust and currently under development. The goal is to provide a simple and easy to use API to access the ergast database and in the end, provide a new maintained database after the 2024 season.
 
 ## Project Roadmap
 
-- [ ] Create all the basic API endpoints to access the ergast DB
+- [x] Create all the basic API endpoints to access the ergast DB
 - [ ] Create a complete swagger documentation
 - [ ] Create an automated tool to update the DB in prevision of the ergast deprecated DB for next season
 - [ ] Create a new DB for the F2 championship (maybe even F3 and F1 academy as well as WEC or other championships)
+- [ ] Add a predictor to the API (an LLM model that will try to predict upcoming races results)
