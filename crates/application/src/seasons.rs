@@ -1,7 +1,8 @@
-use sea_query::{Expr, Func, Query, SelectStatement};
+use mysql::prelude::*;
+use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 
 use shared::models::Season as SeasonModel;
-use shared::parameters::GetSeasonsParameters;
+use shared::parameters::{GetSeasonsParameters, Year};
 
 use crate::{
     iden::*,
@@ -16,6 +17,18 @@ pub struct SeasonsQueryBuilder {
 }
 
 impl SeasonsQueryBuilder {
+    pub fn get(season: Year, conn: &mut infrastructure::Connection) -> SeasonModel {
+        let query = Query::select()
+            .distinct()
+            .column((Seasons::Table, Seasons::Year))
+            .column((Seasons::Table, Seasons::Url))
+            .from(Seasons::Table)
+            .and_where(Expr::col((Seasons::Table, Seasons::Year)).eq(Expr::value(*season)))
+            .to_string(MysqlQueryBuilder);
+
+        conn.query(query).unwrap().swap_remove(0)
+    }
+
     pub fn params(params: GetSeasonsParameters) -> Self {
         let stmt = Query::select()
             .distinct()
