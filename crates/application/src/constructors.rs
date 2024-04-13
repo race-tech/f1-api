@@ -1,7 +1,8 @@
-use sea_query::{Expr, Func, Query, SelectStatement};
+use mysql::prelude::*;
+use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 
 use shared::models::Constructor as ConstructorsModel;
-use shared::parameters::GetConstructorsParameter;
+use shared::parameters::{ConstructorRef, GetConstructorsParameter};
 
 use crate::{
     iden::*,
@@ -16,6 +17,33 @@ pub struct ConstructorsQueryBuilder {
 }
 
 impl ConstructorsQueryBuilder {
+    pub fn get(
+        constructor_ref: ConstructorRef,
+        conn: &mut infrastructure::Connection,
+    ) -> ConstructorsModel {
+        let query = Query::select()
+            .distinct()
+            .columns(
+                [
+                    Constructors::ConstructorId,
+                    Constructors::ConstructorRef,
+                    Constructors::Name,
+                    Constructors::Nationality,
+                    Constructors::Url,
+                ]
+                .into_iter()
+                .map(|c| (Constructors::Table, c)),
+            )
+            .from(Constructors::Table)
+            .and_where(
+                Expr::col((Constructors::Table, Constructors::ConstructorRef))
+                    .eq(Expr::value(&*constructor_ref)),
+            )
+            .to_string(MysqlQueryBuilder);
+
+        conn.query(query).unwrap().swap_remove(0)
+    }
+
     pub fn params(params: GetConstructorsParameter) -> Self {
         let stmt = Query::select()
             .distinct()

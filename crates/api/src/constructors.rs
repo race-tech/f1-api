@@ -4,7 +4,27 @@ use rocket::{get, routes, State};
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
-#[get("/<series>/constructors?<param..>")]
+#[get("/<series>/constructors?<constructor_ref>", rank = 1)]
+pub fn constructors_ref(
+    db: &State<ConnectionPool>,
+    series: Series,
+    constructor_ref: shared::parameters::ConstructorRef,
+) -> Result<Json<Response<Constructor>>> {
+    let conn = &mut db.from_series(series).get().unwrap();
+
+    let constructor =
+        application::constructors::ConstructorsQueryBuilder::get(constructor_ref, conn);
+
+    let response = Response {
+        data: constructor.into(),
+        pagination: None,
+        series,
+    };
+
+    Ok(Json(response))
+}
+
+#[get("/<series>/constructors?<param..>", rank = 2)]
 pub fn constructors(
     db: &State<ConnectionPool>,
     series: Series,
@@ -22,5 +42,5 @@ pub fn constructors(
 }
 
 pub fn handlers() -> Vec<rocket::Route> {
-    routes![constructors]
+    routes![constructors, constructors_ref]
 }
