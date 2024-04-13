@@ -15,7 +15,8 @@ pub struct Response<T> {
     pub data: T,
 
     #[serde(flatten)]
-    pub pagination: Pagination,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pagination: Option<Pagination>,
     pub series: Series,
 }
 
@@ -23,7 +24,7 @@ impl<T> Response<Vec<T>> {
     pub fn new<U: Into<T>>(data: Vec<U>, pagination: Pagination, series: Series) -> Self {
         Response {
             data: data.into_iter().map(Into::into).collect(),
-            pagination,
+            pagination: Some(pagination),
             series,
         }
     }
@@ -284,6 +285,21 @@ impl From<crate::models::PitStop> for PitStop {
     }
 }
 
+impl From<crate::models::Circuit> for Circuit {
+    fn from(value: crate::models::Circuit) -> Self {
+        Self {
+            circuit_ref: value.circuit_ref,
+            name: value.name,
+            location: value.location,
+            country: value.country,
+            lat: value.lat,
+            lng: value.lng,
+            alt: value.alt,
+            url: value.url,
+        }
+    }
+}
+
 impl From<&crate::models::PitStop> for Circuit {
     fn from(value: &crate::models::PitStop) -> Self {
         Self {
@@ -389,21 +405,6 @@ impl From<crate::models::Driver> for Driver {
             surname: value.surname,
             dob: value.dob,
             nationality: value.nationality,
-            url: value.url,
-        }
-    }
-}
-
-impl From<crate::models::Circuit> for Circuit {
-    fn from(value: crate::models::Circuit) -> Self {
-        Self {
-            circuit_ref: value.circuit_ref,
-            name: value.name,
-            location: value.location,
-            country: value.country,
-            lat: value.lat,
-            lng: value.lng,
-            alt: value.alt,
             url: value.url,
         }
     }

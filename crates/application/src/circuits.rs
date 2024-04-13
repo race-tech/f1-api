@@ -1,7 +1,9 @@
-use sea_query::{Expr, Query, SelectStatement};
+use infrastructure::Connection;
+use mysql::prelude::*;
+use sea_query::{Expr, MysqlQueryBuilder, Query, SelectStatement};
 
-use shared::models::Circuit as CircuitsModel;
-use shared::parameters::GetCircuitsParameter;
+use shared::models::Circuit as CircuitModel;
+use shared::parameters::{CircuitRef, GetCircuitsParameter};
 
 use crate::{
     iden::*,
@@ -16,6 +18,33 @@ pub struct CircuitsQueryBuilder {
 }
 
 impl CircuitsQueryBuilder {
+    pub fn get(circuit_ref: CircuitRef, conn: &mut Connection) -> CircuitModel {
+        let query = Query::select()
+            .distinct()
+            .from(Circuits::Table)
+            .columns(
+                [
+                    Circuits::CircuitId,
+                    Circuits::CircuitRef,
+                    Circuits::Name,
+                    Circuits::Location,
+                    Circuits::Country,
+                    Circuits::Lat,
+                    Circuits::Lng,
+                    Circuits::Alt,
+                    Circuits::Url,
+                ]
+                .into_iter()
+                .map(|c| (Circuits::Table, c)),
+            )
+            .and_where(
+                Expr::col((Circuits::Table, Circuits::CircuitRef)).eq(Expr::value(&*circuit_ref)),
+            )
+            .to_string(MysqlQueryBuilder);
+
+        conn.query(query).unwrap().swap_remove(0)
+    }
+
     pub fn params(params: GetCircuitsParameter) -> Self {
         let stmt = Query::select()
             .distinct()
@@ -44,7 +73,7 @@ impl CircuitsQueryBuilder {
         Self { stmt, params }
     }
 
-    pub fn build(self) -> Paginated<CircuitsModel> {
+    pub fn build(self) -> Paginated<CircuitModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

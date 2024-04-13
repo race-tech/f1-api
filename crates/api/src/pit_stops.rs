@@ -18,7 +18,7 @@ pub fn pit_stops(
 
     let response = Response {
         data: res.0.into(),
-        pagination: res.1,
+        pagination: Some(res.1),
         series,
     };
 
