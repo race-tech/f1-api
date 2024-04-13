@@ -1,6 +1,6 @@
 [![build & test](https://github.com/thibault-cne/rust-race-engine/actions/workflows/rust.yml/badge.svg)](https://github.com/thibault-cne/rust-race-engine/actions/workflows/rust.yml)
-[![circleci](https://img.shields.io/circleci/build/gh/thibault-cne/rust-race-engine?logo=circleci&logoColor=white&label=circleci)](https://github.com/thibault-cne/rust-race-engine)
-[![appveyor](https://img.shields.io/appveyor/build/thibault-cne/rust-race-engine?logo=appveyor&logoColor=white&label=appveyor)](https://github.com/thibault-cne/rust-race-engine)
+[![circleci](https://img.shields.io/circleci/build/gh/thibault-cne/rust-race-engine?logo=circleci&logoColor=white&label=circleci)](https://circleci.com/gh/thibault-cne/rust-race-engine)
+[![appveyor](https://img.shields.io/appveyor/build/thibault-cne/rust-race-engine?logo=appveyor&logoColor=white&label=appveyor)](https://ci.appveyor.com/project/thibault-cne/rust-race-engine)
 [![license](https://img.shields.io/github/license/thibault-cne/rust-race-engine)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![rust report card](https://rust-reportcard.xuri.me/badge/github.com/thibault-cne/rust-race-engine)](https://rust-reportcard.xuri.me/report/github.com/thibault-cne/rust-race-engine)
 
