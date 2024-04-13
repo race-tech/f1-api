@@ -1,6 +1,6 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
-use shared::models::Race as RacesModel;
+use shared::models::Race as RaceModel;
 use shared::parameters::GetRacesParameters;
 
 use crate::{
@@ -31,7 +31,7 @@ const DATE_AND_TIME_COLS: &[(Races, &str)] = &[
 ];
 
 impl RacesQueryBuilder {
-    pub fn params(params: GetRacesParameters) -> Self {
+    pub fn params(params: GetRacesParameters) -> Paginated<RaceModel> {
         let stmt = Query::select()
             .distinct()
             .column((Races::Table, Races::Year))
@@ -83,10 +83,10 @@ impl RacesQueryBuilder {
 
         let stmt = stmt.to_owned();
 
-        Self { stmt, params }
+        Self { stmt, params }.build()
     }
 
-    pub fn build(self) -> Paginated<RacesModel> {
+    fn build(self) -> Paginated<RaceModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

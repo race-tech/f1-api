@@ -1,7 +1,10 @@
-use sea_query::{Alias, Expr, Query, SelectStatement};
+use mysql::prelude::Queryable;
+use sea_query::{Alias, Expr, MysqlQueryBuilder, Query, SelectStatement};
 
+use shared::error;
+use shared::error::Result;
 use shared::models::Status as StatusModel;
-use shared::parameters::GetStatusParameters;
+use shared::parameters::{GetStatusParameters, StatusId};
 
 use crate::{
     iden::*,
@@ -16,7 +19,20 @@ pub struct StatusQueryBuilder {
 }
 
 impl StatusQueryBuilder {
-    pub fn params(params: GetStatusParameters) -> Self {
+    pub fn get(status_id: StatusId, conn: &mut infrastructure::Connection) -> Result<StatusModel> {
+        let query = Query::select()
+            .distinct()
+            .column((Status::Table, Status::Id))
+            .column((Status::Table, Status::Content))
+            .from(Status::Table)
+            .and_where(Expr::col((Status::Table, Status::Id)).eq(Expr::value(*status_id)))
+            .to_string(MysqlQueryBuilder);
+
+        conn.query_first(query)?
+            .ok_or(error!(EntityNotFound => "status with id `{}` not found", status_id.0))
+    }
+
+    pub fn params(params: GetStatusParameters) -> Paginated<StatusModel> {
         let stmt = Query::select()
             .distinct()
             .column((Status::Table, Status::Id))
@@ -31,10 +47,10 @@ impl StatusQueryBuilder {
             .order_by((Status::Table, Status::Id), sea_query::Order::Asc)
             .to_owned();
 
-        Self { stmt, params }
+        Self { stmt, params }.build()
     }
 
-    pub fn build(self) -> Paginated<StatusModel> {
+    fn build(self) -> Paginated<StatusModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

@@ -12,10 +12,8 @@ pub fn constructor_standings(
 ) -> Result<Json<Response<Vec<ConstructorStandingResponse>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
-    let query =
-        application::constructor_standings::ConstructorStandingsQueryBuilder::params(param).build();
-
-    let res = query.query_and_count(conn);
+    let res = application::constructor_standings::ConstructorStandingsQueryBuilder::params(param)
+        .query_and_count(conn)?;
 
     let response = Response::new(res.0, res.1, series);
 

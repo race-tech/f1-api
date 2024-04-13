@@ -1,6 +1,6 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
-use shared::models::PitStop as PitStopsModel;
+use shared::models::PitStop as PitStopModel;
 use shared::parameters::GetPitStopsParameter;
 
 use crate::{
@@ -15,7 +15,7 @@ pub struct PitStopsQueryBuilder {
 }
 
 impl PitStopsQueryBuilder {
-    pub fn params(params: GetPitStopsParameter) -> Self {
+    pub fn params(params: GetPitStopsParameter) -> Paginated<PitStopModel> {
         let stmt = Query::select()
             .distinct()
             .expr_as(
@@ -95,10 +95,10 @@ impl PitStopsQueryBuilder {
             .order_by((PitStops::Table, PitStops::Time), sea_query::Order::Asc)
             .to_owned();
 
-        Self { stmt, params }
+        Self { stmt, params }.build()
     }
 
-    pub fn build(self) -> Paginated<PitStopsModel> {
+    fn build(self) -> Paginated<PitStopModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

@@ -1,7 +1,10 @@
-use sea_query::{Expr, Func, Query, SelectStatement};
+use mysql::prelude::Queryable;
+use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 
+use shared::error;
+use shared::error::Result;
 use shared::models::Season as SeasonModel;
-use shared::parameters::GetSeasonsParameters;
+use shared::parameters::{GetSeasonsParameters, Year};
 
 use crate::{
     iden::*,
@@ -16,7 +19,20 @@ pub struct SeasonsQueryBuilder {
 }
 
 impl SeasonsQueryBuilder {
-    pub fn params(params: GetSeasonsParameters) -> Self {
+    pub fn get(season: Year, conn: &mut infrastructure::Connection) -> Result<SeasonModel> {
+        let query = Query::select()
+            .distinct()
+            .column((Seasons::Table, Seasons::Year))
+            .column((Seasons::Table, Seasons::Url))
+            .from(Seasons::Table)
+            .and_where(Expr::col((Seasons::Table, Seasons::Year)).eq(Expr::value(*season)))
+            .to_string(MysqlQueryBuilder);
+
+        conn.query_first(query)?
+            .ok_or(error!(EntityNotFound => "season with year `{}` not found", season.0))
+    }
+
+    pub fn params(params: GetSeasonsParameters) -> Paginated<SeasonModel> {
         let stmt = Query::select()
             .distinct()
             .column((Seasons::Table, Seasons::Year))
@@ -25,10 +41,10 @@ impl SeasonsQueryBuilder {
             .order_by((Seasons::Table, Seasons::Year), sea_query::Order::Asc)
             .to_owned();
 
-        Self { stmt, params }
+        Self { stmt, params }.build()
     }
 
-    pub fn build(self) -> Paginated<SeasonModel> {
+    fn build(self) -> Paginated<SeasonModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

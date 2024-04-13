@@ -1,7 +1,10 @@
-use sea_query::{Expr, Func, Query, SelectStatement};
+use mysql::prelude::Queryable;
+use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 
-use shared::models::Driver as DriversModel;
-use shared::parameters::GetDriversParameter;
+use shared::error;
+use shared::error::Result;
+use shared::models::Driver as DriverModel;
+use shared::parameters::{DriverRef, GetDriversParameter};
 
 use crate::{
     iden::*,
@@ -16,7 +19,38 @@ pub struct DriversQueryBuilder {
 }
 
 impl DriversQueryBuilder {
-    pub fn params(params: GetDriversParameter) -> Self {
+    pub fn get(
+        driver_ref: DriverRef,
+        conn: &mut infrastructure::Connection,
+    ) -> Result<DriverModel> {
+        let query = Query::select()
+            .distinct()
+            .from(Drivers::Table)
+            .columns(
+                [
+                    Drivers::DriverId,
+                    Drivers::DriverRef,
+                    Drivers::Number,
+                    Drivers::Code,
+                    Drivers::Forename,
+                    Drivers::Surname,
+                    Drivers::Dob,
+                    Drivers::Nationality,
+                    Drivers::Url,
+                ]
+                .into_iter()
+                .map(|c| (Drivers::Table, c)),
+            )
+            .and_where(
+                Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(&*driver_ref)),
+            )
+            .to_string(MysqlQueryBuilder);
+
+        conn.query_first(query)?
+            .ok_or(error!(EntityNotFound => "driver with reference `{}` not found", driver_ref.0))
+    }
+
+    pub fn params(params: GetDriversParameter) -> Paginated<DriverModel> {
         let stmt = Query::select()
             .distinct()
             .from(Drivers::Table)
@@ -37,7 +71,7 @@ impl DriversQueryBuilder {
             )
             .to_owned();
 
-        Self { stmt, params }
+        Self { stmt, params }.build()
     }
 
     fn one_of(&self) -> bool {
@@ -50,7 +84,7 @@ impl DriversQueryBuilder {
             || self.params.fastest.is_some()
     }
 
-    pub fn build(self) -> Paginated<DriversModel> {
+    fn build(self) -> Paginated<DriverModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 

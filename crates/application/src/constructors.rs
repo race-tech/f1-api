@@ -1,7 +1,10 @@
-use sea_query::{Expr, Func, Query, SelectStatement};
+use mysql::prelude::Queryable;
+use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 
-use shared::models::Constructor as ConstructorsModel;
-use shared::parameters::GetConstructorsParameter;
+use shared::error;
+use shared::error::Result;
+use shared::models::Constructor as ConstructorModel;
+use shared::parameters::{ConstructorRef, GetConstructorsParameter};
 
 use crate::{
     iden::*,
@@ -16,7 +19,34 @@ pub struct ConstructorsQueryBuilder {
 }
 
 impl ConstructorsQueryBuilder {
-    pub fn params(params: GetConstructorsParameter) -> Self {
+    pub fn get(
+        constructor_ref: ConstructorRef,
+        conn: &mut infrastructure::Connection,
+    ) -> Result<ConstructorModel> {
+        let query = Query::select()
+            .distinct()
+            .columns(
+                [
+                    Constructors::ConstructorId,
+                    Constructors::ConstructorRef,
+                    Constructors::Name,
+                    Constructors::Nationality,
+                    Constructors::Url,
+                ]
+                .into_iter()
+                .map(|c| (Constructors::Table, c)),
+            )
+            .from(Constructors::Table)
+            .and_where(
+                Expr::col((Constructors::Table, Constructors::ConstructorRef))
+                    .eq(Expr::value(&*constructor_ref)),
+            )
+            .to_string(MysqlQueryBuilder);
+
+        conn.query_first(query)?.ok_or(error!(EntityNotFound => "constructor with reference `{}` not found", constructor_ref.0))
+    }
+
+    pub fn params(params: GetConstructorsParameter) -> Paginated<ConstructorModel> {
         let stmt = Query::select()
             .distinct()
             .columns(
@@ -33,10 +63,10 @@ impl ConstructorsQueryBuilder {
             .from(Constructors::Table)
             .to_owned();
 
-        Self { params, stmt }
+        Self { params, stmt }.build()
     }
 
-    pub fn build(self) -> Paginated<ConstructorsModel> {
+    fn build(self) -> Paginated<ConstructorModel> {
         let page: u64 = self.params.page.unwrap_or_default().0;
         let limit: u64 = self.params.limit.unwrap_or_default().0;
 
