@@ -4,7 +4,26 @@ use rocket::{get, routes, State};
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
-#[get("/<series>/status?<param..>")]
+#[get("/<series>/status?<status_id>", rank = 1)]
+pub fn status_id(
+    db: &State<ConnectionPool>,
+    series: Series,
+    status_id: shared::parameters::StatusId,
+) -> Result<Json<Response<Status>>> {
+    let conn = &mut db.from_series(series).get().unwrap();
+
+    let status = application::status::StatusQueryBuilder::get(status_id, conn);
+
+    let response = Response {
+        data: status.into(),
+        pagination: None,
+        series,
+    };
+
+    Ok(Json(response))
+}
+
+#[get("/<series>/status?<param..>", rank = 2)]
 pub fn status(
     db: &State<ConnectionPool>,
     series: Series,
@@ -22,5 +41,5 @@ pub fn status(
 }
 
 pub fn handlers() -> Vec<rocket::Route> {
-    routes![status]
+    routes![status, status_id]
 }

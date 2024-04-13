@@ -1,7 +1,8 @@
-use sea_query::{Alias, Expr, Query, SelectStatement};
+use mysql::prelude::*;
+use sea_query::{Alias, Expr, MysqlQueryBuilder, Query, SelectStatement};
 
 use shared::models::Status as StatusModel;
-use shared::parameters::GetStatusParameters;
+use shared::parameters::{GetStatusParameters, StatusId};
 
 use crate::{
     iden::*,
@@ -16,6 +17,18 @@ pub struct StatusQueryBuilder {
 }
 
 impl StatusQueryBuilder {
+    pub fn get(status_id: StatusId, conn: &mut infrastructure::Connection) -> StatusModel {
+        let query = Query::select()
+            .distinct()
+            .column((Status::Table, Status::Id))
+            .column((Status::Table, Status::Content))
+            .from(Status::Table)
+            .and_where(Expr::col((Status::Table, Status::Id)).eq(Expr::value(*status_id)))
+            .to_string(MysqlQueryBuilder);
+
+        conn.query(query).unwrap().swap_remove(0)
+    }
+
     pub fn params(params: GetStatusParameters) -> Self {
         let stmt = Query::select()
             .distinct()
