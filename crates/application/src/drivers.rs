@@ -1,7 +1,8 @@
-use sea_query::{Expr, Func, Query, SelectStatement};
+use mysql::prelude::*;
+use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 
 use shared::models::Driver as DriversModel;
-use shared::parameters::GetDriversParameter;
+use shared::parameters::{DriverRef, GetDriversParameter};
 
 use crate::{
     iden::*,
@@ -16,6 +17,33 @@ pub struct DriversQueryBuilder {
 }
 
 impl DriversQueryBuilder {
+    pub fn get(driver_ref: DriverRef, conn: &mut infrastructure::Connection) -> DriversModel {
+        let query = Query::select()
+            .distinct()
+            .from(Drivers::Table)
+            .columns(
+                [
+                    Drivers::DriverId,
+                    Drivers::DriverRef,
+                    Drivers::Number,
+                    Drivers::Code,
+                    Drivers::Forename,
+                    Drivers::Surname,
+                    Drivers::Dob,
+                    Drivers::Nationality,
+                    Drivers::Url,
+                ]
+                .into_iter()
+                .map(|c| (Drivers::Table, c)),
+            )
+            .and_where(
+                Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(&*driver_ref)),
+            )
+            .to_string(MysqlQueryBuilder);
+
+        conn.query(query).unwrap().swap_remove(0)
+    }
+
     pub fn params(params: GetDriversParameter) -> Self {
         let stmt = Query::select()
             .distinct()
