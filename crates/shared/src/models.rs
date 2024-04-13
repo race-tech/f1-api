@@ -185,3 +185,11 @@ pub struct Season {
     pub year: i32,
     pub url: String,
 }
+
+#[derive(FromRow, Debug)]
+pub struct Status {
+    #[mysql(rename = "statusId")]
+    pub status_id: i32,
+    pub status: String,
+    pub count: i32,
+}

@@ -188,6 +188,23 @@ pub struct Season {
     url: String,
 }
 
+#[derive(Debug, Serialize)]
+pub struct Status {
+    status_id: i32,
+    status: String,
+    count: i32,
+}
+
+impl From<crate::models::Status> for Status {
+    fn from(value: crate::models::Status) -> Self {
+        Self {
+            status_id: value.status_id,
+            status: value.status,
+            count: value.count,
+        }
+    }
+}
+
 impl From<crate::models::Season> for Season {
     fn from(value: crate::models::Season) -> Self {
         Season {

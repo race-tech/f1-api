@@ -168,3 +168,12 @@ pub(crate) enum Seasons {
     Year,
     Url,
 }
+
+#[derive(Iden)]
+pub(crate) enum Status {
+    Table,
+    #[iden = "statusId"]
+    Id,
+    #[iden = "status"]
+    Content,
+}

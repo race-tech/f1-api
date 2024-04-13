@@ -66,7 +66,7 @@ macros::query_parameters! {
     #[Copy] Year(u32);
     #[Copy] Round(u32);
     #[Copy] Fastest(i32);
-    #[Copy] Status(i32);
+    #[Copy] StatusId(i32);
     #[Copy] LapNumber(u32);
     #[Copy] PitStopNumber(u32);
 }
@@ -92,7 +92,7 @@ pub struct GetCircuitsParameter {
     pub page: Option<Page>,
     pub driver_ref: Option<DriverRef>,
     pub constructor_ref: Option<ConstructorRef>,
-    pub status: Option<Status>,
+    pub status: Option<StatusId>,
     pub grid: Option<Grid>,
     pub fastest: Option<Fastest>,
     pub result: Option<RaceResult>,
@@ -109,7 +109,7 @@ pub struct GetDriversParameter {
     pub circuit_ref: Option<CircuitRef>,
     pub constructor_ref: Option<ConstructorRef>,
     pub driver_standing: Option<DriverStanding>,
-    pub status: Option<Status>,
+    pub status: Option<StatusId>,
     pub grid: Option<Grid>,
     pub fastest: Option<Fastest>,
     pub result: Option<RaceResult>,
@@ -126,7 +126,7 @@ pub struct GetConstructorsParameter {
     pub circuit_ref: Option<CircuitRef>,
     pub driver_ref: Option<DriverRef>,
     pub constructor_standing: Option<ConstructorStanding>,
-    pub status: Option<Status>,
+    pub status: Option<StatusId>,
     pub grid: Option<Grid>,
     pub fastest: Option<Fastest>,
     pub result: Option<RaceResult>,
@@ -194,7 +194,7 @@ pub struct GetRacesParameters {
     pub circuit_ref: Option<CircuitRef>,
     pub driver_ref: Option<DriverRef>,
     pub constructor_ref: Option<ConstructorRef>,
-    pub status: Option<Status>,
+    pub status: Option<StatusId>,
     pub grid: Option<Grid>,
     pub fastest: Option<Fastest>,
     pub result: Option<RaceResult>,
@@ -211,12 +211,28 @@ pub struct GetSeasonsParameters {
     pub circuit_ref: Option<CircuitRef>,
     pub driver_ref: Option<DriverRef>,
     pub constructor_ref: Option<ConstructorRef>,
-    pub status: Option<Status>,
+    pub status: Option<StatusId>,
     pub grid: Option<Grid>,
     pub fastest: Option<Fastest>,
     pub result: Option<RaceResult>,
     pub driver_standing: Option<DriverStanding>,
     pub constructor_standing: Option<ConstructorStanding>,
+}
+
+#[derive(Debug, Default, FilterValidation, FromForm)]
+pub struct GetStatusParameters {
+    #[validation(skip)]
+    pub limit: Option<Limit>,
+    #[validation(skip)]
+    pub page: Option<Page>,
+    pub circuit_ref: Option<CircuitRef>,
+    pub driver_ref: Option<DriverRef>,
+    pub constructor_ref: Option<ConstructorRef>,
+    pub grid: Option<Grid>,
+    pub fastest: Option<Fastest>,
+    pub result: Option<RaceResult>,
+    pub year: Option<Year>,
+    pub round: Option<Round>,
 }
 
 impl Default for Page {
