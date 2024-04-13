@@ -1,13 +1,12 @@
 ---
-name: fmt, lint & build
+name: CI
 
 on:
   push:
     branches:
-      - master
-  pull_request:
-    branches:
-      - master
+      - main
+      - release/*
+  pull_request: {}
 
 jobs:
   cache:
