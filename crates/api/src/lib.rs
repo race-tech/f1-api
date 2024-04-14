@@ -5,6 +5,7 @@ mod constructor_standings;
 mod constructors;
 mod driver_standings;
 mod drivers;
+pub mod guards;
 mod laps;
 mod pit_stops;
 mod races;

@@ -24,6 +24,8 @@ pub enum ErrorKind {
     R2D2,
     Mysql,
     EntityNotFound,
+    IpHeaderNotFound,
+    RateLimitReached,
 }
 
 impl From<r2d2::Error> for Error {
@@ -53,6 +55,8 @@ impl std::fmt::Display for ErrorKind {
             R2D2 => write!(f, "r2d2 error"),
             Mysql => write!(f, "mysql error"),
             EntityNotFound => write!(f, "entity not found"),
+            IpHeaderNotFound => write!(f, "ip header not found"),
+            RateLimitReached => write!(f, "rate limit reached on given the sliding window"),
         }
     }
 }
@@ -69,6 +73,8 @@ impl Serialize for ErrorKind {
             R2D2 => s.serialize_unit_variant("ErrorKind", 1, "R2D2"),
             Mysql => s.serialize_unit_variant("ErrorKind", 2, "Mysql"),
             EntityNotFound => s.serialize_unit_variant("ErrorKind", 3, "EntityNotFound"),
+            IpHeaderNotFound => s.serialize_unit_variant("ErrorKind", 4, "IpHeaderNotFound"),
+            RateLimitReached => s.serialize_unit_variant("ErrorKind", 5, "RateLimitReached"),
         }
     }
 }
@@ -84,6 +90,8 @@ impl From<&ErrorKind> for rocket::http::Status {
             R2D2 => Self::InternalServerError,
             Mysql => Self::InternalServerError,
             EntityNotFound => Self::NotFound,
+            IpHeaderNotFound => Self::BadRequest,
+            RateLimitReached => Self::TooManyRequests,
         }
     }
 }
@@ -134,6 +142,12 @@ impl<'r> Responder<'r, 'static> for Error {
 mod macros {
     #[macro_export]
     macro_rules! error {
+        ($kind:ident) => {
+            $crate::error::Error {
+                kind: $crate::error::ErrorKind::$kind,
+                message: None,
+            }
+        };
         ($kind:ident => $string:ident) => {
             $crate::error::Error {
                 kind: $crate::error::ErrorKind::$kind,

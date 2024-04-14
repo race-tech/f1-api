@@ -64,9 +64,11 @@ name = "api-lib"
 version = "0.1.0"
 dependencies = [
  "application",
+ "chrono",
  "infrastructure",
  "mysql",
  "r2d2",
+ "redis",
  "rocket",
  "serde",
  "serde_json",
@@ -322,6 +324,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a31c789563b815f77f4250caee12365734369f942439b7defd71e18a48197130"
 dependencies = [
  "cc",
+]
+
+[[package]]
+name = "combine"
+version = "4.6.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba5a308b75df32fe02788e748662718f03fde005016435c444eea572398219fd"
+dependencies = [
+ "bytes",
+ "memchr",
 ]
 
 [[package]]
@@ -881,6 +893,7 @@ version = "0.1.0"
 dependencies = [
  "mysql",
  "r2d2",
+ "redis",
  "shared",
 ]
 
@@ -1432,6 +1445,7 @@ name = "purple-sector"
 version = "0.1.0"
 dependencies = [
  "api-lib",
+ "chrono",
  "dotenvy",
  "infrastructure",
  "mysql",
@@ -1486,6 +1500,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 dependencies = [
  "getrandom",
+]
+
+[[package]]
+name = "redis"
+version = "0.25.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6472825949c09872e8f2c50bde59fcefc17748b6be5c90fd67cd8b4daca73bfd"
+dependencies = [
+ "combine",
+ "itoa",
+ "percent-encoding",
+ "ryu",
+ "sha1_smol",
+ "socket2",
+ "url",
 ]
 
 [[package]]
@@ -1780,6 +1809,12 @@ dependencies = [
  "cpufeatures",
  "digest",
 ]
+
+[[package]]
+name = "sha1_smol"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae1a47186c03a32177042e55dbc5fd5aee900b8e0069a8d70fba96a9375cd012"
 
 [[package]]
 name = "sha2"

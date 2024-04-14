@@ -4,11 +4,14 @@ use rocket::{get, routes, State};
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
+use crate::guards::rate_limiter::RateLimiter;
+
 #[get("/<series>/circuits?<circuit_ref>", rank = 1)]
 pub fn circuits_ref(
     db: &State<ConnectionPool>,
     series: Series,
     circuit_ref: shared::parameters::CircuitRef,
+    __rate_limiter: RateLimiter,
 ) -> Result<Json<Response<Circuit>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 
@@ -28,6 +31,7 @@ pub fn circuits(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetCircuitsParameter,
+    __rate_limiter: &State<RateLimiter>,
 ) -> Result<Json<Response<Vec<Circuit>>>> {
     let conn = &mut db.from_series(series).get().unwrap();
 

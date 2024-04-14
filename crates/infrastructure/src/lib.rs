@@ -5,11 +5,13 @@ use shared::parameters::Series;
 mod error;
 mod pool;
 
-pub type Pool = r2d2::Pool<pool::MySqlConnectionManager>;
+type Pool = r2d2::Pool<pool::MySqlConnectionManager>;
+type CachePool = r2d2::Pool<pool::RedisClient>;
 pub type Connection = r2d2::PooledConnection<pool::MySqlConnectionManager>;
 
 pub struct ConnectionPool {
     f1db_pool: Pool,
+    pub cache: CachePool,
 }
 
 impl ConnectionPool {
@@ -31,7 +33,15 @@ impl ConnectionPool {
             .build(manager)
             .map_err(|_| error!(ConnectionPoolError => "Failed to create connection pool"))?;
 
-        Ok(Self { f1db_pool })
+        let rate_limiter_url = env_vars.rate_limiter_config.to_string();
+        let cache = r2d2::Pool::builder()
+            .max_size(10)
+            .build(pool::RedisClient::from(rate_limiter_url))
+            .map_err(
+                |_| error!(ConnectionPoolError => "Failed to create rate limiter connection pool"),
+            )?;
+
+        Ok(Self { f1db_pool, cache })
     }
 
     pub fn from_series(&self, series: Series) -> &Pool {
@@ -48,6 +58,8 @@ struct EnvVars {
     user: String,
     password: String,
     port: String,
+
+    rate_limiter_config: RedisEnvConfig,
 }
 
 impl EnvVars {
@@ -63,6 +75,29 @@ impl EnvVars {
                 .map_err(|_| error!(MissingEnvVar => "DB_PASSWORD value is missing"))?,
             port: env::var("DB_PORT")
                 .map_err(|_| error!(MissingEnvVar => "DB_PORT value is missing"))?,
+            rate_limiter_config: RedisEnvConfig::try_new()?,
         })
+    }
+}
+
+struct RedisEnvConfig {
+    host: String,
+    port: String,
+}
+
+impl RedisEnvConfig {
+    fn try_new() -> Result<Self, error::Error> {
+        Ok(Self {
+            host: env::var("REDIS_IP_OR_HOSTNAME")
+                .map_err(|_| error!(MissingEnvVar => "REDIS_IP_OR_HOSTNAME value is missing"))?,
+            port: env::var("REDIS_PORT")
+                .map_err(|_| error!(MissingEnvVar => "REDIS_PORT value is missing"))?,
+        })
+    }
+}
+
+impl std::fmt::Display for RedisEnvConfig {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "redis://{}:{}", self.host, self.port)
     }
 }
