@@ -15,3 +15,5 @@ This is a Fomula API build in Rust and currently under development. The goal is 
 - [ ] Create an automated tool to update the DB in prevision of the ergast deprecated DB for next season
 - [ ] Create a new DB for the F2 championship (maybe even F3 and F1 academy as well as WEC or other championships)
 - [ ] Add a predictor to the API (an LLM model that will try to predict upcoming races results)
+- [ ] Create a landing page for the API
+- [ ] Create a simple front-end to access the API
