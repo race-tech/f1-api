@@ -1,34 +1,43 @@
 use chrono::{DateTime, Duration, Utc};
 use redis::Commands;
-use rocket::http::Status;
-use rocket::request::{self, FromRequest, Request};
-use shared::error;
+use rocket::fairing::{Fairing, Info, Kind};
+use rocket::{uri, Data, Request};
 
 use infrastructure::ConnectionPool;
-use shared::error::Error;
+
+use crate::fallbacks::rocket_uri_macro_rate_limiter_fallback;
 
 const RATE_LIMITER_KEY_PREFIX: &str = "RATE_LIMITER_";
 
 pub struct RateLimiter;
 
 #[rocket::async_trait]
-impl<'r> FromRequest<'r> for RateLimiter {
-    type Error = Error;
+impl Fairing for RateLimiter {
+    fn info(&self) -> Info {
+        Info {
+            name: "RateLimiter",
+            kind: Kind::Request,
+        }
+    }
 
-    async fn from_request(req: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
+    async fn on_request(&self, req: &mut Request<'_>, _: &mut Data<'_>) {
         // SAFETY: This values should always be defined
-        let ip_header = req.rocket().config().ip_header.as_ref().unwrap();
-        let rate_limiter = req.rocket().state::<ConnectionPool>().unwrap();
+        let ip_header = req
+            .rocket()
+            .config()
+            .ip_header
+            .as_ref()
+            .unwrap()
+            .to_string();
+        let pool = req.rocket().state::<ConnectionPool>().unwrap();
         let window = req.rocket().state::<SlidingWindow>().unwrap();
-        let rate_limiter = &mut rate_limiter.cache.get().unwrap();
+        let rate_limiter = &mut pool.cache.get().unwrap();
 
         let ip_addr = match req.real_ip() {
             Some(ip_addr) => ip_addr,
             None => {
-                return request::Outcome::Error((
-                    Status::BadRequest,
-                    error!(IpHeaderNotFound => "ip header not found, expected to find it under the `{}` header", ip_header),
-                ))
+                req.set_uri(uri!(rate_limiter_fallback(Some(ip_header), _)));
+                return;
             }
         };
 
@@ -44,11 +53,10 @@ impl<'r> FromRequest<'r> for RateLimiter {
                             .unwrap(),
                     )
                     .unwrap();
-                return request::Outcome::Success(Self);
+                return;
             }
         };
 
-        println!("cache retrieved: {:?}", timestamps);
         let window_validation = |date| now - date > window.duration;
         let mut timestamps = cleanup(
             serde_json::from_str(&timestamps).unwrap(),
@@ -62,18 +70,15 @@ impl<'r> FromRequest<'r> for RateLimiter {
                 .first()
                 .map(|&(secs, nsecs)| DateTime::from_timestamp(secs, nsecs).unwrap())
                 .unwrap();
-            request::Outcome::Error((
-                Status::TooManyRequests,
-                error!(RateLimitReached => "you reached the rate limit, please wait `{}s` before your next request", (window.duration - (now - first)).num_seconds()),
-            ))
-        } else {
-            timestamps.push((now.timestamp(), now.timestamp_subsec_nanos()));
-            rate_limiter
-                .set::<String, String, ()>(key, serde_json::to_string(&timestamps).unwrap())
-                .unwrap();
-
-            request::Outcome::Success(Self)
+            let time_to_wait = (window.duration - (now - first)).num_seconds();
+            req.set_uri(uri!(rate_limiter_fallback(_, Some(time_to_wait))));
+            return;
         }
+
+        timestamps.push((now.timestamp(), now.timestamp_subsec_nanos()));
+        rate_limiter
+            .set::<String, String, ()>(key, serde_json::to_string(&timestamps).unwrap())
+            .unwrap();
     }
 }
 
@@ -105,21 +110,4 @@ where
             f(date)
         })
         .collect()
-}
-
-#[cfg(test)]
-mod test {
-    use chrono::{DateTime, TimeZone, Utc};
-
-    #[test]
-    fn test() {
-        let dt: DateTime<Utc> = Utc.with_ymd_and_hms(2015, 5, 15, 0, 0, 0).unwrap();
-        assert_eq!(
-            DateTime::from_timestamp(dt.timestamp(), dt.timestamp_subsec_nanos()).unwrap(),
-            dt
-        );
-
-        let now = Utc::now();
-        assert!(DateTime::from_timestamp(now.timestamp(), now.timestamp_subsec_nanos()).is_some());
-    }
 }

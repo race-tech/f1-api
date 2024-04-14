@@ -5,7 +5,7 @@ use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/seasons?<season>", rank = 1)]
-pub fn seasons_year(
+fn seasons_year(
     db: &State<ConnectionPool>,
     series: Series,
     season: shared::parameters::Year,
@@ -24,7 +24,7 @@ pub fn seasons_year(
 }
 
 #[get("/<series>/seasons?<param..>", rank = 2)]
-pub fn seasons(
+fn seasons(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetSeasonsParameters,

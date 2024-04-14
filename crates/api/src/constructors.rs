@@ -5,7 +5,7 @@ use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/constructors?<constructor_ref>", rank = 1)]
-pub fn constructors_ref(
+fn constructors_ref(
     db: &State<ConnectionPool>,
     series: Series,
     constructor_ref: shared::parameters::ConstructorRef,
@@ -25,7 +25,7 @@ pub fn constructors_ref(
 }
 
 #[get("/<series>/constructors?<param..>", rank = 2)]
-pub fn constructors(
+fn constructors(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetConstructorsParameter,

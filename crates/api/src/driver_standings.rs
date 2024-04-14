@@ -5,7 +5,7 @@ use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/drivers/standing?<param..>")]
-pub fn driver_standings(
+fn driver_standings(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetDriverStandingsParameter,

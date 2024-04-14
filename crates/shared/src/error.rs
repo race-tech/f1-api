@@ -26,6 +26,7 @@ pub enum ErrorKind {
     EntityNotFound,
     IpHeaderNotFound,
     RateLimitReached,
+    InternalServerError,
 }
 
 impl From<r2d2::Error> for Error {
@@ -57,6 +58,7 @@ impl std::fmt::Display for ErrorKind {
             EntityNotFound => write!(f, "entity not found"),
             IpHeaderNotFound => write!(f, "ip header not found"),
             RateLimitReached => write!(f, "rate limit reached on given the sliding window"),
+            InternalServerError => write!(f, "an unexpected error occured"),
         }
     }
 }
@@ -75,6 +77,7 @@ impl Serialize for ErrorKind {
             EntityNotFound => s.serialize_unit_variant("ErrorKind", 3, "EntityNotFound"),
             IpHeaderNotFound => s.serialize_unit_variant("ErrorKind", 4, "IpHeaderNotFound"),
             RateLimitReached => s.serialize_unit_variant("ErrorKind", 5, "RateLimitReached"),
+            InternalServerError => s.serialize_unit_variant("ErrorKind", 6, "InternalServerError"),
         }
     }
 }
@@ -92,6 +95,7 @@ impl From<&ErrorKind> for rocket::http::Status {
             EntityNotFound => Self::NotFound,
             IpHeaderNotFound => Self::BadRequest,
             RateLimitReached => Self::TooManyRequests,
+            InternalServerError => Self::InternalServerError,
         }
     }
 }

@@ -5,7 +5,7 @@ use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/drivers?<driver_ref>", rank = 1)]
-pub fn drivers_ref(
+fn drivers_ref(
     db: &State<ConnectionPool>,
     series: Series,
     driver_ref: shared::parameters::DriverRef,
@@ -24,7 +24,7 @@ pub fn drivers_ref(
 }
 
 #[get("/<series>/drivers?<param..>", rank = 2)]
-pub fn drivers(
+fn drivers(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetDriversParameter,

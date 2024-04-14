@@ -5,7 +5,7 @@ use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/laps?<param..>")]
-pub fn laps(
+fn laps(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetLapsParameter,

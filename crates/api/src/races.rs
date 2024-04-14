@@ -5,7 +5,7 @@ use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/races?<param..>")]
-pub fn races(
+fn races(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetRacesParameters,

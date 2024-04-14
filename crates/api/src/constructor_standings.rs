@@ -5,7 +5,7 @@ use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/constructors/standing?<param..>")]
-pub fn constructor_standings(
+fn constructor_standings(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetConstructorStandingsParameter,
