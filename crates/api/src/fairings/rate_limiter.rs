@@ -36,7 +36,7 @@ impl Fairing for RateLimiter {
         let ip_addr = match req.real_ip() {
             Some(ip_addr) => ip_addr,
             None => {
-                req.set_uri(uri!(rate_limiter_fallback(Some(ip_header), _)));
+                req.set_uri(uri!("/fallback", rate_limiter_fallback(Some(ip_header), _)));
                 return;
             }
         };
@@ -71,7 +71,10 @@ impl Fairing for RateLimiter {
                 .map(|&(secs, nsecs)| DateTime::from_timestamp(secs, nsecs).unwrap())
                 .unwrap();
             let time_to_wait = (window.duration - (now - first)).num_seconds();
-            req.set_uri(uri!(rate_limiter_fallback(_, Some(time_to_wait))));
+            req.set_uri(uri!(
+                "/fallback",
+                rate_limiter_fallback(_, Some(time_to_wait))
+            ));
             return;
         }
 

@@ -8,6 +8,7 @@ fn rocket() -> _ {
     dotenv().ok();
 
     rocket::build()
+        .attach(api_lib::fairings::helmet::Formula1Helmet)
         .attach(api_lib::fairings::rate_limiter::RateLimiter)
         .mount("/api", api_lib::handlers::handlers())
         .mount("/fallback", api_lib::fallbacks::handlers())

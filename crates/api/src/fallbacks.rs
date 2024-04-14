@@ -24,6 +24,13 @@ fn rate_limiter_fallback(
     )
 }
 
+#[get("/internal_ressource")]
+fn internal_ressource() -> Result<()> {
+    Err(
+        error!(InternalRessource => "this ressource is intended for internal purposes you can't access it"),
+    )
+}
+
 pub fn handlers() -> Vec<Route> {
-    routes![rate_limiter_fallback]
+    routes![rate_limiter_fallback, internal_ressource]
 }
