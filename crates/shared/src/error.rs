@@ -132,8 +132,6 @@ impl From<Error> for ErrorResponse {
 #[rocket::async_trait]
 impl<'r> Responder<'r, 'static> for Error {
     fn respond_to(self, _: &'r rocket::Request<'_>) -> rocket::response::Result<'static> {
-        println!("{:?}", self);
-
         let mut response = rocket::Response::build()
             .status((&self.kind).into())
             .header(rocket::http::ContentType::JSON)
