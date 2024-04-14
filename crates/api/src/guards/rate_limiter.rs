@@ -83,6 +83,7 @@ pub struct SlidingWindow {
 }
 
 impl SlidingWindow {
+    /// Create a sliding window of `request_num` requests over a given `duration`.
     pub fn new(request_num: usize, duration: Duration) -> Self {
         Self {
             request_num,
