@@ -5,7 +5,7 @@ use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/pit_stops?<param..>")]
-pub fn pit_stops(
+fn pit_stops(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetPitStopsParameter,

@@ -5,7 +5,7 @@ use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/status?<status_id>", rank = 1)]
-pub fn status_id(
+fn status_id(
     db: &State<ConnectionPool>,
     series: Series,
     status_id: shared::parameters::StatusId,
@@ -24,7 +24,7 @@ pub fn status_id(
 }
 
 #[get("/<series>/status?<param..>", rank = 2)]
-pub fn status(
+fn status(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetStatusParameters,

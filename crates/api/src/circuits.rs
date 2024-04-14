@@ -5,7 +5,7 @@ use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 #[get("/<series>/circuits?<circuit_ref>", rank = 1)]
-pub fn circuits_ref(
+fn circuits_ref(
     db: &State<ConnectionPool>,
     series: Series,
     circuit_ref: shared::parameters::CircuitRef,
@@ -24,7 +24,7 @@ pub fn circuits_ref(
 }
 
 #[get("/<series>/circuits?<param..>", rank = 2)]
-pub fn circuits(
+fn circuits(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetCircuitsParameter,
