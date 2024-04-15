@@ -39,7 +39,6 @@ RUN cargo chef cook --release --recipe-path recipe.json
 
 RUN rm -rf src bin/* crates/* tests-integration/*
 
-COPY .test.env .
 COPY bin bin
 COPY crates crates
 COPY tests-integration tests-integration
