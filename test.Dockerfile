@@ -35,7 +35,7 @@ FROM planner AS buidler
 
 COPY --from=planner /usr/purple-sector/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
-RUN cargo chef cook --release --recipe-path recipe.json
+RUN cargo chef cook --recipe-path recipe.json
 
 RUN rm -rf src bin/* crates/* tests-integration/*
 
@@ -43,4 +43,4 @@ COPY bin bin
 COPY crates crates
 COPY tests-integration tests-integration
 
-RUN cargo build --release
+RUN cargo build
