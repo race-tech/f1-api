@@ -1,0 +1,16 @@
+[package]
+name = "tests-integration"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dev-dependencies]
+rocket.workspace = true
+dotenvy.workspace = true
+mysql.workspace = true
+chrono.workspace = true
+
+api-lib.workspace = true
+shared.workspace = true
+infrastructure.workspace = true

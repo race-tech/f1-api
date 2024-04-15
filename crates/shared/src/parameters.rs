@@ -3,11 +3,11 @@
 
 use rocket::form::FromForm;
 use rocket::request::FromParam;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use derives::FilterValidation;
 
-#[derive(Debug, Default, Serialize, Clone, Copy)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub enum Series {
     #[default]
     #[serde(rename = "f1")]

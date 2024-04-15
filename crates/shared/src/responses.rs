@@ -1,8 +1,8 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::parameters::Series;
 
-#[derive(Debug, Serialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct Pagination {
     pub limit: u64,
     pub page: u64,
@@ -10,7 +10,7 @@ pub struct Pagination {
     pub total: u64,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Response<T> {
     pub data: T,
 
@@ -38,7 +38,7 @@ pub struct RaceResponse {
     circuit: Circuit,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ConstructorStandingResponse {
     #[serde(flatten)]
     standing: Standing,
@@ -46,7 +46,7 @@ pub struct ConstructorStandingResponse {
     constructor: Constructor,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct DriverStandingResponse {
     #[serde(flatten)]
     standing: Standing,
@@ -54,7 +54,7 @@ pub struct DriverStandingResponse {
     driver: Driver,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LapsResponse {
     url: Option<String>,
     race_name: String,
@@ -67,7 +67,7 @@ pub struct LapsResponse {
     laps: Vec<Lap>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PitStopsResponse {
     url: Option<String>,
     race_name: String,
@@ -80,7 +80,7 @@ pub struct PitStopsResponse {
     pit_stops: Vec<PitStop>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Race {
     season: i32,
     round: i32,
@@ -102,24 +102,24 @@ pub struct Race {
     sprint: Option<DateAndTime>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Circuit {
-    circuit_ref: String,
-    name: String,
+    pub circuit_ref: String,
+    pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    location: Option<String>,
+    pub location: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    country: Option<String>,
+    pub country: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    lat: Option<f32>,
+    pub lat: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    lng: Option<f32>,
+    pub lng: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    alt: Option<i32>,
-    url: String,
+    pub alt: Option<i32>,
+    pub url: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Driver {
     driver_ref: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -135,7 +135,7 @@ pub struct Driver {
     url: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Constructor {
     constructor_ref: String,
     name: String,
@@ -144,7 +144,7 @@ pub struct Constructor {
     url: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Standing {
     points: f32,
     position: Option<i32>,
@@ -153,19 +153,19 @@ pub struct Standing {
     wins: i32,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct DateAndTime {
     date: chrono::NaiveDate,
     time: chrono::NaiveTime,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Lap {
     number: i32,
     timings: Vec<LapTiming>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LapTiming {
     driver_ref: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -174,7 +174,7 @@ pub struct LapTiming {
     time: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PitStop {
     driver_ref: String,
     lap: i32,
@@ -183,13 +183,13 @@ pub struct PitStop {
     duration: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Season {
     year: i32,
     url: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Status {
     status_id: i32,
     status: String,
