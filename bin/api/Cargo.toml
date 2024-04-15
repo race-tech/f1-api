@@ -11,5 +11,5 @@ dotenvy.workspace = true
 mysql.workspace = true
 chrono.workspace = true
 
-api-lib.workspace = true
-infrastructure.workspace = true
+api-lib = { path = "../../crates/api" }
+infrastructure = { path = "../../crates/infrastructure" }

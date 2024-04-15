@@ -10,4 +10,4 @@ mysql.workspace = true
 r2d2.workspace = true
 redis.workspace = true
 
-shared.workspace = true
+shared = { path = "../shared" }

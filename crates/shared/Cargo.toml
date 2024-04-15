@@ -14,4 +14,4 @@ r2d2.workspace = true
 mysql.workspace = true
 mysql_common.workspace = true
 
-derives.workspace = true
+derives = { path = "../derives" }

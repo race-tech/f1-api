@@ -14,6 +14,6 @@ mysql.workspace = true
 chrono.workspace = true
 redis.workspace = true
 
-application.workspace = true
-infrastructure.workspace = true
-shared.workspace = true
+application = { path = "../application" }
+infrastructure = { path = "../infrastructure" }
+shared = { path = "../shared" }

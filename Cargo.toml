@@ -3,14 +3,6 @@ members = ["crates/*", "bin/*", "tests-integration"]
 resolver = "2"
 
 [workspace.dependencies]
-# Local crates
-api-lib = { path = "./crates/api", version = "0.1.0" }
-application = { path = "./crates/application", version = "0.1.0" }
-derives = { path = "./crates/derives", version = "0.1.0" }
-infrastructure = { path = "./crates/infrastructure", version = "0.1.0" }
-shared = { path = "./crates/shared", version = "0.1.0" }
-
-# External crates
 rocket = { version = "0.5.0", features = ["json"] }
 chrono = { version = "0.4.31", features = ["serde"] }
 serde = { version = "1.0.195", features = ["derive"] }
