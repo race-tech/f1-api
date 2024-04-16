@@ -10,5 +10,5 @@ sea-query.workspace = true
 mysql.workspace = true
 serde.workspace = true
 
-shared.workspace = true
-infrastructure.workspace = true
+infrastructure = { path = "../infrastructure" }
+shared = { path = "../shared" }

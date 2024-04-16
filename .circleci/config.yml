@@ -1,13 +1,36 @@
 ---
-version: 2.1
+version: 2
 
 jobs:
-  build:
+  clippy:
     docker:
-      - image: cimg/rust:1.76.0
+      - image: docker:25.0.3
     steps:
       - checkout
-      - run: cargo --version
-      - run:
-          name: Build
-          command: cargo build --release --bin purple-sector
+      - setup_remote_docker
+      - run: docker build -f resources/dockerfiles/test/Dockerfile -t purple-sector .
+      - run: docker run -ti --rm purple-sector bash -c "rustup component add clippy && cargo clippy --all-targets -- -Dwarnings"
+  fmt:
+    docker:
+      - image: docker:25.0.3
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker build -f resources/dockerfiles/test/Dockerfile -t purple-sector .
+      - run: docker run -ti --rm purple-sector bash -c "rustup component add rustfmt && cargo fmt -p purple-sector -- --check --verbose"
+  unix:
+    docker:
+      - image: docker:25.0.3
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker build -f resources/dockerfiles/test/Dockerfile -t purple-sector .
+      - run: resources/dockerfiles/scripts/run_integration_tests.sh --tests
+
+workflows:
+  version: 2
+  tests:
+    jobs:
+      - clippy
+      - fmt
+      - unix

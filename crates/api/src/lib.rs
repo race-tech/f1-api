@@ -1,5 +1,7 @@
 #![allow(clippy::too_many_arguments)]
 
+use rocket::{Build, Rocket};
+
 mod circuits;
 mod constructor_standings;
 mod constructors;
@@ -14,7 +16,20 @@ mod races;
 mod seasons;
 mod status;
 
-pub mod handlers {
+pub fn rocket_builder() -> Rocket<Build> {
+    rocket::build()
+        .attach(fairings::helmet::Formula1Helmet)
+        .attach(fairings::rate_limiter::RateLimiter)
+        .mount("/api", handlers::handlers())
+        .mount("/fallback", fallbacks::handlers())
+        .manage(infrastructure::ConnectionPool::try_new().unwrap())
+        .manage(fairings::rate_limiter::SlidingWindow::new(
+            10,
+            chrono::Duration::seconds(60),
+        ))
+}
+
+mod handlers {
     use crate::*;
     use rocket::Route;
 

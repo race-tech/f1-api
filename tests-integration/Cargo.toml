@@ -1,15 +1,14 @@
 [package]
-name = "purple-sector"
+name = "tests-integration"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+[dev-dependencies]
 rocket.workspace = true
-dotenvy.workspace = true
-mysql.workspace = true
 chrono.workspace = true
 
-api-lib = { path = "../../crates/api" }
-infrastructure = { path = "../../crates/infrastructure" }
+api-lib = { path = "../crates/api" }
+shared = { path = "../crates/shared" }
+infrastructure = { path = "../crates/infrastructure" }
