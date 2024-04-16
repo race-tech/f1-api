@@ -8,7 +8,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: docker build -f test.Dockerfile -t purple-sector .
+      - run: docker build -f resources/dockerfiles/test/Dockerfile -t purple-sector .
       - run: docker run -ti --rm purple-sector bash -c "rustup component add clippy && cargo clippy --all-targets -- -Dwarnings"
   fmt:
     docker:
@@ -16,7 +16,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: docker build -f test.Dockerfile -t purple-sector .
+      - run: docker build -f resources/dockerfiles/test/Dockerfile -t purple-sector .
       - run: docker run -ti --rm purple-sector bash -c "rustup component add rustfmt && cargo fmt -p purple-sector -- --check --verbose"
   unix:
     docker:
@@ -24,7 +24,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: docker build -f test.Dockerfile -t purple-sector .
+      - run: docker build -f resources/dockerfiles/test/Dockerfile -t purple-sector .
       - run: resources/dockerfiles/scripts/run_integration_tests.sh --tests
 
 workflows:
