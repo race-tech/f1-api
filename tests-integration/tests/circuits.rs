@@ -110,6 +110,49 @@ fn test_get_circuits_by_constructor_ref() {
     test_circuits_ok(test);
 }
 
+#[test]
+fn test_get_circuits_by_constructor_ref_and_page() {
+    let test = TestCircuit {
+        uri: "/api/f1/circuits?constructor_ref=ferrari&page=2",
+        series: Series::F1,
+        pagination: Some(Pagination {
+            limit: 30,
+            page: 2,
+            max_page: 3,
+            total: 76,
+        }),
+        expected: &FERRARI_PAGE_2_CIRCUITS,
+    };
+
+    test_circuits_ok(test);
+}
+
+#[test]
+fn test_get_circuits_by_year_and_round() {
+    let test = TestCircuit {
+        uri: "/api/f1/circuits?year=2023&round=22",
+        series: Series::F1,
+        pagination: Some(Pagination {
+            limit: 30,
+            page: 1,
+            max_page: 1,
+            total: 1,
+        }),
+        expected: &circuits_from_json![{
+            "circuit_ref": "yas_marina",
+            "name": "Yas Marina Circuit",
+            "location": "Abu Dhabi",
+            "country": "UAE",
+            "lat": 24.4672,
+            "lng": 54.6031,
+            "alt": 3,
+            "url": "http://en.wikipedia.org/wiki/Yas_Marina_Circuit"
+        }],
+    };
+
+    test_circuits_ok(test);
+}
+
 #[derive(Debug)]
 struct StaticCircuit<'a> {
     circuit_ref: &'a str,
@@ -148,7 +191,7 @@ impl PartialEq<&Circuit> for StaticCircuit<'_> {
     }
 }
 
-macro_rules! circuits_from_json {
+macro_rules! __circuits_from_json_impl {
     (@internal [$($circuits:expr),*]; {
         "circuit_ref": $ref:literal,
         "name": $name:literal,
@@ -159,7 +202,7 @@ macro_rules! circuits_from_json {
         "alt": $alt:expr,
         "url": $url:literal
     }) => {
-        [$($circuits),*, StaticCircuit {
+        [$($circuits,)* StaticCircuit {
             circuit_ref: $ref,
             name: $name,
             location: Some($location),
@@ -180,28 +223,7 @@ macro_rules! circuits_from_json {
         "alt": $alt:expr,
         "url": $url:literal
     }, $($tt:tt)*) => {
-        circuits_from_json!(@internal [$($circuits),*, StaticCircuit {
-            circuit_ref: $ref,
-            name: $name,
-            location: Some($location),
-            country: Some($country),
-            lat: Some($lat),
-            lng: Some($lng),
-            alt: Some($alt),
-            url: $url,
-        }]; $($tt)*)
-    };
-    ({
-        "circuit_ref": $ref:literal,
-        "name": $name:literal,
-        "location": $location:literal,
-        "country": $country:literal,
-        "lat": $lat:expr,
-        "lng": $lng:expr,
-        "alt": $alt:expr,
-        "url": $url:literal
-    }, $($tt:tt)*) => {
-        circuits_from_json!(@internal [StaticCircuit {
+        __circuits_from_json_impl!(@internal [$($circuits,)* StaticCircuit {
             circuit_ref: $ref,
             name: $name,
             location: Some($location),
@@ -213,6 +235,15 @@ macro_rules! circuits_from_json {
         }]; $($tt)*)
     };
 }
+
+macro_rules! circuits_from_json {
+    ($($tt:tt)*) => {
+        __circuits_from_json_impl!(@internal []; $($tt)*)
+    };
+}
+
+use __circuits_from_json_impl;
+use circuits_from_json;
 
 const SPA: StaticCircuit = StaticCircuit {
     circuit_ref: "spa",
@@ -924,5 +955,308 @@ const FERRARI_CIRCUITS: [StaticCircuit; 30] = circuits_from_json![
         "lng": 29.405,
         "alt": 130,
         "url": "http://en.wikipedia.org/wiki/Istanbul_Park"
+    }
+];
+
+const FERRARI_PAGE_2_CIRCUITS: [StaticCircuit; 30] = circuits_from_json![
+    {
+        "circuit_ref": "jacarepagua",
+        "name": "Autódromo Internacional Nelson Piquet",
+        "location": "Rio de Janeiro",
+        "country": "Brazil",
+        "lat": -22.9756,
+        "lng": -43.395,
+        "alt": 1126,
+        "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Internacional_Nelson_Piquet"
+    },
+    {
+        "circuit_ref": "jarama",
+        "name": "Jarama",
+        "location": "Madrid",
+        "country": "Spain",
+        "lat": 40.6171,
+        "lng": -3.58558,
+        "alt": 609,
+        "url": "http://en.wikipedia.org/wiki/Circuito_Permanente_Del_Jarama"
+    },
+    {
+        "circuit_ref": "jeddah",
+        "name": "Jeddah Corniche Circuit",
+        "location": "Jeddah",
+        "country": "Saudi Arabia",
+        "lat": 21.6319,
+        "lng": 39.1044,
+        "alt": 15,
+        "url": "http://en.wikipedia.org/wiki/Jeddah_Street_Circuit"
+    },
+    {
+        "circuit_ref": "jerez",
+        "name": "Circuito de Jerez",
+        "location": "Jerez de la Frontera",
+        "country": "Spain",
+        "lat": 36.7083,
+        "lng": -6.03417,
+        "alt": 37,
+        "url": "http://en.wikipedia.org/wiki/Circuito_Permanente_de_Jerez"
+    },
+    {
+        "circuit_ref": "kyalami",
+        "name": "Kyalami",
+        "location": "Midrand",
+        "country": "South Africa",
+        "lat": -25.9894,
+        "lng": 28.0767,
+        "alt": 1460,
+        "url": "http://en.wikipedia.org/wiki/Kyalami"
+    },
+    {
+        "circuit_ref": "las_vegas",
+        "name": "Las Vegas Street Circuit",
+        "location": "Nevada",
+        "country": "USA",
+        "lat": 36.1162,
+        "lng": -115.174,
+        "alt": 639,
+        "url": "http://en.wikipedia.org/wiki/Las_Vegas_Street_Circuit"
+    },
+    {
+        "circuit_ref": "lemans",
+        "name": "Le Mans",
+        "location": "Le Mans",
+        "country": "France",
+        "lat": 47.95,
+        "lng": 0.224231,
+        "alt": 67,
+        "url": "http://en.wikipedia.org/wiki/Circuit_de_la_Sarthe#Bugatti_Circuit"
+    },
+    {
+        "circuit_ref": "long_beach",
+        "name": "Long Beach",
+        "location": "California",
+        "country": "USA",
+        "lat": 33.7651,
+        "lng": -118.189,
+        "alt": 12,
+        "url": "http://en.wikipedia.org/wiki/Long_Beach,_California"
+    },
+    {
+        "circuit_ref": "losail",
+        "name": "Losail International Circuit",
+        "location": "Al Daayen",
+        "country": "Qatar",
+        "lat": 25.49,
+        "lng": 51.4542,
+        "alt": 12,
+        "url": "http://en.wikipedia.org/wiki/Losail_International_Circuit"
+    },
+    {
+        "circuit_ref": "magny_cours",
+        "name": "Circuit de Nevers Magny-Cours",
+        "location": "Magny Cours",
+        "country": "France",
+        "lat": 46.8642,
+        "lng": 3.16361,
+        "alt": 228,
+        "url": "http://en.wikipedia.org/wiki/Circuit_de_Nevers_Magny-Cours"
+    },
+    {
+        "circuit_ref": "marina_bay",
+        "name": "Marina Bay Street Circuit",
+        "location": "Marina Bay",
+        "country": "Singapore",
+        "lat": 1.2914,
+        "lng": 103.864,
+        "alt": 18,
+        "url": "http://en.wikipedia.org/wiki/Marina_Bay_Street_Circuit"
+    },
+    {
+        "circuit_ref": "miami",
+        "name": "Miami International Autodrome",
+        "location": "Miami",
+        "country": "USA",
+        "lat": 25.9581,
+        "lng": -80.2389,
+        "alt": 0,
+        "url": "http://en.wikipedia.org/wiki/Miami_International_Autodrome"
+    },
+    {
+        "circuit_ref": "monaco",
+        "name": "Circuit de Monaco",
+        "location": "Monte-Carlo",
+        "country": "Monaco",
+        "lat": 43.7347,
+        "lng": 7.42056,
+        "alt": 7,
+        "url": "http://en.wikipedia.org/wiki/Circuit_de_Monaco"
+    },
+    {
+        "circuit_ref": "monsanto",
+        "name": "Monsanto Park Circuit",
+        "location": "Lisbon",
+        "country": "Portugal",
+        "lat": 38.7197,
+        "lng": -9.20306,
+        "alt": 158,
+        "url": "http://en.wikipedia.org/wiki/Monsanto_Park_Circuit"
+    },
+    {
+        "circuit_ref": "montjuic",
+        "name": "Montjuïc",
+        "location": "Barcelona",
+        "country": "Spain",
+        "lat": 41.3664,
+        "lng": 2.15167,
+        "alt": 79,
+        "url": "http://en.wikipedia.org/wiki/Montju%C3%AFc_circuit"
+    },
+    {
+        "circuit_ref": "monza",
+        "name": "Autodromo Nazionale di Monza",
+        "location": "Monza",
+        "country": "Italy",
+        "lat": 45.6156,
+        "lng": 9.28111,
+        "alt": 162,
+        "url": "http://en.wikipedia.org/wiki/Autodromo_Nazionale_Monza"
+    },
+    {
+        "circuit_ref": "mosport",
+        "name": "Mosport International Raceway",
+        "location": "Ontario",
+        "country": "Canada",
+        "lat": 44.0481,
+        "lng": -78.6756,
+        "alt": 332,
+        "url": "http://en.wikipedia.org/wiki/Mosport"
+    },
+    {
+        "circuit_ref": "mugello",
+        "name": "Autodromo Internazionale del Mugello",
+        "location": "Mugello",
+        "country": "Italy",
+        "lat": 43.9975,
+        "lng": 11.3719,
+        "alt": 255,
+        "url": "http://en.wikipedia.org/wiki/Mugello_Circuit"
+    },
+    {
+        "circuit_ref": "nivelles",
+        "name": "Nivelles-Baulers",
+        "location": "Brussels",
+        "country": "Belgium",
+        "lat": 50.6211,
+        "lng": 4.32694,
+        "alt": 139,
+        "url": "http://en.wikipedia.org/wiki/Nivelles-Baulers"
+    },
+    {
+        "circuit_ref": "nurburgring",
+        "name": "Nürburgring",
+        "location": "Nürburg",
+        "country": "Germany",
+        "lat": 50.3356,
+        "lng": 6.9475,
+        "alt": 578,
+        "url": "http://en.wikipedia.org/wiki/N%C3%BCrburgring"
+    },
+    {
+        "circuit_ref": "okayama",
+        "name": "Okayama International Circuit",
+        "location": "Okayama",
+        "country": "Japan",
+        "lat": 34.915,
+        "lng": 134.221,
+        "alt": 266,
+        "url": "http://en.wikipedia.org/wiki/TI_Circuit"
+    },
+    {
+        "circuit_ref": "pedralbes",
+        "name": "Circuit de Pedralbes",
+        "location": "Barcelona",
+        "country": "Spain",
+        "lat": 41.3903,
+        "lng": 2.11667,
+        "alt": 85,
+        "url": "http://en.wikipedia.org/wiki/Pedralbes_Circuit"
+    },
+    {
+        "circuit_ref": "pescara",
+        "name": "Pescara Circuit",
+        "location": "Pescara",
+        "country": "Italy",
+        "lat": 42.475,
+        "lng": 14.1508,
+        "alt": 129,
+        "url": "http://en.wikipedia.org/wiki/Pescara_Circuit"
+    },
+    {
+        "circuit_ref": "phoenix",
+        "name": "Phoenix street circuit",
+        "location": "Phoenix",
+        "country": "USA",
+        "lat": 33.4479,
+        "lng": -112.075,
+        "alt": 345,
+        "url": "http://en.wikipedia.org/wiki/Phoenix_street_circuit"
+    },
+    {
+        "circuit_ref": "portimao",
+        "name": "Autódromo Internacional do Algarve",
+        "location": "Portimão",
+        "country": "Portugal",
+        "lat": 37.227,
+        "lng": -8.6267,
+        "alt": 108,
+        "url": "http://en.wikipedia.org/wiki/Algarve_International_Circuit"
+    },
+    {
+        "circuit_ref": "red_bull_ring",
+        "name": "Red Bull Ring",
+        "location": "Spielberg",
+        "country": "Austria",
+        "lat": 47.2197,
+        "lng": 14.7647,
+        "alt": 678,
+        "url": "http://en.wikipedia.org/wiki/Red_Bull_Ring"
+    },
+    {
+        "circuit_ref": "reims",
+        "name": "Reims-Gueux",
+        "location": "Reims",
+        "country": "France",
+        "lat": 49.2542,
+        "lng": 3.93083,
+        "alt": 88,
+        "url": "http://en.wikipedia.org/wiki/Reims-Gueux"
+    },
+    {
+        "circuit_ref": "ricard",
+        "name": "Circuit Paul Ricard",
+        "location": "Le Castellet",
+        "country": "France",
+        "lat": 43.2506,
+        "lng": 5.79167,
+        "alt": 432,
+        "url": "http://en.wikipedia.org/wiki/Paul_Ricard_Circuit"
+    },
+    {
+        "circuit_ref": "rodriguez",
+        "name": "Autódromo Hermanos Rodríguez",
+        "location": "Mexico City",
+        "country": "Mexico",
+        "lat": 19.4042,
+        "lng": -99.0907,
+        "alt": 2227,
+        "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Hermanos_Rodr%C3%ADguez"
+    },
+    {
+        "circuit_ref": "sebring",
+        "name": "Sebring International Raceway",
+        "location": "Florida",
+        "country": "USA",
+        "lat": 27.4547,
+        "lng": -81.3483,
+        "alt": 18,
+        "url": "http://en.wikipedia.org/wiki/Sebring_Raceway"
     }
 ];
