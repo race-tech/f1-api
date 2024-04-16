@@ -99,7 +99,7 @@ fn test_get_circuits_by_driver_ref_and_win_and_pole() {
 }
 
 #[derive(Debug)]
-struct RefCircuit<'a> {
+struct StaticCircuit<'a> {
     circuit_ref: &'a str,
     name: &'a str,
     location: Option<&'a str>,
@@ -110,7 +110,7 @@ struct RefCircuit<'a> {
     url: &'a str,
 }
 
-impl PartialEq<Circuit> for RefCircuit<'_> {
+impl PartialEq<Circuit> for StaticCircuit<'_> {
     fn eq(&self, other: &Circuit) -> bool {
         self.circuit_ref.eq(&other.circuit_ref)
             && self.name.eq(&other.name)
@@ -123,7 +123,7 @@ impl PartialEq<Circuit> for RefCircuit<'_> {
     }
 }
 
-impl PartialEq<&Circuit> for RefCircuit<'_> {
+impl PartialEq<&Circuit> for StaticCircuit<'_> {
     fn eq(&self, other: &&Circuit) -> bool {
         self.circuit_ref.eq(&other.circuit_ref)
             && self.name.eq(&other.name)
@@ -147,7 +147,7 @@ macro_rules! circuits_from_json {
         "alt": $alt:expr,
         "url": $url:literal
     }) => {
-        [$($circuits),*, RefCircuit {
+        [$($circuits),*, StaticCircuit {
             circuit_ref: $ref,
             name: $name,
             location: Some($location),
@@ -168,7 +168,7 @@ macro_rules! circuits_from_json {
         "alt": $alt:expr,
         "url": $url:literal
     }, $($tt:tt)*) => {
-        circuits_from_json!(@internal [$($circuits),*, RefCircuit {
+        circuits_from_json!(@internal [$($circuits),*, StaticCircuit {
             circuit_ref: $ref,
             name: $name,
             location: Some($location),
@@ -189,7 +189,7 @@ macro_rules! circuits_from_json {
         "alt": $alt:expr,
         "url": $url:literal
     }, $($tt:tt)*) => {
-        circuits_from_json!(@internal [RefCircuit {
+        circuits_from_json!(@internal [StaticCircuit {
             circuit_ref: $ref,
             name: $name,
             location: Some($location),
@@ -202,7 +202,7 @@ macro_rules! circuits_from_json {
     };
 }
 
-const SPA: RefCircuit = RefCircuit {
+const SPA: StaticCircuit = StaticCircuit {
     circuit_ref: "spa",
     name: "Circuit de Spa-Francorchamps",
     location: Some("Spa"),
@@ -213,7 +213,7 @@ const SPA: RefCircuit = RefCircuit {
     url: "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps",
 };
 
-const LECLERC_CIRCUITS: [RefCircuit; 30] = circuits_from_json![
+const LECLERC_CIRCUITS: [StaticCircuit; 30] = circuits_from_json![
     {
         "circuit_ref": "albert_park",
         "name": "Albert Park Grand Prix Circuit",
@@ -516,7 +516,7 @@ const LECLERC_CIRCUITS: [RefCircuit; 30] = circuits_from_json![
     }
 ];
 
-const LECLERC_CIRCUITS_WINS: [RefCircuit; 5] = circuits_from_json![
+const LECLERC_CIRCUITS_WINS: [StaticCircuit; 5] = circuits_from_json![
     {
         "circuit_ref": "albert_park",
         "name": "Albert Park Grand Prix Circuit",
@@ -569,7 +569,7 @@ const LECLERC_CIRCUITS_WINS: [RefCircuit; 5] = circuits_from_json![
     }
 ];
 
-const LECLERC_CIRCUITS_WINS_AND_POLE: [RefCircuit; 4] = circuits_from_json![
+const LECLERC_CIRCUITS_WINS_AND_POLE: [StaticCircuit; 4] = circuits_from_json![
     {
         "circuit_ref": "albert_park",
         "name": "Albert Park Grand Prix Circuit",
