@@ -29,6 +29,13 @@ pub fn rocket_builder() -> Rocket<Build> {
         ))
 }
 
+pub fn rocket_builder_no_fairings() -> Rocket<Build> {
+    rocket::build()
+        .mount("/api", handlers::handlers())
+        .mount("/fallback", fallbacks::handlers())
+        .manage(infrastructure::ConnectionPool::try_new().unwrap())
+}
+
 mod handlers {
     use crate::*;
     use rocket::Route;
