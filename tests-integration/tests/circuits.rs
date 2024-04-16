@@ -43,6 +43,61 @@ fn test_get_circuits_by_driver_ref() {
         .for_each(|(l, r)| assert_eq!(r, l));
 }
 
+#[test]
+fn test_get_circuits_by_driver_ref_and_win() {
+    let client = common::setup();
+
+    let expected_pagination = Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 1,
+        total: 5,
+    };
+
+    let resp = common::get(&client, "/api/f1/circuits?result=1&driver_ref=leclerc");
+    assert_eq!(resp.status(), Status::Ok);
+    let json = resp.into_json::<Response<Vec<Circuit>>>().unwrap();
+
+    assert_eq!(json.series, Series::F1);
+    assert_eq!(json.pagination, Some(expected_pagination));
+    assert_eq!(json.data.len(), 5);
+
+    json.data
+        .iter()
+        .take(5)
+        .zip(LECLERC_CIRCUITS_WINS)
+        .for_each(|(l, r)| assert_eq!(r, l));
+}
+
+#[test]
+fn test_get_circuits_by_driver_ref_and_win_and_pole() {
+    let client = common::setup();
+
+    let expected_pagination = Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 1,
+        total: 5,
+    };
+
+    let resp = common::get(
+        &client,
+        "/api/f1/circuits?grid=1&result=1&driver_ref=leclerc",
+    );
+    assert_eq!(resp.status(), Status::Ok);
+    let json = resp.into_json::<Response<Vec<Circuit>>>().unwrap();
+
+    assert_eq!(json.series, Series::F1);
+    assert_eq!(json.pagination, Some(expected_pagination));
+    assert_eq!(json.data.len(), 4);
+
+    json.data
+        .iter()
+        .take(4)
+        .zip(LECLERC_CIRCUITS_WINS_AND_POLE)
+        .for_each(|(l, r)| assert_eq!(r, l));
+}
+
 #[derive(Debug)]
 struct RefCircuit<'a> {
     circuit_ref: &'a str,
@@ -458,5 +513,101 @@ const LECLERC_CIRCUITS: [RefCircuit; 30] = circuits_from_json![
         "lng": 54.6031,
         "alt": 3,
         "url": "http://en.wikipedia.org/wiki/Yas_Marina_Circuit"
+    }
+];
+
+const LECLERC_CIRCUITS_WINS: [RefCircuit; 5] = circuits_from_json![
+    {
+        "circuit_ref": "albert_park",
+        "name": "Albert Park Grand Prix Circuit",
+        "location": "Melbourne",
+        "country": "Australia",
+        "lat": -37.8497,
+        "lng": 144.968,
+        "alt": 10,
+        "url": "http://en.wikipedia.org/wiki/Melbourne_Grand_Prix_Circuit"
+    },
+    {
+        "circuit_ref": "bahrain",
+        "name": "Bahrain International Circuit",
+        "location": "Sakhir",
+        "country": "Bahrain",
+        "lat": 26.0325,
+        "lng": 50.5106,
+        "alt": 7,
+        "url": "http://en.wikipedia.org/wiki/Bahrain_International_Circuit"
+    },
+    {
+        "circuit_ref": "monza",
+        "name": "Autodromo Nazionale di Monza",
+        "location": "Monza",
+        "country": "Italy",
+        "lat": 45.6156,
+        "lng": 9.28111,
+        "alt": 162,
+        "url": "http://en.wikipedia.org/wiki/Autodromo_Nazionale_Monza"
+    },
+    {
+        "circuit_ref": "red_bull_ring",
+        "name": "Red Bull Ring",
+        "location": "Spielberg",
+        "country": "Austria",
+        "lat": 47.2197,
+        "lng": 14.7647,
+        "alt": 678,
+        "url": "http://en.wikipedia.org/wiki/Red_Bull_Ring"
+    },
+    {
+        "circuit_ref": "spa",
+        "name": "Circuit de Spa-Francorchamps",
+        "location": "Spa",
+        "country": "Belgium",
+        "lat": 50.4372,
+        "lng": 5.97139,
+        "alt": 401,
+        "url": "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps"
+    }
+];
+
+const LECLERC_CIRCUITS_WINS_AND_POLE: [RefCircuit; 4] = circuits_from_json![
+    {
+        "circuit_ref": "albert_park",
+        "name": "Albert Park Grand Prix Circuit",
+        "location": "Melbourne",
+        "country": "Australia",
+        "lat": -37.8497,
+        "lng": 144.968,
+        "alt": 10,
+        "url": "http://en.wikipedia.org/wiki/Melbourne_Grand_Prix_Circuit"
+    },
+    {
+        "circuit_ref": "bahrain",
+        "name": "Bahrain International Circuit",
+        "location": "Sakhir",
+        "country": "Bahrain",
+        "lat": 26.0325,
+        "lng": 50.5106,
+        "alt": 7,
+        "url": "http://en.wikipedia.org/wiki/Bahrain_International_Circuit"
+    },
+    {
+        "circuit_ref": "monza",
+        "name": "Autodromo Nazionale di Monza",
+        "location": "Monza",
+        "country": "Italy",
+        "lat": 45.6156,
+        "lng": 9.28111,
+        "alt": 162,
+        "url": "http://en.wikipedia.org/wiki/Autodromo_Nazionale_Monza"
+    },
+    {
+        "circuit_ref": "spa",
+        "name": "Circuit de Spa-Francorchamps",
+        "location": "Spa",
+        "country": "Belgium",
+        "lat": 50.4372,
+        "lng": 5.97139,
+        "alt": 401,
+        "url": "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps"
     }
 ];
