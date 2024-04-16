@@ -85,7 +85,7 @@ fn test_get_circuits_by_driver_ref_and_win_and_pole() {
             limit: 30,
             page: 1,
             max_page: 1,
-            total: 5,
+            total: 4,
         }),
         expected: &LECLERC_CIRCUITS_WINS_AND_POLE,
     };
@@ -96,13 +96,13 @@ fn test_get_circuits_by_driver_ref_and_win_and_pole() {
 #[test]
 fn test_get_circuits_by_constructor_ref() {
     let test = TestCircuit {
-        uri: "/api/f1/circuits?grid=1&result=1&driver_ref=leclerc",
+        uri: "/api/f1/circuits?constructor_ref=ferrari",
         series: Series::F1,
         pagination: Some(Pagination {
             limit: 30,
             page: 1,
-            max_page: 1,
-            total: 5,
+            max_page: 3,
+            total: 76,
         }),
         expected: &FERRARI_CIRCUITS,
     };
