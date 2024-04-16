@@ -11,6 +11,7 @@ This is a Fomula API build in Rust and currently under development. The goal is 
 ## Project Roadmap
 
 - [x] Create all the basic API endpoints to access the ergast DB
+- [ ] Add a configuration file to the API
 - [ ] Create a complete swagger documentation
 - [ ] Create an automated tool to update the DB in prevision of the ergast deprecated DB for next season
 - [ ] Create a new DB for the F2 championship (maybe even F3 and F1 academy as well as WEC or other championships)
