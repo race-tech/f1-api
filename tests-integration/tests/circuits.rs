@@ -18,7 +18,7 @@ fn test_get_circuit() {
 }
 
 #[test]
-fn test_get_circuits() {
+fn test_get_circuits_by_driver_ref() {
     let client = common::setup();
 
     let expected_pagination = Pagination {
