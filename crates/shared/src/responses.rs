@@ -121,18 +121,18 @@ pub struct Circuit {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Driver {
-    driver_ref: String,
+    pub driver_ref: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    number: Option<i32>,
+    pub number: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    code: Option<String>,
-    forename: String,
-    surname: String,
+    pub code: Option<String>,
+    pub forename: String,
+    pub surname: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    dob: Option<chrono::NaiveDate>,
+    pub dob: Option<chrono::NaiveDate>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    nationality: Option<String>,
-    url: String,
+    pub nationality: Option<String>,
+    pub url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
