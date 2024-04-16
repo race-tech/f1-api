@@ -30,6 +30,19 @@ fn test_drivers_ok(test: TestDriver) {
 }
 
 #[test]
+fn test_get_driver() {
+    let client = common::setup();
+
+    let resp = common::get(&client, "/api/f1/drivers?driver_ref=leclerc");
+    assert_eq!(resp.status(), Status::Ok);
+    let json = resp.into_json::<Response<Driver>>().unwrap();
+
+    assert_eq!(json.series, Series::F1);
+    assert_eq!(json.pagination, None);
+    assert_eq!(LECLERC, json.data);
+}
+
+#[test]
 fn test_get_drivers_by_circuit_ref() {
     let test = TestDriver {
         uri: "/api/f1/drivers?circuit_ref=spa",
@@ -58,6 +71,23 @@ fn test_get_drivers_by_circuit_ref_and_result() {
             total: 28,
         }),
         expected: &SPA_WINNERS_DRIVERS,
+    };
+
+    test_drivers_ok(test);
+}
+
+#[test]
+fn test_get_drivers_by_driver_standing() {
+    let test = TestDriver {
+        uri: "/api/f1/drivers?driver_standing=1",
+        series: Series::F1,
+        pagination: Some(Pagination {
+            limit: 30,
+            page: 1,
+            max_page: 2,
+            total: 34,
+        }),
+        expected: &CHAMPIONSHIP_WINNERS,
     };
 
     test_drivers_ok(test);
@@ -184,6 +214,17 @@ macro_rules! drivers_from_json {
 
 use __drivers_from_json_impl;
 use drivers_from_json;
+
+const LECLERC: StaticDriver = StaticDriver {
+    driver_ref: "leclerc",
+    number: Some(16),
+    code: Some("LEC"),
+    forename: "Charles",
+    surname: "Leclerc",
+    dob: Some("1997-10-16"),
+    nationality: Some("Monegasque"),
+    url: "http://en.wikipedia.org/wiki/Charles_Leclerc",
+};
 
 const SPA_DRIVERS: [StaticDriver; 30] = drivers_from_json![
     {
@@ -711,5 +752,258 @@ const SPA_WINNERS_DRIVERS: [StaticDriver; 28] = drivers_from_json![
         "dob": "1997-09-30",
         "nationality": "Dutch",
         "url": "http://en.wikipedia.org/wiki/Max_Verstappen"
+    }
+];
+
+const CHAMPIONSHIP_WINNERS: [StaticDriver; 30] = drivers_from_json![
+    {
+        "driver_ref": "hamilton",
+        "number": 44,
+        "code": "HAM",
+        "forename": "Lewis",
+        "surname": "Hamilton",
+        "dob": "1985-01-07",
+        "nationality": "British",
+        "url": "http://en.wikipedia.org/wiki/Lewis_Hamilton"
+    },
+    {
+        "driver_ref": "raikkonen",
+        "number": 7,
+        "code": "RAI",
+        "forename": "Kimi",
+        "surname": "Räikkönen",
+        "dob": "1979-10-17",
+        "nationality": "Finnish",
+        "url": "http://en.wikipedia.org/wiki/Kimi_R%C3%A4ikk%C3%B6nen"
+    },
+    {
+        "driver_ref": "alonso",
+        "number": 14,
+        "code": "ALO",
+        "forename": "Fernando",
+        "surname": "Alonso",
+        "dob": "1981-07-29",
+        "nationality": "Spanish",
+        "url": "http://en.wikipedia.org/wiki/Fernando_Alonso"
+    },
+    {
+        "driver_ref": "michael_schumacher",
+        "code": "MSC",
+        "forename": "Michael",
+        "surname": "Schumacher",
+        "dob": "1969-01-03",
+        "nationality": "German",
+        "url": "http://en.wikipedia.org/wiki/Michael_Schumacher"
+    },
+    {
+        "driver_ref": "hakkinen",
+        "forename": "Mika",
+        "surname": "Häkkinen",
+        "dob": "1968-09-28",
+        "nationality": "Finnish",
+        "url": "http://en.wikipedia.org/wiki/Mika_H%C3%A4kkinen"
+    },
+    {
+        "driver_ref": "villeneuve",
+        "code": "VIL",
+        "forename": "Jacques",
+        "surname": "Villeneuve",
+        "dob": "1971-04-09",
+        "nationality": "Canadian",
+        "url": "http://en.wikipedia.org/wiki/Jacques_Villeneuve"
+    },
+    {
+        "driver_ref": "damon_hill",
+        "forename": "Damon",
+        "surname": "Hill",
+        "dob": "1960-09-17",
+        "nationality": "British",
+        "url": "http://en.wikipedia.org/wiki/Damon_Hill"
+    },
+    {
+        "driver_ref": "prost",
+        "forename": "Alain",
+        "surname": "Prost",
+        "dob": "1955-02-24",
+        "nationality": "French",
+        "url": "http://en.wikipedia.org/wiki/Alain_Prost"
+    },
+    {
+        "driver_ref": "mansell",
+        "forename": "Nigel",
+        "surname": "Mansell",
+        "dob": "1953-08-08",
+        "nationality": "British",
+        "url": "http://en.wikipedia.org/wiki/Nigel_Mansell"
+    },
+    {
+        "driver_ref": "senna",
+        "forename": "Ayrton",
+        "surname": "Senna",
+        "dob": "1960-03-21",
+        "nationality": "Brazilian",
+        "url": "http://en.wikipedia.org/wiki/Ayrton_Senna"
+    },
+    {
+        "driver_ref": "piquet",
+        "forename": "Nelson",
+        "surname": "Piquet",
+        "dob": "1952-08-17",
+        "nationality": "Brazilian",
+        "url": "http://en.wikipedia.org/wiki/Nelson_Piquet"
+    },
+    {
+        "driver_ref": "lauda",
+        "forename": "Niki",
+        "surname": "Lauda",
+        "dob": "1949-02-22",
+        "nationality": "Austrian",
+        "url": "http://en.wikipedia.org/wiki/Niki_Lauda"
+    },
+    {
+        "driver_ref": "keke_rosberg",
+        "forename": "Keke",
+        "surname": "Rosberg",
+        "dob": "1948-12-06",
+        "nationality": "Finnish",
+        "url": "http://en.wikipedia.org/wiki/Keke_Rosberg"
+    },
+    {
+        "driver_ref": "jones",
+        "forename": "Alan",
+        "surname": "Jones",
+        "dob": "1946-11-02",
+        "nationality": "Australian",
+        "url": "http://en.wikipedia.org/wiki/Alan_Jones_(Formula_1)"
+    },
+    {
+        "driver_ref": "scheckter",
+        "forename": "Jody",
+        "surname": "Scheckter",
+        "dob": "1950-01-29",
+        "nationality": "South African",
+        "url": "http://en.wikipedia.org/wiki/Jody_Scheckter"
+    },
+    {
+        "driver_ref": "mario_andretti",
+        "forename": "Mario",
+        "surname": "Andretti",
+        "dob": "1940-02-28",
+        "nationality": "American",
+        "url": "http://en.wikipedia.org/wiki/Mario_Andretti"
+    },
+    {
+        "driver_ref": "hunt",
+        "forename": "James",
+        "surname": "Hunt",
+        "dob": "1947-08-29",
+        "nationality": "British",
+        "url": "http://en.wikipedia.org/wiki/James_Hunt"
+    },
+    {
+        "driver_ref": "emerson_fittipaldi",
+        "forename": "Emerson",
+        "surname": "Fittipaldi",
+        "dob": "1946-12-12",
+        "nationality": "Brazilian",
+        "url": "http://en.wikipedia.org/wiki/Emerson_Fittipaldi"
+    },
+    {
+        "driver_ref": "stewart",
+        "forename": "Jackie",
+        "surname": "Stewart",
+        "dob": "1939-06-11",
+        "nationality": "British",
+        "url": "http://en.wikipedia.org/wiki/Jackie_Stewart"
+    },
+    {
+        "driver_ref": "button",
+        "number": 22,
+        "code": "BUT",
+        "forename": "Jenson",
+        "surname": "Button",
+        "dob": "1980-01-19",
+        "nationality": "British",
+        "url": "http://en.wikipedia.org/wiki/Jenson_Button"
+    },
+    {
+        "driver_ref": "rindt",
+        "forename": "Jochen",
+        "surname": "Rindt",
+        "dob": "1942-04-18",
+        "nationality": "Austrian",
+        "url": "http://en.wikipedia.org/wiki/Jochen_Rindt"
+    },
+    {
+        "driver_ref": "hill",
+        "forename": "Graham",
+        "surname": "Hill",
+        "dob": "1929-02-15",
+        "nationality": "British",
+        "url": "http://en.wikipedia.org/wiki/Graham_Hill"
+    },
+    {
+        "driver_ref": "hulme",
+        "forename": "Denny",
+        "surname": "Hulme",
+        "dob": "1936-06-18",
+        "nationality": "New Zealander",
+        "url": "http://en.wikipedia.org/wiki/Denny_Hulme"
+    },
+    {
+        "driver_ref": "jack_brabham",
+        "forename": "Jack",
+        "surname": "Brabham",
+        "dob": "1926-04-02",
+        "nationality": "Australian",
+        "url": "http://en.wikipedia.org/wiki/Jack_Brabham"
+    },
+    {
+        "driver_ref": "clark",
+        "forename": "Jim",
+        "surname": "Clark",
+        "dob": "1936-03-04",
+        "nationality": "British",
+        "url": "http://en.wikipedia.org/wiki/Jim_Clark"
+    },
+    {
+        "driver_ref": "surtees",
+        "forename": "John",
+        "surname": "Surtees",
+        "dob": "1934-02-11",
+        "nationality": "British",
+        "url": "http://en.wikipedia.org/wiki/John_Surtees"
+    },
+    {
+        "driver_ref": "phil_hill",
+        "forename": "Phil",
+        "surname": "Hill",
+        "dob": "1927-04-20",
+        "nationality": "American",
+        "url": "http://en.wikipedia.org/wiki/Phil_Hill"
+    },
+    {
+        "driver_ref": "hawthorn",
+        "forename": "Mike",
+        "surname": "Hawthorn",
+        "dob": "1929-04-10",
+        "nationality": "British",
+        "url": "http://en.wikipedia.org/wiki/Mike_Hawthorn"
+    },
+    {
+        "driver_ref": "fangio",
+        "forename": "Juan",
+        "surname": "Fangio",
+        "dob": "1911-06-24",
+        "nationality": "Argentine",
+        "url": "http://en.wikipedia.org/wiki/Juan_Manuel_Fangio"
+    },
+    {
+        "driver_ref": "ascari",
+        "forename": "Alberto",
+        "surname": "Ascari",
+        "dob": "1918-07-13",
+        "nationality": "Italian",
+        "url": "http://en.wikipedia.org/wiki/Alberto_Ascari"
     }
 ];
