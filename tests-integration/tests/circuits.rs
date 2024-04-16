@@ -192,28 +192,10 @@ impl PartialEq<&Circuit> for StaticCircuit<'_> {
 }
 
 macro_rules! __circuits_from_json_impl {
-    (@internal [$($circuits:expr),*]; {
-        "circuit_ref": $ref:literal,
-        "name": $name:literal,
-        "location": $location:literal,
-        "country": $country:literal,
-        "lat": $lat:expr,
-        "lng": $lng:expr,
-        "alt": $alt:expr,
-        "url": $url:literal
-    }) => {
-        [$($circuits,)* StaticCircuit {
-            circuit_ref: $ref,
-            name: $name,
-            location: Some($location),
-            country: Some($country),
-            lat: Some($lat),
-            lng: Some($lng),
-            alt: Some($alt),
-            url: $url,
-        }]
+    (@internal [$($circuits:expr),*];) => {
+        [$($circuits),*]
     };
-    (@internal [$($circuits:expr),*]; {
+    (@internal [$($circuits:expr),*]; $(,)?{
         "circuit_ref": $ref:literal,
         "name": $name:literal,
         "location": $location:literal,
@@ -222,7 +204,7 @@ macro_rules! __circuits_from_json_impl {
         "lng": $lng:expr,
         "alt": $alt:expr,
         "url": $url:literal
-    }, $($tt:tt)*) => {
+    } $($tt:tt)*) => {
         __circuits_from_json_impl!(@internal [$($circuits,)* StaticCircuit {
             circuit_ref: $ref,
             name: $name,
