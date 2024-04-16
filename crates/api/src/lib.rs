@@ -16,7 +16,6 @@ mod races;
 mod seasons;
 mod status;
 
-#[cfg(not(test))]
 pub fn rocket_builder() -> Rocket<Build> {
     rocket::build()
         .attach(fairings::helmet::Formula1Helmet)
@@ -30,8 +29,7 @@ pub fn rocket_builder() -> Rocket<Build> {
         ))
 }
 
-#[cfg(test)]
-pub fn rocket_builder() -> Rocket<Build> {
+pub fn rocket_builder_no_fairings() -> Rocket<Build> {
     rocket::build()
         .mount("/api", handlers::handlers())
         .mount("/fallback", fallbacks::handlers())
