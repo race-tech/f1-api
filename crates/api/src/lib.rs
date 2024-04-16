@@ -16,6 +16,7 @@ mod races;
 mod seasons;
 mod status;
 
+#[cfg(not(test))]
 pub fn rocket_builder() -> Rocket<Build> {
     rocket::build()
         .attach(fairings::helmet::Formula1Helmet)
@@ -27,6 +28,14 @@ pub fn rocket_builder() -> Rocket<Build> {
             10,
             chrono::Duration::seconds(60),
         ))
+}
+
+#[cfg(test)]
+pub fn rocket_builder() -> Rocket<Build> {
+    rocket::build()
+        .mount("/api", handlers::handlers())
+        .mount("/fallback", fallbacks::handlers())
+        .manage(infrastructure::ConnectionPool::try_new().unwrap())
 }
 
 mod handlers {
