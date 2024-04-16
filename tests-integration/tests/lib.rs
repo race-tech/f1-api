@@ -1,4 +1,4 @@
-mod common;
+pub mod common;
 
 #[test]
 fn test_setup() {

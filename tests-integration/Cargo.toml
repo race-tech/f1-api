@@ -7,9 +7,6 @@ edition = "2021"
 
 [dev-dependencies]
 rocket.workspace = true
-dotenvy.workspace = true
-mysql.workspace = true
-chrono.workspace = true
 
 api-lib = { path = "../crates/api" }
 shared = { path = "../crates/shared" }
