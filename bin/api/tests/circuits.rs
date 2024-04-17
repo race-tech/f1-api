@@ -1,144 +1,103 @@
-use rocket::http::Status;
-
 use shared::prelude::*;
 
 pub mod common;
 
-struct TestCircuit {
-    uri: &'static str,
-    series: Series,
-    pagination: Option<Pagination>,
-    expected: &'static [StaticCircuit<'static>],
-}
-
-fn test_circuits_ok(test_circuit: TestCircuit) {
-    let client = common::setup();
-
-    let resp = common::get(&client, test_circuit.uri);
-    assert_eq!(resp.status(), Status::Ok);
-    let json = resp.into_json::<Response<Vec<Circuit>>>().unwrap();
-
-    assert_eq!(json.series, test_circuit.series);
-    assert_eq!(json.pagination, test_circuit.pagination);
-    assert_eq!(json.data.len(), test_circuit.expected.len());
-
-    json.data
-        .iter()
-        .take(test_circuit.expected.len())
-        .zip(test_circuit.expected)
-        .for_each(|(l, r)| assert_eq!(r, l));
-}
-
 #[test]
 fn test_get_circuit() {
-    let client = common::setup();
-
-    let resp = common::get(&client, "/api/f1/circuits?circuit_ref=spa");
-    assert_eq!(resp.status(), Status::Ok);
-    let json = resp.into_json::<Response<Circuit>>().unwrap();
-
-    assert_eq!(json.series, Series::F1);
-    assert_eq!(json.pagination, None);
-    assert_eq!(SPA, json.data);
+    common::Test::<'_, StaticCircuit, Circuit>::new(
+        "/api/f1/circuits?circuit_ref=spa",
+        Series::F1,
+        SPA,
+    )
+    .test_ok();
 }
 
 #[test]
 fn test_get_circuits_by_driver_ref() {
-    let test = TestCircuit {
-        uri: "/api/f1/circuits?driver_ref=leclerc",
-        series: Series::F1,
-        pagination: Some(Pagination {
-            limit: 30,
-            page: 1,
-            max_page: 2,
-            total: 31,
-        }),
-        expected: &LECLERC_CIRCUITS,
-    };
-
-    test_circuits_ok(test);
+    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+        "/api/f1/circuits?driver_ref=leclerc",
+        Series::F1,
+        &LECLERC_CIRCUITS,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 2,
+        total: 31,
+    }))
+    .test_ok();
 }
 
 #[test]
 fn test_get_circuits_by_driver_ref_and_win() {
-    let test = TestCircuit {
-        uri: "/api/f1/circuits?result=1&driver_ref=leclerc",
-        series: Series::F1,
-        pagination: Some(Pagination {
-            limit: 30,
-            page: 1,
-            max_page: 1,
-            total: 5,
-        }),
-        expected: &LECLERC_CIRCUITS_WINS,
-    };
-
-    test_circuits_ok(test);
+    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+        "/api/f1/circuits?result=1&driver_ref=leclerc",
+        Series::F1,
+        &LECLERC_CIRCUITS_WINS,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 1,
+        total: 5,
+    }))
+    .test_ok();
 }
 
 #[test]
 fn test_get_circuits_by_driver_ref_and_win_and_pole() {
-    let test = TestCircuit {
-        uri: "/api/f1/circuits?grid=1&result=1&driver_ref=leclerc",
-        series: Series::F1,
-        pagination: Some(Pagination {
-            limit: 30,
-            page: 1,
-            max_page: 1,
-            total: 4,
-        }),
-        expected: &LECLERC_CIRCUITS_WINS_AND_POLE,
-    };
-
-    test_circuits_ok(test);
+    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+        "/api/f1/circuits?grid=1&result=1&driver_ref=leclerc",
+        Series::F1,
+        &LECLERC_CIRCUITS_WINS_AND_POLE,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 1,
+        total: 4,
+    }))
+    .test_ok();
 }
 
 #[test]
 fn test_get_circuits_by_constructor_ref() {
-    let test = TestCircuit {
-        uri: "/api/f1/circuits?constructor_ref=ferrari",
-        series: Series::F1,
-        pagination: Some(Pagination {
-            limit: 30,
-            page: 1,
-            max_page: 3,
-            total: 76,
-        }),
-        expected: &FERRARI_CIRCUITS,
-    };
-
-    test_circuits_ok(test);
+    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+        "/api/f1/circuits?constructor_ref=ferrari",
+        Series::F1,
+        &FERRARI_CIRCUITS,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 3,
+        total: 76,
+    }))
+    .test_ok();
 }
 
 #[test]
 fn test_get_circuits_by_constructor_ref_and_page() {
-    let test = TestCircuit {
-        uri: "/api/f1/circuits?constructor_ref=ferrari&page=2",
-        series: Series::F1,
-        pagination: Some(Pagination {
-            limit: 30,
-            page: 2,
-            max_page: 3,
-            total: 76,
-        }),
-        expected: &FERRARI_PAGE_2_CIRCUITS,
-    };
-
-    test_circuits_ok(test);
+    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+        "/api/f1/circuits?constructor_ref=ferrari&page=2",
+        Series::F1,
+        &FERRARI_PAGE_2_CIRCUITS,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 2,
+        max_page: 3,
+        total: 76,
+    }))
+    .test_ok();
 }
 
 #[test]
 fn test_get_circuits_by_year_and_round() {
-    let test = TestCircuit {
-        uri: "/api/f1/circuits?year=2023&round=22",
-        series: Series::F1,
-        pagination: Some(Pagination {
-            limit: 30,
-            page: 1,
-            max_page: 1,
-            total: 1,
-        }),
-        expected: &circuits_from_json![{
+    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+        "/api/f1/circuits?year=2023&round=22",
+        Series::F1,
+        &circuits_from_json![{
             "circuit_ref": "yas_marina",
             "name": "Yas Marina Circuit",
             "location": "Abu Dhabi",
@@ -148,9 +107,14 @@ fn test_get_circuits_by_year_and_round() {
             "alt": 3,
             "url": "http://en.wikipedia.org/wiki/Yas_Marina_Circuit"
         }],
-    };
-
-    test_circuits_ok(test);
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 1,
+        total: 1,
+    }))
+    .test_ok();
 }
 
 #[derive(Debug)]
