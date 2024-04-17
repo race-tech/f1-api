@@ -39,19 +39,41 @@ pub struct RaceResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ConstructorStandingResponse {
-    #[serde(flatten)]
-    standing: Standing,
+pub struct ConstructorStandingResponse(Vec<InnerStandingResponse>);
 
-    constructor: Constructor,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DriverStandingResponse(Vec<InnerStandingResponse>);
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum InnerStandingResponse {
+    Constructor {
+        season: i32,
+        round: i32,
+        constructor_standings: Vec<Standings>,
+    },
+    Driver {
+        season: i32,
+        round: i32,
+        driver_standings: Vec<Standings>,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct DriverStandingResponse {
-    #[serde(flatten)]
-    standing: Standing,
+#[serde(untagged)]
+pub enum Standings {
+    Constructor {
+        #[serde(flatten)]
+        standing: Standing,
 
-    driver: Driver,
+        constructor: Constructor,
+    },
+    Driver {
+        #[serde(flatten)]
+        standing: Standing,
+
+        driver: Driver,
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -330,56 +352,28 @@ impl From<&crate::models::Lap> for Circuit {
     }
 }
 
-impl From<crate::models::DriverStanding> for DriverStandingResponse {
-    fn from(value: crate::models::DriverStanding) -> Self {
+impl From<&crate::models::DriverStanding> for Driver {
+    fn from(value: &crate::models::DriverStanding) -> Self {
         Self {
-            standing: Standing {
-                points: value.points,
-                position: value.position,
-                position_text: value.position_text.clone(),
-                wins: value.wins,
-            },
-            driver: value.into(),
-        }
-    }
-}
-
-impl From<crate::models::DriverStanding> for Driver {
-    fn from(value: crate::models::DriverStanding) -> Self {
-        Self {
-            driver_ref: value.driver_ref,
+            driver_ref: value.driver_ref.clone(),
             number: value.number,
-            code: value.code,
-            forename: value.forename,
-            surname: value.surname,
+            code: value.code.clone(),
+            forename: value.forename.clone(),
+            surname: value.surname.clone(),
             dob: value.dob,
-            nationality: value.nationality,
-            url: value.url,
+            nationality: value.nationality.clone(),
+            url: value.url.clone(),
         }
     }
 }
 
-impl From<crate::models::ConstructorStanding> for ConstructorStandingResponse {
-    fn from(value: crate::models::ConstructorStanding) -> Self {
+impl From<&crate::models::ConstructorStanding> for Constructor {
+    fn from(value: &crate::models::ConstructorStanding) -> Self {
         Self {
-            standing: Standing {
-                points: value.points,
-                position: value.position,
-                position_text: value.position_text.clone(),
-                wins: value.wins,
-            },
-            constructor: value.into(),
-        }
-    }
-}
-
-impl From<crate::models::ConstructorStanding> for Constructor {
-    fn from(value: crate::models::ConstructorStanding) -> Self {
-        Self {
-            constructor_ref: value.constructor_ref,
-            name: value.name,
-            nationality: value.nationality,
-            url: value.url,
+            constructor_ref: value.constructor_ref.clone(),
+            name: value.name.clone(),
+            nationality: value.nationality.clone(),
+            url: value.url.clone(),
         }
     }
 }
@@ -481,6 +475,96 @@ impl From<crate::models::Race> for RaceResponse {
                 alt: value.alt,
                 url: value.url,
             },
+        }
+    }
+}
+
+impl From<Vec<crate::models::DriverStanding>> for DriverStandingResponse {
+    fn from(value: Vec<crate::models::DriverStanding>) -> Self {
+        let mut map = std::collections::HashMap::new();
+
+        value.into_iter().for_each(|v| {
+            let key = format!("{}-{}", v.year, v.round);
+            let standing: Standings = (&v).into();
+
+            if let InnerStandingResponse::Driver {
+                driver_standings, ..
+            } = map.entry(key).or_insert(InnerStandingResponse::Driver {
+                season: v.year,
+                round: v.round,
+                driver_standings: Vec::new(),
+            }) {
+                driver_standings.push(standing);
+            }
+        });
+
+        Self(map.into_values().collect())
+    }
+}
+
+impl From<Vec<crate::models::ConstructorStanding>> for ConstructorStandingResponse {
+    fn from(value: Vec<crate::models::ConstructorStanding>) -> Self {
+        let mut map = std::collections::HashMap::new();
+
+        value.into_iter().for_each(|v| {
+            let key = format!("{}-{}", v.year, v.round);
+            let standing: Standings = (&v).into();
+
+            if let InnerStandingResponse::Constructor {
+                constructor_standings,
+                ..
+            } = map
+                .entry(key)
+                .or_insert(InnerStandingResponse::Constructor {
+                    season: v.year,
+                    round: v.round,
+                    constructor_standings: Vec::new(),
+                })
+            {
+                constructor_standings.push(standing);
+            }
+        });
+
+        Self(map.into_values().collect())
+    }
+}
+
+impl From<&crate::models::ConstructorStanding> for Standing {
+    fn from(value: &crate::models::ConstructorStanding) -> Self {
+        Self {
+            points: value.points,
+            position: value.position,
+            position_text: value.position_text.clone(),
+            wins: value.wins,
+        }
+    }
+}
+
+impl From<&crate::models::ConstructorStanding> for Standings {
+    fn from(value: &crate::models::ConstructorStanding) -> Self {
+        Self::Constructor {
+            standing: value.into(),
+            constructor: value.into(),
+        }
+    }
+}
+
+impl From<&crate::models::DriverStanding> for Standing {
+    fn from(value: &crate::models::DriverStanding) -> Self {
+        Self {
+            points: value.points,
+            position: value.position,
+            position_text: value.position_text.clone(),
+            wins: value.wins,
+        }
+    }
+}
+
+impl From<&crate::models::DriverStanding> for Standings {
+    fn from(value: &crate::models::DriverStanding) -> Self {
+        Self::Driver {
+            standing: value.into(),
+            driver: value.into(),
         }
     }
 }
