@@ -58,6 +58,11 @@ impl ConstructorStandingsQueryBuilder {
                 ))
                 .equals((Constructors::Table, Constructors::ConstructorId)),
             )
+            .order_by((Races::Table, Races::Year), sea_query::Order::Asc)
+            .order_by(
+                (ConstructorStandings::Table, ConstructorStandings::Points),
+                sea_query::Order::Asc,
+            )
             .to_owned();
 
         Self { params, stmt }.build()
