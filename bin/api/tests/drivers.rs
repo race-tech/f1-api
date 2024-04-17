@@ -104,14 +104,11 @@ impl PartialEq<&Driver> for StaticDriver<'_> {
     }
 }
 
-macro_rules! __drivers_from_json_impl {
-    (@internal [$($drivers:expr),*];) => {
-        [$($drivers),*]
+macro_rules! __drivers_impl {
+    (@internal [$($expr:expr),*];) => {
+        [$($expr),*]
     };
-    (@internal [$($drivers:expr),*];) => {
-        [$($drivers),*]
-    };
-    (@internal [$($drivers:expr),*]; $(,)?{
+    (@internal [$($expr:expr),*]; $(,)?{
         "driver_ref": $ref:literal,
         "forename": $forename:literal,
         "surname": $surname:literal,
@@ -119,7 +116,7 @@ macro_rules! __drivers_from_json_impl {
         "nationality": $nationality:literal,
         "url": $url:literal
     } $($tt:tt)*) => {
-        __drivers_from_json_impl!(@internal [$($drivers,)* StaticDriver {
+        __drivers_impl!(@internal [$($expr,)* StaticDriver {
             driver_ref: $ref,
             number: None,
             code: None,
@@ -130,7 +127,7 @@ macro_rules! __drivers_from_json_impl {
             url: $url,
         }]; $($tt)*)
     };
-    (@internal [$($drivers:expr),*]; $(,)?{
+    (@internal [$($expr:expr),*]; $(,)?{
         "driver_ref": $ref:literal,
         "code": $code:literal,
         "forename": $forename:literal,
@@ -139,7 +136,7 @@ macro_rules! __drivers_from_json_impl {
         "nationality": $nationality:literal,
         "url": $url:literal
     } $($tt:tt)*) => {
-        __drivers_from_json_impl!(@internal [$($drivers,)* StaticDriver {
+        __drivers_impl!(@internal [$($expr,)* StaticDriver {
             driver_ref: $ref,
             number: None,
             code: Some($code),
@@ -150,7 +147,7 @@ macro_rules! __drivers_from_json_impl {
             url: $url,
         }]; $($tt)*)
     };
-    (@internal [$($drivers:expr),*]; $(,)?{
+    (@internal [$($expr:expr),*]; $(,)?{
         "driver_ref": $ref:literal,
         "number": $number:expr,
         "code": $code:literal,
@@ -160,7 +157,7 @@ macro_rules! __drivers_from_json_impl {
         "nationality": $nationality:literal,
         "url": $url:literal
     } $($tt:tt)*) => {
-        __drivers_from_json_impl!(@internal [$($drivers,)* StaticDriver {
+        __drivers_impl!(@internal [$($expr,)* StaticDriver {
             driver_ref: $ref,
             number: Some($number),
             code: Some($code),
@@ -175,11 +172,11 @@ macro_rules! __drivers_from_json_impl {
 
 macro_rules! drivers_from_json {
     ($($tt:tt)*) => {
-        __drivers_from_json_impl!(@internal []; $($tt)*)
+        __drivers_impl!(@internal []; $($tt)*)
     };
 }
 
-use __drivers_from_json_impl;
+use __drivers_impl;
 use drivers_from_json;
 
 const LECLERC: StaticDriver = StaticDriver {

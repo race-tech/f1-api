@@ -155,11 +155,11 @@ impl PartialEq<&Circuit> for StaticCircuit<'_> {
     }
 }
 
-macro_rules! __circuits_from_json_impl {
-    (@internal [$($circuits:expr),*];) => {
-        [$($circuits),*]
+macro_rules! __circuits_impl {
+    (@internal [$($expr:expr),*];) => {
+        [$($expr),*]
     };
-    (@internal [$($circuits:expr),*]; $(,)?{
+    (@internal [$($expr:expr),*]; $(,)?{
         "circuit_ref": $ref:literal,
         "name": $name:literal,
         "location": $location:literal,
@@ -169,7 +169,7 @@ macro_rules! __circuits_from_json_impl {
         "alt": $alt:expr,
         "url": $url:literal
     } $($tt:tt)*) => {
-        __circuits_from_json_impl!(@internal [$($circuits,)* StaticCircuit {
+        __circuits_impl!(@internal [$($expr,)* StaticCircuit {
             circuit_ref: $ref,
             name: $name,
             location: Some($location),
@@ -184,11 +184,11 @@ macro_rules! __circuits_from_json_impl {
 
 macro_rules! circuits_from_json {
     ($($tt:tt)*) => {
-        __circuits_from_json_impl!(@internal []; $($tt)*)
+        __circuits_impl!(@internal []; $($tt)*)
     };
 }
 
-use __circuits_from_json_impl;
+use __circuits_impl;
 use circuits_from_json;
 
 const SPA: StaticCircuit = StaticCircuit {
