@@ -176,7 +176,7 @@ impl PartialEq<&Constructor> for StaticConstructor<'_> {
     }
 }
 
-const ALL_STANDINGS: [StaticStanding<'static>; 3] = standings_from_json![
+const ALL_STANDINGS: [StaticStanding; 3] = standings_from_json![
     {
         "season": 1958,
         "round": 11,
@@ -557,7 +557,7 @@ const ALL_STANDINGS: [StaticStanding<'static>; 3] = standings_from_json![
     }
 ];
 
-const FERRARI_STANDINGS: [StaticStanding<'static>; 30] = standings_from_json![
+const FERRARI_STANDINGS: [StaticStanding; 30] = standings_from_json![
     {
         "season": 1958,
         "round": 11,
@@ -1100,7 +1100,7 @@ const FERRARI_STANDINGS: [StaticStanding<'static>; 30] = standings_from_json![
     }
 ];
 
-const FERRARI_WINS: [StaticStanding<'static>; 16] = standings_from_json![
+const FERRARI_WINS: [StaticStanding; 16] = standings_from_json![
     {
         "season": 1961,
         "round": 8,
