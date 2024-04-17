@@ -159,20 +159,20 @@ pub struct Driver {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Constructor {
-    constructor_ref: String,
-    name: String,
+    pub constructor_ref: String,
+    pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    nationality: Option<String>,
-    url: String,
+    pub nationality: Option<String>,
+    pub url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Standing {
-    points: f32,
-    position: Option<i32>,
+    pub points: f32,
+    pub position: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    position_text: Option<String>,
-    wins: i32,
+    pub position_text: Option<String>,
+    pub wins: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
