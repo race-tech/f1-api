@@ -481,7 +481,7 @@ impl From<crate::models::Race> for RaceResponse {
 
 impl From<Vec<crate::models::DriverStanding>> for DriverStandingResponse {
     fn from(value: Vec<crate::models::DriverStanding>) -> Self {
-        let mut map = std::collections::HashMap::new();
+        let mut map = std::collections::BTreeMap::new();
 
         value.into_iter().for_each(|v| {
             let key = format!("{}-{}", v.year, v.round);
@@ -504,7 +504,7 @@ impl From<Vec<crate::models::DriverStanding>> for DriverStandingResponse {
 
 impl From<Vec<crate::models::ConstructorStanding>> for ConstructorStandingResponse {
     fn from(value: Vec<crate::models::ConstructorStanding>) -> Self {
-        let mut map = std::collections::HashMap::new();
+        let mut map = std::collections::BTreeMap::new();
 
         value.into_iter().for_each(|v| {
             let key = format!("{}-{}", v.year, v.round);

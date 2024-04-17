@@ -59,6 +59,11 @@ impl DriverStandingsQueryBuilder {
                 Expr::col((DriverStandings::Table, DriverStandings::DriverId))
                     .equals((Drivers::Table, Drivers::DriverId)),
             )
+            .order_by((Races::Table, Races::Year), sea_query::Order::Asc)
+            .order_by(
+                (DriverStandings::Table, DriverStandings::Points),
+                sea_query::Order::Asc,
+            )
             .to_owned();
 
         Self { params, stmt }.build()
