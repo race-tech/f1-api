@@ -4,7 +4,7 @@ pub mod common;
 
 #[test]
 fn test_get_constructor_standings() {
-    common::Test::<'_, &[StaticStanding<'_>], Vec<InnerStandingResponse>>::new(
+    common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
         "/api/f1/constructors/standing/",
         Series::F1,
         &ALL_STANDINGS,
@@ -20,7 +20,7 @@ fn test_get_constructor_standings() {
 
 #[test]
 fn test_get_constructor_standings_by_ref() {
-    common::Test::<'_, &[StaticStanding<'_>], Vec<InnerStandingResponse>>::new(
+    common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
         "/api/f1/constructors/standing/?constructor_ref=ferrari",
         Series::F1,
         &FERRARI_STANDINGS,
@@ -36,7 +36,7 @@ fn test_get_constructor_standings_by_ref() {
 
 #[test]
 fn test_get_constructor_standings_by_ref_and_result() {
-    common::Test::<'_, &[StaticStanding<'_>], Vec<InnerStandingResponse>>::new(
+    common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
         "/api/f1/constructors/standing/?constructor_ref=ferrari&position=1",
         Series::F1,
         &FERRARI_WINS,

@@ -4,7 +4,7 @@ pub mod common;
 
 #[test]
 fn test_get_laps() {
-    common::Test::<'_, StaticLaps<'_>, LapsResponse>::new(
+    common::Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1",
         Series::F1,
         BAHRAIN_2023_LAPS,
@@ -20,7 +20,7 @@ fn test_get_laps() {
 
 #[test]
 fn test_get_laps_by_driver_ref() {
-    common::Test::<'_, StaticLaps<'_>, LapsResponse>::new(
+    common::Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1&driver_ref=max_verstappen",
         Series::F1,
         BAHRAIN_VERSTAPPEN_LAPS,
@@ -36,7 +36,7 @@ fn test_get_laps_by_driver_ref() {
 
 #[test]
 fn test_get_laps_by_driver_ref_and_page() {
-    common::Test::<'_, StaticLaps<'_>, LapsResponse>::new(
+    common::Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1&driver_ref=max_verstappen&page=2",
         Series::F1,
         BAHRAIN_VERSTAPPEN_LAPS_PAGE_2,
@@ -52,7 +52,7 @@ fn test_get_laps_by_driver_ref_and_page() {
 
 #[test]
 fn test_get_laps_by_driver_ref_and_lap_number() {
-    common::Test::<'_, StaticLaps<'_>, LapsResponse>::new(
+    common::Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1&driver_ref=max_verstappen&lap_number=10",
         Series::F1,
         BAHRAIN_VERSTAPPEN_LAP_10,

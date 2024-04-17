@@ -4,7 +4,7 @@ pub mod common;
 
 #[test]
 fn test_get_driver_standings() {
-    common::Test::<'_, &[StaticStanding<'_>], Vec<InnerStandingResponse>>::new(
+    common::Test::<'_, &[StaticStanding], Vec<InnerStandingResponse>>::new(
         "/api/f1/drivers/standing/",
         Series::F1,
         &ALL_STANDINGS,

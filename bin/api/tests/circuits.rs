@@ -4,7 +4,7 @@ pub mod common;
 
 #[test]
 fn test_get_circuit() {
-    common::Test::<'_, StaticCircuit, Circuit>::new(
+    common::Test::<StaticCircuit, Circuit>::new(
         "/api/f1/circuits?circuit_ref=spa",
         Series::F1,
         SPA,
@@ -14,7 +14,7 @@ fn test_get_circuit() {
 
 #[test]
 fn test_get_circuits_by_driver_ref() {
-    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?driver_ref=leclerc",
         Series::F1,
         &LECLERC_CIRCUITS,
@@ -30,7 +30,7 @@ fn test_get_circuits_by_driver_ref() {
 
 #[test]
 fn test_get_circuits_by_driver_ref_and_win() {
-    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?result=1&driver_ref=leclerc",
         Series::F1,
         &LECLERC_CIRCUITS_WINS,
@@ -46,7 +46,7 @@ fn test_get_circuits_by_driver_ref_and_win() {
 
 #[test]
 fn test_get_circuits_by_driver_ref_and_win_and_pole() {
-    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?grid=1&result=1&driver_ref=leclerc",
         Series::F1,
         &LECLERC_CIRCUITS_WINS_AND_POLE,
@@ -62,7 +62,7 @@ fn test_get_circuits_by_driver_ref_and_win_and_pole() {
 
 #[test]
 fn test_get_circuits_by_constructor_ref() {
-    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?constructor_ref=ferrari",
         Series::F1,
         &FERRARI_CIRCUITS,
@@ -78,7 +78,7 @@ fn test_get_circuits_by_constructor_ref() {
 
 #[test]
 fn test_get_circuits_by_constructor_ref_and_page() {
-    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?constructor_ref=ferrari&page=2",
         Series::F1,
         &FERRARI_PAGE_2_CIRCUITS,
@@ -94,7 +94,7 @@ fn test_get_circuits_by_constructor_ref_and_page() {
 
 #[test]
 fn test_get_circuits_by_year_and_round() {
-    common::Test::<'_, &[StaticCircuit], Vec<Circuit>>::new(
+    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?year=2023&round=22",
         Series::F1,
         &circuits_from_json![{
