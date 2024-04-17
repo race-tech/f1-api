@@ -78,15 +78,15 @@ pub enum Standings {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LapsResponse {
-    url: Option<String>,
-    race_name: String,
-    date: chrono::NaiveDate,
+    pub url: Option<String>,
+    pub race_name: String,
+    pub date: chrono::NaiveDate,
     #[serde(skip_serializing_if = "Option::is_none")]
-    time: Option<chrono::NaiveTime>,
+    pub time: Option<chrono::NaiveTime>,
 
-    circuit: Circuit,
+    pub circuit: Circuit,
 
-    laps: Vec<Lap>,
+    pub laps: Vec<Lap>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -183,17 +183,17 @@ pub struct DateAndTime {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Lap {
-    number: i32,
-    timings: Vec<LapTiming>,
+    pub number: i32,
+    pub timings: Vec<LapTiming>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LapTiming {
-    driver_ref: String,
+    pub driver_ref: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    position: Option<i32>,
+    pub position: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    time: Option<String>,
+    pub time: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
