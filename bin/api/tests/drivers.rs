@@ -1,96 +1,63 @@
-use rocket::http::Status;
-
 use shared::prelude::*;
 
 pub mod common;
 
-struct TestDriver {
-    uri: &'static str,
-    series: Series,
-    pagination: Option<Pagination>,
-    expected: &'static [StaticDriver<'static>],
-}
-
-fn test_drivers_ok(test: TestDriver) {
-    let client = common::setup();
-
-    let resp = common::get(&client, test.uri);
-    assert_eq!(resp.status(), Status::Ok);
-    let json = resp.into_json::<Response<Vec<Driver>>>().unwrap();
-
-    assert_eq!(json.series, test.series);
-    assert_eq!(json.pagination, test.pagination);
-    assert_eq!(json.data.len(), test.expected.len());
-
-    json.data
-        .iter()
-        .take(test.expected.len())
-        .zip(test.expected)
-        .for_each(|(l, r)| assert_eq!(r, l));
-}
-
 #[test]
 fn test_get_driver() {
-    let client = common::setup();
-
-    let resp = common::get(&client, "/api/f1/drivers?driver_ref=leclerc");
-    assert_eq!(resp.status(), Status::Ok);
-    let json = resp.into_json::<Response<Driver>>().unwrap();
-
-    assert_eq!(json.series, Series::F1);
-    assert_eq!(json.pagination, None);
-    assert_eq!(LECLERC, json.data);
+    common::Test::<'_, StaticDriver, Driver>::new(
+        "/api/f1/drivers?driver_ref=leclerc",
+        Series::F1,
+        LECLERC,
+    )
+    .test_ok();
 }
 
 #[test]
 fn test_get_drivers_by_circuit_ref() {
-    let test = TestDriver {
-        uri: "/api/f1/drivers?circuit_ref=spa",
-        series: Series::F1,
-        pagination: Some(Pagination {
-            limit: 30,
-            page: 1,
-            max_page: 11,
-            total: 326,
-        }),
-        expected: &SPA_DRIVERS,
-    };
-
-    test_drivers_ok(test);
+    common::Test::<'_, &[StaticDriver], Vec<Driver>>::new(
+        "/api/f1/drivers?circuit_ref=spa",
+        Series::F1,
+        &SPA_DRIVERS,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 11,
+        total: 326,
+    }))
+    .test_ok();
 }
 
 #[test]
 fn test_get_drivers_by_circuit_ref_and_result() {
-    let test = TestDriver {
-        uri: "/api/f1/drivers?result=1&circuit_ref=spa",
-        series: Series::F1,
-        pagination: Some(Pagination {
-            limit: 30,
-            page: 1,
-            max_page: 1,
-            total: 28,
-        }),
-        expected: &SPA_WINNERS_DRIVERS,
-    };
-
-    test_drivers_ok(test);
+    common::Test::<'_, &[StaticDriver], Vec<Driver>>::new(
+        "/api/f1/drivers?result=1&circuit_ref=spa",
+        Series::F1,
+        &SPA_WINNERS_DRIVERS,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 1,
+        total: 28,
+    }))
+    .test_ok();
 }
 
 #[test]
 fn test_get_drivers_by_driver_standing() {
-    let test = TestDriver {
-        uri: "/api/f1/drivers?driver_standing=1",
-        series: Series::F1,
-        pagination: Some(Pagination {
-            limit: 30,
-            page: 1,
-            max_page: 2,
-            total: 34,
-        }),
-        expected: &CHAMPIONSHIP_WINNERS,
-    };
-
-    test_drivers_ok(test);
+    common::Test::<'_, &[StaticDriver], Vec<Driver>>::new(
+        "/api/f1/drivers?driver_standing=1",
+        Series::F1,
+        &CHAMPIONSHIP_WINNERS,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 2,
+        total: 34,
+    }))
+    .test_ok();
 }
 
 #[derive(Debug)]
