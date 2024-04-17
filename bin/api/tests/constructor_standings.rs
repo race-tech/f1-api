@@ -18,6 +18,38 @@ fn test_get_constructor_standings() {
     .test_ok()
 }
 
+#[test]
+fn test_get_constructor_standings_by_ref() {
+    common::Test::<'_, &[StaticStanding<'_>], Vec<InnerStandingResponse>>::new(
+        "/api/f1/constructors/standing/?constructor_ref=ferrari",
+        Series::F1,
+        &FERRARI_STANDINGS,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 3,
+        total: 66,
+    }))
+    .test_ok()
+}
+
+#[test]
+fn test_get_constructor_standings_by_ref_and_result() {
+    common::Test::<'_, &[StaticStanding<'_>], Vec<InnerStandingResponse>>::new(
+        "/api/f1/constructors/standing/?constructor_ref=ferrari&position=1",
+        Series::F1,
+        &FERRARI_WINS,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 1,
+        total: 16,
+    }))
+    .test_ok()
+}
+
 macro_rules! __inner_standings_impl {
     (@internal [$($expr:expr),*];) => {
         [$($expr),*]
@@ -519,6 +551,840 @@ const ALL_STANDINGS: [StaticStanding<'static>; 3] = standings_from_json![
                     "name": "JBW",
                     "nationality": "British",
                     "url": "http://en.wikipedia.org/wiki/JBW"
+                }
+            }
+        ]
+    }
+];
+
+const FERRARI_STANDINGS: [StaticStanding<'static>; 30] = standings_from_json![
+    {
+        "season": 1958,
+        "round": 11,
+        "constructor_standings": [
+            {
+                "points": 40.0,
+                "position": 2,
+                "position_text": "2",
+                "wins": 2,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1959,
+        "round": 9,
+        "constructor_standings": [
+            {
+                "points": 32.0,
+                "position": 2,
+                "position_text": "2",
+                "wins": 2,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1960,
+        "round": 10,
+        "constructor_standings": [
+            {
+                "points": 26.0,
+                "position": 3,
+                "position_text": "3",
+                "wins": 1,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1961,
+        "round": 8,
+        "constructor_standings": [
+            {
+                "points": 45.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 5,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1962,
+        "round": 9,
+        "constructor_standings": [
+            {
+                "points": 18.0,
+                "position": 6,
+                "position_text": "6",
+                "wins": 0,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1963,
+        "round": 10,
+        "constructor_standings": [
+            {
+                "points": 26.0,
+                "position": 4,
+                "position_text": "4",
+                "wins": 1,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1964,
+        "round": 10,
+        "constructor_standings": [
+            {
+                "points": 45.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 3,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1965,
+        "round": 10,
+        "constructor_standings": [
+            {
+                "points": 26.0,
+                "position": 4,
+                "position_text": "4",
+                "wins": 0,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1966,
+        "round": 9,
+        "constructor_standings": [
+            {
+                "points": 31.0,
+                "position": 2,
+                "position_text": "2",
+                "wins": 2,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1967,
+        "round": 11,
+        "constructor_standings": [
+            {
+                "points": 20.0,
+                "position": 5,
+                "position_text": "5",
+                "wins": 0,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1968,
+        "round": 12,
+        "constructor_standings": [
+            {
+                "points": 32.0,
+                "position": 4,
+                "position_text": "4",
+                "wins": 1,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1969,
+        "round": 11,
+        "constructor_standings": [
+            {
+                "points": 7.0,
+                "position": 6,
+                "position_text": "6",
+                "wins": 0,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1970,
+        "round": 13,
+        "constructor_standings": [
+            {
+                "points": 52.0,
+                "position": 2,
+                "position_text": "2",
+                "wins": 4,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1971,
+        "round": 11,
+        "constructor_standings": [
+            {
+                "points": 33.0,
+                "position": 3,
+                "position_text": "3",
+                "wins": 2,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1972,
+        "round": 12,
+        "constructor_standings": [
+            {
+                "points": 33.0,
+                "position": 4,
+                "position_text": "4",
+                "wins": 1,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1973,
+        "round": 15,
+        "constructor_standings": [
+            {
+                "points": 12.0,
+                "position": 6,
+                "position_text": "6",
+                "wins": 0,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1974,
+        "round": 15,
+        "constructor_standings": [
+            {
+                "points": 65.0,
+                "position": 2,
+                "position_text": "2",
+                "wins": 3,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1975,
+        "round": 14,
+        "constructor_standings": [
+            {
+                "points": 72.5,
+                "position": 1,
+                "position_text": "1",
+                "wins": 6,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1976,
+        "round": 16,
+        "constructor_standings": [
+            {
+                "points": 83.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 6,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1977,
+        "round": 17,
+        "constructor_standings": [
+            {
+                "points": 95.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 4,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1978,
+        "round": 16,
+        "constructor_standings": [
+            {
+                "points": 58.0,
+                "position": 2,
+                "position_text": "2",
+                "wins": 5,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1979,
+        "round": 15,
+        "constructor_standings": [
+            {
+                "points": 113.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 6,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1980,
+        "round": 14,
+        "constructor_standings": [
+            {
+                "points": 8.0,
+                "position": 10,
+                "position_text": "10",
+                "wins": 0,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1981,
+        "round": 15,
+        "constructor_standings": [
+            {
+                "points": 34.0,
+                "position": 5,
+                "position_text": "5",
+                "wins": 2,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1982,
+        "round": 16,
+        "constructor_standings": [
+            {
+                "points": 74.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 3,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1983,
+        "round": 15,
+        "constructor_standings": [
+            {
+                "points": 89.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 4,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1984,
+        "round": 16,
+        "constructor_standings": [
+            {
+                "points": 57.5,
+                "position": 2,
+                "position_text": "2",
+                "wins": 1,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1985,
+        "round": 16,
+        "constructor_standings": [
+            {
+                "points": 82.0,
+                "position": 2,
+                "position_text": "2",
+                "wins": 2,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1986,
+        "round": 16,
+        "constructor_standings": [
+            {
+                "points": 37.0,
+                "position": 4,
+                "position_text": "4",
+                "wins": 0,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1987,
+        "round": 16,
+        "constructor_standings": [
+            {
+                "points": 53.0,
+                "position": 4,
+                "position_text": "4",
+                "wins": 2,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    }
+];
+
+const FERRARI_WINS: [StaticStanding<'static>; 16] = standings_from_json![
+    {
+        "season": 1961,
+        "round": 8,
+        "constructor_standings": [
+            {
+                "points": 45.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 5,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1964,
+        "round": 10,
+        "constructor_standings": [
+            {
+                "points": 45.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 3,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1975,
+        "round": 14,
+        "constructor_standings": [
+            {
+                "points": 72.5,
+                "position": 1,
+                "position_text": "1",
+                "wins": 6,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1976,
+        "round": 16,
+        "constructor_standings": [
+            {
+                "points": 83.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 6,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1977,
+        "round": 17,
+        "constructor_standings": [
+            {
+                "points": 95.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 4,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1979,
+        "round": 15,
+        "constructor_standings": [
+            {
+                "points": 113.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 6,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1982,
+        "round": 16,
+        "constructor_standings": [
+            {
+                "points": 74.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 3,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1983,
+        "round": 15,
+        "constructor_standings": [
+            {
+                "points": 89.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 4,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 1999,
+        "round": 16,
+        "constructor_standings": [
+            {
+                "points": 128.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 6,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 2000,
+        "round": 17,
+        "constructor_standings": [
+            {
+                "points": 170.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 10,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 2001,
+        "round": 17,
+        "constructor_standings": [
+            {
+                "points": 179.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 9,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 2002,
+        "round": 17,
+        "constructor_standings": [
+            {
+                "points": 221.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 15,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 2003,
+        "round": 16,
+        "constructor_standings": [
+            {
+                "points": 158.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 8,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 2004,
+        "round": 18,
+        "constructor_standings": [
+            {
+                "points": 262.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 15,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 2007,
+        "round": 17,
+        "constructor_standings": [
+            {
+                "points": 204.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 9,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
+                }
+            }
+        ]
+    },
+    {
+        "season": 2008,
+        "round": 18,
+        "constructor_standings": [
+            {
+                "points": 172.0,
+                "position": 1,
+                "position_text": "1",
+                "wins": 8,
+                "constructor": {
+                    "constructor_ref": "ferrari",
+                    "name": "Ferrari",
+                    "nationality": "Italian",
+                    "url": "http://en.wikipedia.org/wiki/Scuderia_Ferrari"
                 }
             }
         ]
