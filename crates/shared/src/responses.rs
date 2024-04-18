@@ -91,15 +91,15 @@ pub struct LapsResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PitStopsResponse {
-    url: Option<String>,
-    race_name: String,
-    date: chrono::NaiveDate,
+    pub url: Option<String>,
+    pub race_name: String,
+    pub date: chrono::NaiveDate,
     #[serde(skip_serializing_if = "Option::is_none")]
-    time: Option<chrono::NaiveTime>,
+    pub time: Option<chrono::NaiveTime>,
 
-    circuit: Circuit,
+    pub circuit: Circuit,
 
-    pit_stops: Vec<PitStop>,
+    pub pit_stops: Vec<PitStop>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -198,11 +198,11 @@ pub struct LapTiming {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PitStop {
-    driver_ref: String,
-    lap: i32,
-    stop: i32,
-    time: chrono::NaiveTime,
-    duration: Option<String>,
+    pub driver_ref: String,
+    pub lap: i32,
+    pub stop: i32,
+    pub time: chrono::NaiveTime,
+    pub duration: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
