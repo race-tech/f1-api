@@ -136,14 +136,23 @@ impl RacesQueryBuilder {
         })
         .and_where(|s| {
             s.params.constructor_ref.as_ref().map(|c| {
-                Expr::col((Constructors::Table, Constructors::ConstructorRef)).eq(Expr::val(&**c))
+                Expr::col((Constructors::Table, Constructors::ConstructorRef))
+                    .eq(Expr::val(&**c))
+                    .and(
+                        Expr::col((Constructors::Table, Constructors::ConstructorId))
+                            .equals((Results::Table, Results::ConstructorId)),
+                    )
             })
         })
         .and_where(|s| {
-            s.params
-                .driver_ref
-                .as_ref()
-                .map(|c| Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::val(&**c)))
+            s.params.driver_ref.as_ref().map(|c| {
+                Expr::col((Drivers::Table, Drivers::DriverRef))
+                    .eq(Expr::val(&**c))
+                    .and(
+                        Expr::col((Drivers::Table, Drivers::DriverId))
+                            .equals((Results::Table, Results::DriverId)),
+                    )
+            })
         })
         .and_where(|s| {
             s.params
