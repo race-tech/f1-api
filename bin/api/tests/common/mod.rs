@@ -58,3 +58,11 @@ where
 {
     client.get(uri).dispatch()
 }
+
+pub fn parse_date(date: &str) -> chrono::NaiveDate {
+    chrono::NaiveDate::parse_from_str(date, "%Y-%m-%d").unwrap()
+}
+
+pub fn parse_time(time: &str) -> chrono::NaiveTime {
+    chrono::NaiveTime::parse_from_str(time, "%H:%M:%S").unwrap()
+}

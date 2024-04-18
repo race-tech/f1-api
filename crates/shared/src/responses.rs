@@ -30,12 +30,12 @@ impl<T> Response<Vec<T>> {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct RaceResponse {
     #[serde(flatten)]
-    race: Race,
+    pub race: Race,
 
-    circuit: Circuit,
+    pub circuit: Circuit,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -104,24 +104,24 @@ pub struct PitStopsResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Race {
-    season: i32,
-    round: i32,
-    name: String,
-    date: chrono::NaiveDate,
+    pub season: i32,
+    pub round: i32,
+    pub name: String,
+    pub date: chrono::NaiveDate,
     #[serde(skip_serializing_if = "Option::is_none")]
-    time: Option<chrono::NaiveTime>,
+    pub time: Option<chrono::NaiveTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    url: Option<String>,
+    pub url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    fp1: Option<DateAndTime>,
+    pub fp1: Option<DateAndTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    fp2: Option<DateAndTime>,
+    pub fp2: Option<DateAndTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    fp3: Option<DateAndTime>,
+    pub fp3: Option<DateAndTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    quali: Option<DateAndTime>,
+    pub quali: Option<DateAndTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    sprint: Option<DateAndTime>,
+    pub sprint: Option<DateAndTime>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -177,8 +177,8 @@ pub struct Standing {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DateAndTime {
-    date: chrono::NaiveDate,
-    time: chrono::NaiveTime,
+    pub date: chrono::NaiveDate,
+    pub time: chrono::NaiveTime,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
