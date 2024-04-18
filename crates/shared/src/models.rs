@@ -154,6 +154,7 @@ pub struct Race {
     pub round: i32,
     #[mysql(rename = "raceName")]
     pub race_name: String,
+    #[mysql(rename = "date")]
     pub race_date: chrono::NaiveDate,
     #[mysql(rename = "time")]
     pub race_time: Option<chrono::NaiveTime>,
@@ -170,6 +171,7 @@ pub struct Race {
     pub sprint_date: Option<chrono::NaiveDate>,
     pub sprint_time: Option<chrono::NaiveTime>,
 
+    #[mysql(rename = "circuitRef")]
     pub circuit_ref: String,
     pub name: String,
     pub location: Option<String>,

@@ -30,12 +30,12 @@ impl<T> Response<Vec<T>> {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct RaceResponse {
     #[serde(flatten)]
-    race: Race,
+    pub race: Race,
 
-    circuit: Circuit,
+    pub circuit: Circuit,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -78,50 +78,50 @@ pub enum Standings {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LapsResponse {
-    url: Option<String>,
-    race_name: String,
-    date: chrono::NaiveDate,
+    pub url: Option<String>,
+    pub race_name: String,
+    pub date: chrono::NaiveDate,
     #[serde(skip_serializing_if = "Option::is_none")]
-    time: Option<chrono::NaiveTime>,
+    pub time: Option<chrono::NaiveTime>,
 
-    circuit: Circuit,
+    pub circuit: Circuit,
 
-    laps: Vec<Lap>,
+    pub laps: Vec<Lap>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PitStopsResponse {
-    url: Option<String>,
-    race_name: String,
-    date: chrono::NaiveDate,
+    pub url: Option<String>,
+    pub race_name: String,
+    pub date: chrono::NaiveDate,
     #[serde(skip_serializing_if = "Option::is_none")]
-    time: Option<chrono::NaiveTime>,
+    pub time: Option<chrono::NaiveTime>,
 
-    circuit: Circuit,
+    pub circuit: Circuit,
 
-    pit_stops: Vec<PitStop>,
+    pub pit_stops: Vec<PitStop>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Race {
-    season: i32,
-    round: i32,
-    name: String,
-    date: chrono::NaiveDate,
+    pub season: i32,
+    pub round: i32,
+    pub name: String,
+    pub date: chrono::NaiveDate,
     #[serde(skip_serializing_if = "Option::is_none")]
-    time: Option<chrono::NaiveTime>,
+    pub time: Option<chrono::NaiveTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    url: Option<String>,
+    pub url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    fp1: Option<DateAndTime>,
+    pub fp1: Option<DateAndTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    fp2: Option<DateAndTime>,
+    pub fp2: Option<DateAndTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    fp3: Option<DateAndTime>,
+    pub fp3: Option<DateAndTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    quali: Option<DateAndTime>,
+    pub quali: Option<DateAndTime>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    sprint: Option<DateAndTime>,
+    pub sprint: Option<DateAndTime>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
@@ -159,50 +159,50 @@ pub struct Driver {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Constructor {
-    constructor_ref: String,
-    name: String,
+    pub constructor_ref: String,
+    pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    nationality: Option<String>,
-    url: String,
+    pub nationality: Option<String>,
+    pub url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Standing {
-    points: f32,
-    position: Option<i32>,
+    pub points: f32,
+    pub position: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    position_text: Option<String>,
-    wins: i32,
+    pub position_text: Option<String>,
+    pub wins: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DateAndTime {
-    date: chrono::NaiveDate,
-    time: chrono::NaiveTime,
+    pub date: chrono::NaiveDate,
+    pub time: chrono::NaiveTime,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Lap {
-    number: i32,
-    timings: Vec<LapTiming>,
+    pub number: i32,
+    pub timings: Vec<LapTiming>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LapTiming {
-    driver_ref: String,
+    pub driver_ref: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    position: Option<i32>,
+    pub position: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    time: Option<String>,
+    pub time: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PitStop {
-    driver_ref: String,
-    lap: i32,
-    stop: i32,
-    time: chrono::NaiveTime,
-    duration: Option<String>,
+    pub driver_ref: String,
+    pub lap: i32,
+    pub stop: i32,
+    pub time: chrono::NaiveTime,
+    pub duration: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

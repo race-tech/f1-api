@@ -92,7 +92,7 @@ impl PitStopsQueryBuilder {
             )
             .and_where(Expr::col((Races::Table, Races::Year)).eq(Expr::val(*params.year)))
             .and_where(Expr::col((Races::Table, Races::Round)).eq(Expr::val(*params.round)))
-            .order_by((PitStops::Table, PitStops::Time), sea_query::Order::Asc)
+            .order_by(PitStops::Time, sea_query::Order::Asc)
             .to_owned();
 
         Self { stmt, params }.build()
