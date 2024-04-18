@@ -135,6 +135,13 @@ pub struct StaticSeason<'a> {
     pub url: &'a str,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct StaticStatus<'a> {
+    pub status_id: i32,
+    pub status: &'a str,
+    pub count: i32,
+}
+
 fn compare<T, U>(t: Option<T>, u: Option<U>) -> bool
 where
     T: PartialEq<U>,
@@ -143,6 +150,14 @@ where
         (Some(t), Some(u)) => t == u,
         (None, None) => true,
         _ => false,
+    }
+}
+
+impl PartialEq<Status> for StaticStatus<'_> {
+    fn eq(&self, other: &Status) -> bool {
+        self.status_id == other.status_id
+            && self.status == other.status
+            && self.count == other.count
     }
 }
 

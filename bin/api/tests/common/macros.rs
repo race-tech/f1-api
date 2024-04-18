@@ -374,3 +374,33 @@ macro_rules! seasons_from_json {
         __seasons_impl!(@internal []; $($tt)*)
     };
 }
+
+#[macro_export]
+macro_rules! __status_impl {
+    (@status
+        "status_id": $status_id:expr,
+        "status": $status:literal,
+        "count": $count:expr
+    ) => {
+        common::models::StaticStatus {
+            status_id: $status_id,
+            status: $status,
+            count: $count
+        }
+    };
+    (@internal [$($expr:expr),*];) => {
+        [$($expr),*]
+    };
+    (@internal [$($expr:expr),*]; $(,)?{
+        $($fields:tt)*
+    } $($tt:tt)*) => {
+        __status_impl!(@internal [$($expr,)* __status_impl!(@status $($fields)*)]; $($tt)*)
+    }
+}
+
+#[macro_export]
+macro_rules! status_from_json {
+    ($($tt:tt)*) => {
+        __status_impl!(@internal []; $($tt)*)
+    };
+}

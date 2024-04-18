@@ -213,9 +213,9 @@ pub struct Season {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Status {
-    status_id: i32,
-    status: String,
-    count: i32,
+    pub status_id: i32,
+    pub status: String,
+    pub count: i32,
 }
 
 impl From<crate::models::Status> for Status {
