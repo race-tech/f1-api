@@ -207,8 +207,8 @@ pub struct PitStop {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Season {
-    year: i32,
-    url: String,
+    pub year: i32,
+    pub url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

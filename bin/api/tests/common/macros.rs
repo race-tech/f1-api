@@ -346,3 +346,31 @@ macro_rules! races_from_json {
         __races_impl!(@internal []; $($tt)*)
     };
 }
+
+#[macro_export]
+macro_rules! __seasons_impl {
+    (@season
+        "year": $year:expr,
+        "url": $url:literal
+    ) => {
+        common::models::StaticSeason {
+            year: $year,
+            url: $url
+        }
+    };
+    (@internal [$($expr:expr),*];) => {
+        [$($expr),*]
+    };
+    (@internal [$($expr:expr),*]; $(,)?{
+        $($fields:tt)*
+    } $($tt:tt)*) => {
+        __seasons_impl!(@internal [$($expr,)* __seasons_impl!(@season $($fields)*)]; $($tt)*)
+    }
+}
+
+#[macro_export]
+macro_rules! seasons_from_json {
+    ($($tt:tt)*) => {
+        __seasons_impl!(@internal []; $($tt)*)
+    };
+}

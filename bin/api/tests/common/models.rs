@@ -129,6 +129,12 @@ pub struct StaticDateAndTime<'a> {
     pub time: &'a str,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct StaticSeason<'a> {
+    pub year: i32,
+    pub url: &'a str,
+}
+
 fn compare<T, U>(t: Option<T>, u: Option<U>) -> bool
 where
     T: PartialEq<U>,
@@ -137,6 +143,12 @@ where
         (Some(t), Some(u)) => t == u,
         (None, None) => true,
         _ => false,
+    }
+}
+
+impl PartialEq<Season> for StaticSeason<'_> {
+    fn eq(&self, other: &Season) -> bool {
+        self.year == other.year && self.url == other.url
     }
 }
 
