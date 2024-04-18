@@ -34,6 +34,42 @@ fn test_get_races_by_year_and_round() {
     .test_ok();
 }
 
+#[test]
+fn test_get_races_by_driver_ref() {
+    common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
+        // I query also page 4 because previous races don't hold free practice timings
+        // so parsing from json become annoying
+        "/api/f1/races?driver_ref=leclerc&page=4",
+        Series::F1,
+        &LECLERC_RACES,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 4,
+        max_page: 5,
+        total: 129,
+    }))
+    .test_ok();
+}
+
+#[test]
+fn test_get_races_by_constructor_ref() {
+    common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
+        // I query also page 36 because previous races don't hold free practice timings
+        // so parsing from json become annoying
+        "/api/f1/races?constructor_ref=ferrari&page=36",
+        Series::F1,
+        &FERRARI_RACES,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 36,
+        max_page: 36,
+        total: 1080,
+    }))
+    .test_ok();
+}
+
 #[derive(Debug)]
 struct StaticRace<'a> {
     season: i32,
@@ -1088,6 +1124,2052 @@ const BAHRAIN_2024_ROUND_1: [StaticRace; 1] = races_from_json![
             "lng": 50.5106,
             "alt": 7,
             "url": "http://en.wikipedia.org/wiki/Bahrain_International_Circuit"
+        }
+    }
+];
+
+const LECLERC_RACES: [StaticRace; 30] = races_from_json![
+    {
+        "season": 2022,
+        "round": 10,
+        "name": "British Grand Prix",
+        "date": "2022-07-03",
+        "time": "14:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_British_Grand_Prix",
+        "fp1": {
+            "date": "2022-07-01",
+            "time": "12:00:00"
+        },
+        "fp2": {
+            "date": "2022-07-01",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2022-07-02",
+            "time": "11:00:00"
+        },
+        "quali": {
+            "date": "2022-07-02",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "silverstone",
+            "name": "Silverstone Circuit",
+            "location": "Silverstone",
+            "country": "UK",
+            "lat": 52.0786,
+            "lng": -1.01694,
+            "alt": 153,
+            "url": "http://en.wikipedia.org/wiki/Silverstone_Circuit"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 11,
+        "name": "Austrian Grand Prix",
+        "date": "2022-07-10",
+        "time": "13:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Austrian_Grand_Prix",
+        "fp1": {
+            "date": "2022-07-08",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2022-07-09",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2022-07-08",
+            "time": "15:00:00"
+        },
+        "sprint": {
+            "date": "2022-07-09",
+            "time": "14:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "red_bull_ring",
+            "name": "Red Bull Ring",
+            "location": "Spielberg",
+            "country": "Austria",
+            "lat": 47.2197,
+            "lng": 14.7647,
+            "alt": 678,
+            "url": "http://en.wikipedia.org/wiki/Red_Bull_Ring"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 12,
+        "name": "French Grand Prix",
+        "date": "2022-07-24",
+        "time": "13:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_French_Grand_Prix",
+        "fp1": {
+            "date": "2022-07-22",
+            "time": "12:00:00"
+        },
+        "fp2": {
+            "date": "2022-07-22",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2022-07-23",
+            "time": "11:00:00"
+        },
+        "quali": {
+            "date": "2022-07-23",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "ricard",
+            "name": "Circuit Paul Ricard",
+            "location": "Le Castellet",
+            "country": "France",
+            "lat": 43.2506,
+            "lng": 5.79167,
+            "alt": 432,
+            "url": "http://en.wikipedia.org/wiki/Paul_Ricard_Circuit"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 13,
+        "name": "Hungarian Grand Prix",
+        "date": "2022-07-31",
+        "time": "13:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Hungarian_Grand_Prix",
+        "fp1": {
+            "date": "2022-07-29",
+            "time": "12:00:00"
+        },
+        "fp2": {
+            "date": "2022-07-29",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2022-07-30",
+            "time": "11:00:00"
+        },
+        "quali": {
+            "date": "2022-07-30",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "hungaroring",
+            "name": "Hungaroring",
+            "location": "Budapest",
+            "country": "Hungary",
+            "lat": 47.5789,
+            "lng": 19.2486,
+            "alt": 264,
+            "url": "http://en.wikipedia.org/wiki/Hungaroring"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 14,
+        "name": "Belgian Grand Prix",
+        "date": "2022-08-28",
+        "time": "13:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Belgian_Grand_Prix",
+        "fp1": {
+            "date": "2022-08-26",
+            "time": "12:00:00"
+        },
+        "fp2": {
+            "date": "2022-08-26",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2022-08-27",
+            "time": "11:00:00"
+        },
+        "quali": {
+            "date": "2022-08-27",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "spa",
+            "name": "Circuit de Spa-Francorchamps",
+            "location": "Spa",
+            "country": "Belgium",
+            "lat": 50.4372,
+            "lng": 5.97139,
+            "alt": 401,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 15,
+        "name": "Dutch Grand Prix",
+        "date": "2022-09-04",
+        "time": "13:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Dutch_Grand_Prix",
+        "fp1": {
+            "date": "2022-09-02",
+            "time": "10:30:00"
+        },
+        "fp2": {
+            "date": "2022-09-02",
+            "time": "14:00:00"
+        },
+        "fp3": {
+            "date": "2022-09-03",
+            "time": "10:00:00"
+        },
+        "quali": {
+            "date": "2022-09-03",
+            "time": "13:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "zandvoort",
+            "name": "Circuit Park Zandvoort",
+            "location": "Zandvoort",
+            "country": "Netherlands",
+            "lat": 52.3888,
+            "lng": 4.54092,
+            "alt": 6,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Zandvoort"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 16,
+        "name": "Italian Grand Prix",
+        "date": "2022-09-11",
+        "time": "13:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Italian_Grand_Prix",
+        "fp1": {
+            "date": "2022-09-09",
+            "time": "12:00:00"
+        },
+        "fp2": {
+            "date": "2022-09-09",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2022-09-10",
+            "time": "11:00:00"
+        },
+        "quali": {
+            "date": "2022-09-10",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "monza",
+            "name": "Autodromo Nazionale di Monza",
+            "location": "Monza",
+            "country": "Italy",
+            "lat": 45.6156,
+            "lng": 9.28111,
+            "alt": 162,
+            "url": "http://en.wikipedia.org/wiki/Autodromo_Nazionale_Monza"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 17,
+        "name": "Singapore Grand Prix",
+        "date": "2022-10-02",
+        "time": "12:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Singapore_Grand_Prix",
+        "fp1": {
+            "date": "2022-09-30",
+            "time": "10:00:00"
+        },
+        "fp2": {
+            "date": "2022-09-30",
+            "time": "13:00:00"
+        },
+        "fp3": {
+            "date": "2022-10-01",
+            "time": "10:00:00"
+        },
+        "quali": {
+            "date": "2022-10-01",
+            "time": "13:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "marina_bay",
+            "name": "Marina Bay Street Circuit",
+            "location": "Marina Bay",
+            "country": "Singapore",
+            "lat": 1.2914,
+            "lng": 103.864,
+            "alt": 18,
+            "url": "http://en.wikipedia.org/wiki/Marina_Bay_Street_Circuit"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 18,
+        "name": "Japanese Grand Prix",
+        "date": "2022-10-09",
+        "time": "05:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Japanese_Grand_Prix",
+        "fp1": {
+            "date": "2022-10-07",
+            "time": "03:00:00"
+        },
+        "fp2": {
+            "date": "2022-10-07",
+            "time": "06:00:00"
+        },
+        "fp3": {
+            "date": "2022-10-08",
+            "time": "03:00:00"
+        },
+        "quali": {
+            "date": "2022-10-08",
+            "time": "06:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "suzuka",
+            "name": "Suzuka Circuit",
+            "location": "Suzuka",
+            "country": "Japan",
+            "lat": 34.8431,
+            "lng": 136.541,
+            "alt": 45,
+            "url": "http://en.wikipedia.org/wiki/Suzuka_Circuit"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 19,
+        "name": "United States Grand Prix",
+        "date": "2022-10-23",
+        "time": "19:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_United_States_Grand_Prix",
+        "fp1": {
+            "date": "2022-10-21",
+            "time": "19:00:00"
+        },
+        "fp2": {
+            "date": "2022-10-21",
+            "time": "22:00:00"
+        },
+        "fp3": {
+            "date": "2022-10-22",
+            "time": "19:00:00"
+        },
+        "quali": {
+            "date": "2022-10-22",
+            "time": "22:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "americas",
+            "name": "Circuit of the Americas",
+            "location": "Austin",
+            "country": "USA",
+            "lat": 30.1328,
+            "lng": -97.6411,
+            "alt": 161,
+            "url": "http://en.wikipedia.org/wiki/Circuit_of_the_Americas"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 20,
+        "name": "Mexico City Grand Prix",
+        "date": "2022-10-30",
+        "time": "20:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Mexican_Grand_Prix",
+        "fp1": {
+            "date": "2022-10-28",
+            "time": "18:00:00"
+        },
+        "fp2": {
+            "date": "2022-10-28",
+            "time": "21:00:00"
+        },
+        "fp3": {
+            "date": "2022-10-29",
+            "time": "17:00:00"
+        },
+        "quali": {
+            "date": "2022-10-29",
+            "time": "20:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "rodriguez",
+            "name": "Autódromo Hermanos Rodríguez",
+            "location": "Mexico City",
+            "country": "Mexico",
+            "lat": 19.4042,
+            "lng": -99.0907,
+            "alt": 2227,
+            "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Hermanos_Rodr%C3%ADguez"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 21,
+        "name": "São Paulo Grand Prix",
+        "date": "2022-11-13",
+        "time": "18:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Brazilian_Grand_Prix",
+        "fp1": {
+            "date": "2022-11-11",
+            "time": "15:30:00"
+        },
+        "fp2": {
+            "date": "2022-11-12",
+            "time": "15:30:00"
+        },
+        "quali": {
+            "date": "2022-11-11",
+            "time": "19:00:00"
+        },
+        "sprint": {
+            "date": "2022-11-12",
+            "time": "19:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "interlagos",
+            "name": "Autódromo José Carlos Pace",
+            "location": "São Paulo",
+            "country": "Brazil",
+            "lat": -23.7036,
+            "lng": -46.6997,
+            "alt": 785,
+            "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Jos%C3%A9_Carlos_Pace"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 22,
+        "name": "Abu Dhabi Grand Prix",
+        "date": "2022-11-20",
+        "time": "13:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Abu_Dhabi_Grand_Prix",
+        "fp1": {
+            "date": "2022-11-18",
+            "time": "10:00:00"
+        },
+        "fp2": {
+            "date": "2022-11-18",
+            "time": "13:00:00"
+        },
+        "fp3": {
+            "date": "2022-11-19",
+            "time": "11:00:00"
+        },
+        "quali": {
+            "date": "2022-11-19",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "yas_marina",
+            "name": "Yas Marina Circuit",
+            "location": "Abu Dhabi",
+            "country": "UAE",
+            "lat": 24.4672,
+            "lng": 54.6031,
+            "alt": 3,
+            "url": "http://en.wikipedia.org/wiki/Yas_Marina_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 1,
+        "name": "Bahrain Grand Prix",
+        "date": "2023-03-05",
+        "time": "15:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Bahrain_Grand_Prix",
+        "fp1": {
+            "date": "2023-03-03",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-03-03",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-03-04",
+            "time": "11:30:00"
+        },
+        "quali": {
+            "date": "2023-03-04",
+            "time": "15:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "bahrain",
+            "name": "Bahrain International Circuit",
+            "location": "Sakhir",
+            "country": "Bahrain",
+            "lat": 26.0325,
+            "lng": 50.5106,
+            "alt": 7,
+            "url": "http://en.wikipedia.org/wiki/Bahrain_International_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 2,
+        "name": "Saudi Arabian Grand Prix",
+        "date": "2023-03-19",
+        "time": "17:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Saudi_Arabian_Grand_Prix",
+        "fp1": {
+            "date": "2023-03-17",
+            "time": "13:30:00"
+        },
+        "fp2": {
+            "date": "2023-03-17",
+            "time": "17:00:00"
+        },
+        "fp3": {
+            "date": "2023-03-18",
+            "time": "13:30:00"
+        },
+        "quali": {
+            "date": "2023-03-18",
+            "time": "17:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "jeddah",
+            "name": "Jeddah Corniche Circuit",
+            "location": "Jeddah",
+            "country": "Saudi Arabia",
+            "lat": 21.6319,
+            "lng": 39.1044,
+            "alt": 15,
+            "url": "http://en.wikipedia.org/wiki/Jeddah_Street_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 3,
+        "name": "Australian Grand Prix",
+        "date": "2023-04-02",
+        "time": "05:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Australian_Grand_Prix",
+        "fp1": {
+            "date": "2023-03-31",
+            "time": "01:30:00"
+        },
+        "fp2": {
+            "date": "2023-03-31",
+            "time": "05:00:00"
+        },
+        "fp3": {
+            "date": "2023-04-01",
+            "time": "01:30:00"
+        },
+        "quali": {
+            "date": "2023-04-01",
+            "time": "05:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "albert_park",
+            "name": "Albert Park Grand Prix Circuit",
+            "location": "Melbourne",
+            "country": "Australia",
+            "lat": -37.8497,
+            "lng": 144.968,
+            "alt": 10,
+            "url": "http://en.wikipedia.org/wiki/Melbourne_Grand_Prix_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 4,
+        "name": "Azerbaijan Grand Prix",
+        "date": "2023-04-30",
+        "time": "11:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Azerbaijan_Grand_Prix",
+        "fp1": {
+            "date": "2023-04-28",
+            "time": "09:30:00"
+        },
+        "fp2": {
+            "date": "2023-04-29",
+            "time": "09:30:00"
+        },
+        "quali": {
+            "date": "2023-04-28",
+            "time": "13:00:00"
+        },
+        "sprint": {
+            "date": "2023-04-29",
+            "time": "13:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "baku",
+            "name": "Baku City Circuit",
+            "location": "Baku",
+            "country": "Azerbaijan",
+            "lat": 40.3725,
+            "lng": 49.8533,
+            "alt": -7,
+            "url": "http://en.wikipedia.org/wiki/Baku_City_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 5,
+        "name": "Miami Grand Prix",
+        "date": "2023-05-07",
+        "time": "19:30:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Miami_Grand_Prix",
+        "fp1": {
+            "date": "2023-05-05",
+            "time": "18:00:00"
+        },
+        "fp2": {
+            "date": "2023-05-05",
+            "time": "21:30:00"
+        },
+        "fp3": {
+            "date": "2023-05-06",
+            "time": "16:30:00"
+        },
+        "quali": {
+            "date": "2023-05-06",
+            "time": "20:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "miami",
+            "name": "Miami International Autodrome",
+            "location": "Miami",
+            "country": "USA",
+            "lat": 25.9581,
+            "lng": -80.2389,
+            "alt": 0,
+            "url": "http://en.wikipedia.org/wiki/Miami_International_Autodrome"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 6,
+        "name": "Monaco Grand Prix",
+        "date": "2023-05-28",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Monaco_Grand_Prix",
+        "fp1": {
+            "date": "2023-05-26",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-05-26",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-05-27",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-05-27",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "monaco",
+            "name": "Circuit de Monaco",
+            "location": "Monte-Carlo",
+            "country": "Monaco",
+            "lat": 43.7347,
+            "lng": 7.42056,
+            "alt": 7,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Monaco"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 7,
+        "name": "Spanish Grand Prix",
+        "date": "2023-06-04",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Spanish_Grand_Prix",
+        "fp1": {
+            "date": "2023-06-02",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-06-02",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-06-03",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-06-03",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "catalunya",
+            "name": "Circuit de Barcelona-Catalunya",
+            "location": "Montmeló",
+            "country": "Spain",
+            "lat": 41.57,
+            "lng": 2.26111,
+            "alt": 109,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Barcelona-Catalunya"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 8,
+        "name": "Canadian Grand Prix",
+        "date": "2023-06-18",
+        "time": "18:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Canadian_Grand_Prix",
+        "fp1": {
+            "date": "2023-06-16",
+            "time": "17:30:00"
+        },
+        "fp2": {
+            "date": "2023-06-16",
+            "time": "21:00:00"
+        },
+        "fp3": {
+            "date": "2023-06-17",
+            "time": "16:30:00"
+        },
+        "quali": {
+            "date": "2023-06-17",
+            "time": "20:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "villeneuve",
+            "name": "Circuit Gilles Villeneuve",
+            "location": "Montreal",
+            "country": "Canada",
+            "lat": 45.5,
+            "lng": -73.5228,
+            "alt": 13,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Gilles_Villeneuve"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 9,
+        "name": "Austrian Grand Prix",
+        "date": "2023-07-02",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Austrian_Grand_Prix",
+        "fp1": {
+            "date": "2023-06-30",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-07-01",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-06-30",
+            "time": "15:00:00"
+        },
+        "sprint": {
+            "date": "2023-07-01",
+            "time": "14:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "red_bull_ring",
+            "name": "Red Bull Ring",
+            "location": "Spielberg",
+            "country": "Austria",
+            "lat": 47.2197,
+            "lng": 14.7647,
+            "alt": 678,
+            "url": "http://en.wikipedia.org/wiki/Red_Bull_Ring"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 10,
+        "name": "British Grand Prix",
+        "date": "2023-07-09",
+        "time": "14:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_British_Grand_Prix",
+        "fp1": {
+            "date": "2023-07-07",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-07-07",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-07-08",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-07-08",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "silverstone",
+            "name": "Silverstone Circuit",
+            "location": "Silverstone",
+            "country": "UK",
+            "lat": 52.0786,
+            "lng": -1.01694,
+            "alt": 153,
+            "url": "http://en.wikipedia.org/wiki/Silverstone_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 11,
+        "name": "Hungarian Grand Prix",
+        "date": "2023-07-23",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Hungarian_Grand_Prix",
+        "fp1": {
+            "date": "2023-07-21",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-07-21",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-07-22",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-07-22",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "hungaroring",
+            "name": "Hungaroring",
+            "location": "Budapest",
+            "country": "Hungary",
+            "lat": 47.5789,
+            "lng": 19.2486,
+            "alt": 264,
+            "url": "http://en.wikipedia.org/wiki/Hungaroring"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 12,
+        "name": "Belgian Grand Prix",
+        "date": "2023-07-30",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Belgian_Grand_Prix",
+        "fp1": {
+            "date": "2023-07-28",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-07-29",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-07-28",
+            "time": "15:00:00"
+        },
+        "sprint": {
+            "date": "2023-07-29",
+            "time": "14:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "spa",
+            "name": "Circuit de Spa-Francorchamps",
+            "location": "Spa",
+            "country": "Belgium",
+            "lat": 50.4372,
+            "lng": 5.97139,
+            "alt": 401,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 13,
+        "name": "Dutch Grand Prix",
+        "date": "2023-08-27",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Dutch_Grand_Prix",
+        "fp1": {
+            "date": "2023-08-25",
+            "time": "10:30:00"
+        },
+        "fp2": {
+            "date": "2023-08-25",
+            "time": "14:00:00"
+        },
+        "fp3": {
+            "date": "2023-08-26",
+            "time": "09:30:00"
+        },
+        "quali": {
+            "date": "2023-08-26",
+            "time": "13:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "zandvoort",
+            "name": "Circuit Park Zandvoort",
+            "location": "Zandvoort",
+            "country": "Netherlands",
+            "lat": 52.3888,
+            "lng": 4.54092,
+            "alt": 6,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Zandvoort"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 14,
+        "name": "Italian Grand Prix",
+        "date": "2023-09-03",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Italian_Grand_Prix",
+        "fp1": {
+            "date": "2023-09-01",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-09-01",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-09-02",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-09-02",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "monza",
+            "name": "Autodromo Nazionale di Monza",
+            "location": "Monza",
+            "country": "Italy",
+            "lat": 45.6156,
+            "lng": 9.28111,
+            "alt": 162,
+            "url": "http://en.wikipedia.org/wiki/Autodromo_Nazionale_Monza"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 15,
+        "name": "Singapore Grand Prix",
+        "date": "2023-09-17",
+        "time": "12:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Singapore_Grand_Prix",
+        "fp1": {
+            "date": "2023-09-15",
+            "time": "09:30:00"
+        },
+        "fp2": {
+            "date": "2023-09-15",
+            "time": "13:00:00"
+        },
+        "fp3": {
+            "date": "2023-09-16",
+            "time": "09:30:00"
+        },
+        "quali": {
+            "date": "2023-09-16",
+            "time": "13:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "marina_bay",
+            "name": "Marina Bay Street Circuit",
+            "location": "Marina Bay",
+            "country": "Singapore",
+            "lat": 1.2914,
+            "lng": 103.864,
+            "alt": 18,
+            "url": "http://en.wikipedia.org/wiki/Marina_Bay_Street_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 16,
+        "name": "Japanese Grand Prix",
+        "date": "2023-09-24",
+        "time": "05:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Japanese_Grand_Prix",
+        "fp1": {
+            "date": "2023-09-22",
+            "time": "02:30:00"
+        },
+        "fp2": {
+            "date": "2023-09-22",
+            "time": "06:00:00"
+        },
+        "fp3": {
+            "date": "2023-09-23",
+            "time": "02:30:00"
+        },
+        "quali": {
+            "date": "2023-09-23",
+            "time": "06:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "suzuka",
+            "name": "Suzuka Circuit",
+            "location": "Suzuka",
+            "country": "Japan",
+            "lat": 34.8431,
+            "lng": 136.541,
+            "alt": 45,
+            "url": "http://en.wikipedia.org/wiki/Suzuka_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 17,
+        "name": "Qatar Grand Prix",
+        "date": "2023-10-08",
+        "time": "17:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Qatar_Grand_Prix",
+        "fp1": {
+            "date": "2023-10-06",
+            "time": "13:30:00"
+        },
+        "fp2": {
+            "date": "2023-10-07",
+            "time": "13:00:00"
+        },
+        "quali": {
+            "date": "2023-10-06",
+            "time": "17:00:00"
+        },
+        "sprint": {
+            "date": "2023-10-07",
+            "time": "17:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "losail",
+            "name": "Losail International Circuit",
+            "location": "Al Daayen",
+            "country": "Qatar",
+            "lat": 25.49,
+            "lng": 51.4542,
+            "alt": 12,
+            "url": "http://en.wikipedia.org/wiki/Losail_International_Circuit"
+        }
+    }
+];
+
+const FERRARI_RACES: [StaticRace; 30] = races_from_json![
+    {
+        "season": 2022,
+        "round": 19,
+        "name": "United States Grand Prix",
+        "date": "2022-10-23",
+        "time": "19:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_United_States_Grand_Prix",
+        "fp1": {
+            "date": "2022-10-21",
+            "time": "19:00:00"
+        },
+        "fp2": {
+            "date": "2022-10-21",
+            "time": "22:00:00"
+        },
+        "fp3": {
+            "date": "2022-10-22",
+            "time": "19:00:00"
+        },
+        "quali": {
+            "date": "2022-10-22",
+            "time": "22:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "americas",
+            "name": "Circuit of the Americas",
+            "location": "Austin",
+            "country": "USA",
+            "lat": 30.1328,
+            "lng": -97.6411,
+            "alt": 161,
+            "url": "http://en.wikipedia.org/wiki/Circuit_of_the_Americas"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 20,
+        "name": "Mexico City Grand Prix",
+        "date": "2022-10-30",
+        "time": "20:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Mexican_Grand_Prix",
+        "fp1": {
+            "date": "2022-10-28",
+            "time": "18:00:00"
+        },
+        "fp2": {
+            "date": "2022-10-28",
+            "time": "21:00:00"
+        },
+        "fp3": {
+            "date": "2022-10-29",
+            "time": "17:00:00"
+        },
+        "quali": {
+            "date": "2022-10-29",
+            "time": "20:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "rodriguez",
+            "name": "Autódromo Hermanos Rodríguez",
+            "location": "Mexico City",
+            "country": "Mexico",
+            "lat": 19.4042,
+            "lng": -99.0907,
+            "alt": 2227,
+            "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Hermanos_Rodr%C3%ADguez"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 21,
+        "name": "São Paulo Grand Prix",
+        "date": "2022-11-13",
+        "time": "18:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Brazilian_Grand_Prix",
+        "fp1": {
+            "date": "2022-11-11",
+            "time": "15:30:00"
+        },
+        "fp2": {
+            "date": "2022-11-12",
+            "time": "15:30:00"
+        },
+        "quali": {
+            "date": "2022-11-11",
+            "time": "19:00:00"
+        },
+        "sprint": {
+            "date": "2022-11-12",
+            "time": "19:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "interlagos",
+            "name": "Autódromo José Carlos Pace",
+            "location": "São Paulo",
+            "country": "Brazil",
+            "lat": -23.7036,
+            "lng": -46.6997,
+            "alt": 785,
+            "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Jos%C3%A9_Carlos_Pace"
+        }
+    },
+    {
+        "season": 2022,
+        "round": 22,
+        "name": "Abu Dhabi Grand Prix",
+        "date": "2022-11-20",
+        "time": "13:00:00",
+        "url": "http://en.wikipedia.org/wiki/2022_Abu_Dhabi_Grand_Prix",
+        "fp1": {
+            "date": "2022-11-18",
+            "time": "10:00:00"
+        },
+        "fp2": {
+            "date": "2022-11-18",
+            "time": "13:00:00"
+        },
+        "fp3": {
+            "date": "2022-11-19",
+            "time": "11:00:00"
+        },
+        "quali": {
+            "date": "2022-11-19",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "yas_marina",
+            "name": "Yas Marina Circuit",
+            "location": "Abu Dhabi",
+            "country": "UAE",
+            "lat": 24.4672,
+            "lng": 54.6031,
+            "alt": 3,
+            "url": "http://en.wikipedia.org/wiki/Yas_Marina_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 1,
+        "name": "Bahrain Grand Prix",
+        "date": "2023-03-05",
+        "time": "15:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Bahrain_Grand_Prix",
+        "fp1": {
+            "date": "2023-03-03",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-03-03",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-03-04",
+            "time": "11:30:00"
+        },
+        "quali": {
+            "date": "2023-03-04",
+            "time": "15:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "bahrain",
+            "name": "Bahrain International Circuit",
+            "location": "Sakhir",
+            "country": "Bahrain",
+            "lat": 26.0325,
+            "lng": 50.5106,
+            "alt": 7,
+            "url": "http://en.wikipedia.org/wiki/Bahrain_International_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 2,
+        "name": "Saudi Arabian Grand Prix",
+        "date": "2023-03-19",
+        "time": "17:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Saudi_Arabian_Grand_Prix",
+        "fp1": {
+            "date": "2023-03-17",
+            "time": "13:30:00"
+        },
+        "fp2": {
+            "date": "2023-03-17",
+            "time": "17:00:00"
+        },
+        "fp3": {
+            "date": "2023-03-18",
+            "time": "13:30:00"
+        },
+        "quali": {
+            "date": "2023-03-18",
+            "time": "17:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "jeddah",
+            "name": "Jeddah Corniche Circuit",
+            "location": "Jeddah",
+            "country": "Saudi Arabia",
+            "lat": 21.6319,
+            "lng": 39.1044,
+            "alt": 15,
+            "url": "http://en.wikipedia.org/wiki/Jeddah_Street_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 3,
+        "name": "Australian Grand Prix",
+        "date": "2023-04-02",
+        "time": "05:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Australian_Grand_Prix",
+        "fp1": {
+            "date": "2023-03-31",
+            "time": "01:30:00"
+        },
+        "fp2": {
+            "date": "2023-03-31",
+            "time": "05:00:00"
+        },
+        "fp3": {
+            "date": "2023-04-01",
+            "time": "01:30:00"
+        },
+        "quali": {
+            "date": "2023-04-01",
+            "time": "05:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "albert_park",
+            "name": "Albert Park Grand Prix Circuit",
+            "location": "Melbourne",
+            "country": "Australia",
+            "lat": -37.8497,
+            "lng": 144.968,
+            "alt": 10,
+            "url": "http://en.wikipedia.org/wiki/Melbourne_Grand_Prix_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 4,
+        "name": "Azerbaijan Grand Prix",
+        "date": "2023-04-30",
+        "time": "11:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Azerbaijan_Grand_Prix",
+        "fp1": {
+            "date": "2023-04-28",
+            "time": "09:30:00"
+        },
+        "fp2": {
+            "date": "2023-04-29",
+            "time": "09:30:00"
+        },
+        "quali": {
+            "date": "2023-04-28",
+            "time": "13:00:00"
+        },
+        "sprint": {
+            "date": "2023-04-29",
+            "time": "13:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "baku",
+            "name": "Baku City Circuit",
+            "location": "Baku",
+            "country": "Azerbaijan",
+            "lat": 40.3725,
+            "lng": 49.8533,
+            "alt": -7,
+            "url": "http://en.wikipedia.org/wiki/Baku_City_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 5,
+        "name": "Miami Grand Prix",
+        "date": "2023-05-07",
+        "time": "19:30:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Miami_Grand_Prix",
+        "fp1": {
+            "date": "2023-05-05",
+            "time": "18:00:00"
+        },
+        "fp2": {
+            "date": "2023-05-05",
+            "time": "21:30:00"
+        },
+        "fp3": {
+            "date": "2023-05-06",
+            "time": "16:30:00"
+        },
+        "quali": {
+            "date": "2023-05-06",
+            "time": "20:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "miami",
+            "name": "Miami International Autodrome",
+            "location": "Miami",
+            "country": "USA",
+            "lat": 25.9581,
+            "lng": -80.2389,
+            "alt": 0,
+            "url": "http://en.wikipedia.org/wiki/Miami_International_Autodrome"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 6,
+        "name": "Monaco Grand Prix",
+        "date": "2023-05-28",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Monaco_Grand_Prix",
+        "fp1": {
+            "date": "2023-05-26",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-05-26",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-05-27",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-05-27",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "monaco",
+            "name": "Circuit de Monaco",
+            "location": "Monte-Carlo",
+            "country": "Monaco",
+            "lat": 43.7347,
+            "lng": 7.42056,
+            "alt": 7,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Monaco"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 7,
+        "name": "Spanish Grand Prix",
+        "date": "2023-06-04",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Spanish_Grand_Prix",
+        "fp1": {
+            "date": "2023-06-02",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-06-02",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-06-03",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-06-03",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "catalunya",
+            "name": "Circuit de Barcelona-Catalunya",
+            "location": "Montmeló",
+            "country": "Spain",
+            "lat": 41.57,
+            "lng": 2.26111,
+            "alt": 109,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Barcelona-Catalunya"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 8,
+        "name": "Canadian Grand Prix",
+        "date": "2023-06-18",
+        "time": "18:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Canadian_Grand_Prix",
+        "fp1": {
+            "date": "2023-06-16",
+            "time": "17:30:00"
+        },
+        "fp2": {
+            "date": "2023-06-16",
+            "time": "21:00:00"
+        },
+        "fp3": {
+            "date": "2023-06-17",
+            "time": "16:30:00"
+        },
+        "quali": {
+            "date": "2023-06-17",
+            "time": "20:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "villeneuve",
+            "name": "Circuit Gilles Villeneuve",
+            "location": "Montreal",
+            "country": "Canada",
+            "lat": 45.5,
+            "lng": -73.5228,
+            "alt": 13,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Gilles_Villeneuve"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 9,
+        "name": "Austrian Grand Prix",
+        "date": "2023-07-02",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Austrian_Grand_Prix",
+        "fp1": {
+            "date": "2023-06-30",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-07-01",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-06-30",
+            "time": "15:00:00"
+        },
+        "sprint": {
+            "date": "2023-07-01",
+            "time": "14:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "red_bull_ring",
+            "name": "Red Bull Ring",
+            "location": "Spielberg",
+            "country": "Austria",
+            "lat": 47.2197,
+            "lng": 14.7647,
+            "alt": 678,
+            "url": "http://en.wikipedia.org/wiki/Red_Bull_Ring"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 10,
+        "name": "British Grand Prix",
+        "date": "2023-07-09",
+        "time": "14:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_British_Grand_Prix",
+        "fp1": {
+            "date": "2023-07-07",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-07-07",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-07-08",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-07-08",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "silverstone",
+            "name": "Silverstone Circuit",
+            "location": "Silverstone",
+            "country": "UK",
+            "lat": 52.0786,
+            "lng": -1.01694,
+            "alt": 153,
+            "url": "http://en.wikipedia.org/wiki/Silverstone_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 11,
+        "name": "Hungarian Grand Prix",
+        "date": "2023-07-23",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Hungarian_Grand_Prix",
+        "fp1": {
+            "date": "2023-07-21",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-07-21",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-07-22",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-07-22",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "hungaroring",
+            "name": "Hungaroring",
+            "location": "Budapest",
+            "country": "Hungary",
+            "lat": 47.5789,
+            "lng": 19.2486,
+            "alt": 264,
+            "url": "http://en.wikipedia.org/wiki/Hungaroring"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 12,
+        "name": "Belgian Grand Prix",
+        "date": "2023-07-30",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Belgian_Grand_Prix",
+        "fp1": {
+            "date": "2023-07-28",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-07-29",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-07-28",
+            "time": "15:00:00"
+        },
+        "sprint": {
+            "date": "2023-07-29",
+            "time": "14:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "spa",
+            "name": "Circuit de Spa-Francorchamps",
+            "location": "Spa",
+            "country": "Belgium",
+            "lat": 50.4372,
+            "lng": 5.97139,
+            "alt": 401,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 13,
+        "name": "Dutch Grand Prix",
+        "date": "2023-08-27",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Dutch_Grand_Prix",
+        "fp1": {
+            "date": "2023-08-25",
+            "time": "10:30:00"
+        },
+        "fp2": {
+            "date": "2023-08-25",
+            "time": "14:00:00"
+        },
+        "fp3": {
+            "date": "2023-08-26",
+            "time": "09:30:00"
+        },
+        "quali": {
+            "date": "2023-08-26",
+            "time": "13:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "zandvoort",
+            "name": "Circuit Park Zandvoort",
+            "location": "Zandvoort",
+            "country": "Netherlands",
+            "lat": 52.3888,
+            "lng": 4.54092,
+            "alt": 6,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Zandvoort"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 14,
+        "name": "Italian Grand Prix",
+        "date": "2023-09-03",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Italian_Grand_Prix",
+        "fp1": {
+            "date": "2023-09-01",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2023-09-01",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2023-09-02",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-09-02",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "monza",
+            "name": "Autodromo Nazionale di Monza",
+            "location": "Monza",
+            "country": "Italy",
+            "lat": 45.6156,
+            "lng": 9.28111,
+            "alt": 162,
+            "url": "http://en.wikipedia.org/wiki/Autodromo_Nazionale_Monza"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 15,
+        "name": "Singapore Grand Prix",
+        "date": "2023-09-17",
+        "time": "12:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Singapore_Grand_Prix",
+        "fp1": {
+            "date": "2023-09-15",
+            "time": "09:30:00"
+        },
+        "fp2": {
+            "date": "2023-09-15",
+            "time": "13:00:00"
+        },
+        "fp3": {
+            "date": "2023-09-16",
+            "time": "09:30:00"
+        },
+        "quali": {
+            "date": "2023-09-16",
+            "time": "13:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "marina_bay",
+            "name": "Marina Bay Street Circuit",
+            "location": "Marina Bay",
+            "country": "Singapore",
+            "lat": 1.2914,
+            "lng": 103.864,
+            "alt": 18,
+            "url": "http://en.wikipedia.org/wiki/Marina_Bay_Street_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 16,
+        "name": "Japanese Grand Prix",
+        "date": "2023-09-24",
+        "time": "05:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Japanese_Grand_Prix",
+        "fp1": {
+            "date": "2023-09-22",
+            "time": "02:30:00"
+        },
+        "fp2": {
+            "date": "2023-09-22",
+            "time": "06:00:00"
+        },
+        "fp3": {
+            "date": "2023-09-23",
+            "time": "02:30:00"
+        },
+        "quali": {
+            "date": "2023-09-23",
+            "time": "06:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "suzuka",
+            "name": "Suzuka Circuit",
+            "location": "Suzuka",
+            "country": "Japan",
+            "lat": 34.8431,
+            "lng": 136.541,
+            "alt": 45,
+            "url": "http://en.wikipedia.org/wiki/Suzuka_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 17,
+        "name": "Qatar Grand Prix",
+        "date": "2023-10-08",
+        "time": "17:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Qatar_Grand_Prix",
+        "fp1": {
+            "date": "2023-10-06",
+            "time": "13:30:00"
+        },
+        "fp2": {
+            "date": "2023-10-07",
+            "time": "13:00:00"
+        },
+        "quali": {
+            "date": "2023-10-06",
+            "time": "17:00:00"
+        },
+        "sprint": {
+            "date": "2023-10-07",
+            "time": "17:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "losail",
+            "name": "Losail International Circuit",
+            "location": "Al Daayen",
+            "country": "Qatar",
+            "lat": 25.49,
+            "lng": 51.4542,
+            "alt": 12,
+            "url": "http://en.wikipedia.org/wiki/Losail_International_Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 18,
+        "name": "United States Grand Prix",
+        "date": "2023-10-22",
+        "time": "19:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_United_States_Grand_Prix",
+        "fp1": {
+            "date": "2023-10-20",
+            "time": "17:30:00"
+        },
+        "fp2": {
+            "date": "2023-10-21",
+            "time": "18:00:00"
+        },
+        "quali": {
+            "date": "2023-10-20",
+            "time": "21:00:00"
+        },
+        "sprint": {
+            "date": "2023-10-21",
+            "time": "22:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "americas",
+            "name": "Circuit of the Americas",
+            "location": "Austin",
+            "country": "USA",
+            "lat": 30.1328,
+            "lng": -97.6411,
+            "alt": 161,
+            "url": "http://en.wikipedia.org/wiki/Circuit_of_the_Americas"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 19,
+        "name": "Mexico City Grand Prix",
+        "date": "2023-10-29",
+        "time": "20:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Mexico_City_Grand_Prix",
+        "fp1": {
+            "date": "2023-10-27",
+            "time": "18:30:00"
+        },
+        "fp2": {
+            "date": "2023-10-27",
+            "time": "22:00:00"
+        },
+        "fp3": {
+            "date": "2023-10-28",
+            "time": "17:30:00"
+        },
+        "quali": {
+            "date": "2023-10-28",
+            "time": "21:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "rodriguez",
+            "name": "Autódromo Hermanos Rodríguez",
+            "location": "Mexico City",
+            "country": "Mexico",
+            "lat": 19.4042,
+            "lng": -99.0907,
+            "alt": 2227,
+            "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Hermanos_Rodr%C3%ADguez"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 20,
+        "name": "São Paulo Grand Prix",
+        "date": "2023-11-05",
+        "time": "17:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_S%C3%A3o_Paulo_Grand_Prix",
+        "fp1": {
+            "date": "2023-11-03",
+            "time": "14:30:00"
+        },
+        "fp2": {
+            "date": "2023-11-04",
+            "time": "14:30:00"
+        },
+        "quali": {
+            "date": "2023-11-03",
+            "time": "18:00:00"
+        },
+        "sprint": {
+            "date": "2023-11-04",
+            "time": "18:30:00"
+        },
+        "circuit": {
+            "circuit_ref": "interlagos",
+            "name": "Autódromo José Carlos Pace",
+            "location": "São Paulo",
+            "country": "Brazil",
+            "lat": -23.7036,
+            "lng": -46.6997,
+            "alt": 785,
+            "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Jos%C3%A9_Carlos_Pace"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 21,
+        "name": "Las Vegas Grand Prix",
+        "date": "2023-11-19",
+        "time": "06:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Las_Vegas_Grand_Prix",
+        "fp1": {
+            "date": "2023-11-16",
+            "time": "04:30:00"
+        },
+        "fp2": {
+            "date": "2023-11-16",
+            "time": "08:00:00"
+        },
+        "fp3": {
+            "date": "2023-11-17",
+            "time": "04:30:00"
+        },
+        "quali": {
+            "date": "2023-11-17",
+            "time": "08:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "vegas",
+            "name": "Las Vegas Strip Street Circuit",
+            "location": "Las Vegas",
+            "country": "United States",
+            "lat": 36.1147,
+            "lng": -115.173,
+            "alt": 642,
+            "url": "https://en.wikipedia.org/wiki/Las_Vegas_Grand_Prix#Circuit"
+        }
+    },
+    {
+        "season": 2023,
+        "round": 22,
+        "name": "Abu Dhabi Grand Prix",
+        "date": "2023-11-26",
+        "time": "13:00:00",
+        "url": "https://en.wikipedia.org/wiki/2023_Abu_Dhabi_Grand_Prix",
+        "fp1": {
+            "date": "2023-11-24",
+            "time": "09:30:00"
+        },
+        "fp2": {
+            "date": "2023-11-24",
+            "time": "13:00:00"
+        },
+        "fp3": {
+            "date": "2023-11-25",
+            "time": "10:30:00"
+        },
+        "quali": {
+            "date": "2023-11-25",
+            "time": "14:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "yas_marina",
+            "name": "Yas Marina Circuit",
+            "location": "Abu Dhabi",
+            "country": "UAE",
+            "lat": 24.4672,
+            "lng": 54.6031,
+            "alt": 3,
+            "url": "http://en.wikipedia.org/wiki/Yas_Marina_Circuit"
+        }
+    },
+    {
+        "season": 2024,
+        "round": 1,
+        "name": "Bahrain Grand Prix",
+        "date": "2024-03-02",
+        "time": "15:00:00",
+        "url": "https://en.wikipedia.org/wiki/2024_Bahrain_Grand_Prix",
+        "fp1": {
+            "date": "2024-02-29",
+            "time": "11:30:00"
+        },
+        "fp2": {
+            "date": "2024-02-29",
+            "time": "15:00:00"
+        },
+        "fp3": {
+            "date": "2024-03-01",
+            "time": "12:30:00"
+        },
+        "quali": {
+            "date": "2024-03-01",
+            "time": "16:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "bahrain",
+            "name": "Bahrain International Circuit",
+            "location": "Sakhir",
+            "country": "Bahrain",
+            "lat": 26.0325,
+            "lng": 50.5106,
+            "alt": 7,
+            "url": "http://en.wikipedia.org/wiki/Bahrain_International_Circuit"
+        }
+    },
+    {
+        "season": 2024,
+        "round": 2,
+        "name": "Saudi Arabian Grand Prix",
+        "date": "2024-03-09",
+        "time": "17:00:00",
+        "url": "https://en.wikipedia.org/wiki/2024_Saudi_Arabian_Grand_Prix",
+        "fp1": {
+            "date": "2024-03-07",
+            "time": "13:30:00"
+        },
+        "fp2": {
+            "date": "2024-03-07",
+            "time": "17:00:00"
+        },
+        "fp3": {
+            "date": "2024-03-08",
+            "time": "13:30:00"
+        },
+        "quali": {
+            "date": "2024-03-08",
+            "time": "17:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "jeddah",
+            "name": "Jeddah Corniche Circuit",
+            "location": "Jeddah",
+            "country": "Saudi Arabia",
+            "lat": 21.6319,
+            "lng": 39.1044,
+            "alt": 15,
+            "url": "http://en.wikipedia.org/wiki/Jeddah_Street_Circuit"
+        }
+    },
+    {
+        "season": 2024,
+        "round": 3,
+        "name": "Australian Grand Prix",
+        "date": "2024-03-24",
+        "time": "04:00:00",
+        "url": "https://en.wikipedia.org/wiki/2024_Australian_Grand_Prix",
+        "fp1": {
+            "date": "2024-03-22",
+            "time": "01:30:00"
+        },
+        "fp2": {
+            "date": "2024-03-22",
+            "time": "05:00:00"
+        },
+        "fp3": {
+            "date": "2024-03-23",
+            "time": "01:30:00"
+        },
+        "quali": {
+            "date": "2024-03-23",
+            "time": "05:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "albert_park",
+            "name": "Albert Park Grand Prix Circuit",
+            "location": "Melbourne",
+            "country": "Australia",
+            "lat": -37.8497,
+            "lng": 144.968,
+            "alt": 10,
+            "url": "http://en.wikipedia.org/wiki/Melbourne_Grand_Prix_Circuit"
+        }
+    },
+    {
+        "season": 2024,
+        "round": 4,
+        "name": "Japanese Grand Prix",
+        "date": "2024-04-07",
+        "time": "05:00:00",
+        "url": "https://en.wikipedia.org/wiki/2024_Japanese_Grand_Prix",
+        "fp1": {
+            "date": "2024-04-05",
+            "time": "02:30:00"
+        },
+        "fp2": {
+            "date": "2024-04-05",
+            "time": "06:00:00"
+        },
+        "fp3": {
+            "date": "2024-04-06",
+            "time": "02:30:00"
+        },
+        "quali": {
+            "date": "2024-04-06",
+            "time": "06:00:00"
+        },
+        "circuit": {
+            "circuit_ref": "suzuka",
+            "name": "Suzuka Circuit",
+            "location": "Suzuka",
+            "country": "Japan",
+            "lat": 34.8431,
+            "lng": 136.541,
+            "alt": 45,
+            "url": "http://en.wikipedia.org/wiki/Suzuka_Circuit"
         }
     }
 ];
