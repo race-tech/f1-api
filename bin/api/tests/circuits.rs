@@ -2,6 +2,8 @@ use shared::prelude::*;
 
 pub mod common;
 
+use common::models::StaticCircuit;
+
 #[test]
 fn test_get_circuit() {
     common::Test::<StaticCircuit, Circuit>::new(
@@ -116,80 +118,6 @@ fn test_get_circuits_by_year_and_round() {
     }))
     .test_ok();
 }
-
-#[derive(Debug)]
-struct StaticCircuit<'a> {
-    circuit_ref: &'a str,
-    name: &'a str,
-    location: Option<&'a str>,
-    country: Option<&'a str>,
-    lat: Option<f32>,
-    lng: Option<f32>,
-    alt: Option<i32>,
-    url: &'a str,
-}
-
-impl PartialEq<Circuit> for StaticCircuit<'_> {
-    fn eq(&self, other: &Circuit) -> bool {
-        self.circuit_ref.eq(&other.circuit_ref)
-            && self.name.eq(&other.name)
-            && self.location.eq(&other.location.as_deref())
-            && self.country.eq(&other.country.as_deref())
-            && self.alt.eq(&other.alt)
-            && self.lat.eq(&other.lat)
-            && self.lng.eq(&other.lng)
-            && self.url.eq(&other.url)
-    }
-}
-
-impl PartialEq<&Circuit> for StaticCircuit<'_> {
-    fn eq(&self, other: &&Circuit) -> bool {
-        self.circuit_ref.eq(&other.circuit_ref)
-            && self.name.eq(&other.name)
-            && self.location.eq(&other.location.as_deref())
-            && self.country.eq(&other.country.as_deref())
-            && self.alt.eq(&other.alt)
-            && self.lat.eq(&other.lat)
-            && self.lng.eq(&other.lng)
-            && self.url.eq(&other.url)
-    }
-}
-
-macro_rules! __circuits_impl {
-    (@internal [$($expr:expr),*];) => {
-        [$($expr),*]
-    };
-    (@internal [$($expr:expr),*]; $(,)?{
-        "circuit_ref": $ref:literal,
-        "name": $name:literal,
-        "location": $location:literal,
-        "country": $country:literal,
-        "lat": $lat:expr,
-        "lng": $lng:expr,
-        "alt": $alt:expr,
-        "url": $url:literal
-    } $($tt:tt)*) => {
-        __circuits_impl!(@internal [$($expr,)* StaticCircuit {
-            circuit_ref: $ref,
-            name: $name,
-            location: Some($location),
-            country: Some($country),
-            lat: Some($lat),
-            lng: Some($lng),
-            alt: Some($alt),
-            url: $url,
-        }]; $($tt)*)
-    };
-}
-
-macro_rules! circuits_from_json {
-    ($($tt:tt)*) => {
-        __circuits_impl!(@internal []; $($tt)*)
-    };
-}
-
-use __circuits_impl;
-use circuits_from_json;
 
 const SPA: StaticCircuit = StaticCircuit {
     circuit_ref: "spa",

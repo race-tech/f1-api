@@ -2,6 +2,8 @@ use shared::prelude::*;
 
 pub mod common;
 
+use common::models::StaticStanding;
+
 #[test]
 fn test_get_driver_standings() {
     common::Test::<'_, &[StaticStanding], Vec<InnerStandingResponse>>::new(
@@ -34,191 +36,7 @@ fn test_get_driver_standings_by_year() {
     .test_ok()
 }
 
-macro_rules! __inner_standings_impl {
-    (@internal [$($expr:expr),*];) => {
-        [$($expr),*]
-    };
-    (@driver {
-        "driver_ref": $ref:literal,
-        "number": $number:expr,
-        "code": $code:literal,
-        "forename": $forename:literal,
-        "surname": $surname:literal,
-        "dob": $dob:literal,
-        "nationality": $nationality:literal,
-        "url": $url:literal
-    }) => {
-        StaticDriver {
-            driver_ref: $ref,
-            number: Some($number),
-            code: Some($code),
-            forename: $forename,
-            surname: $surname,
-            dob: Some($dob),
-            nationality: Some($nationality),
-            url: $url,
-        }
-    };
-    (@driver {
-        "driver_ref": $ref:literal,
-        "code": $code:literal,
-        "forename": $forename:literal,
-        "surname": $surname:literal,
-        "dob": $dob:literal,
-        "nationality": $nationality:literal,
-        "url": $url:literal
-    }) => {
-        StaticDriver {
-            driver_ref: $ref,
-            number: None,
-            code: Some($code),
-            forename: $forename,
-            surname: $surname,
-            dob: Some($dob),
-            nationality: Some($nationality),
-            url: $url,
-        }
-    };
-    (@driver {
-        "driver_ref": $ref:literal,
-        "forename": $forename:literal,
-        "surname": $surname:literal,
-        "dob": $dob:literal,
-        "nationality": $nationality:literal,
-        "url": $url:literal
-    }) => {
-        StaticDriver {
-            driver_ref: $ref,
-            number: None,
-            code: None,
-            forename: $forename,
-            surname: $surname,
-            dob: Some($dob),
-            nationality: Some($nationality),
-            url: $url,
-        }
-    };
-    (@internal [$($expr:expr),*]; $(,)?{
-        "points": $points:expr,
-        "position": $position:expr,
-        "position_text": $position_text:literal,
-        "wins": $wins:expr,
-        "driver": $($dt:tt)*
-    } $($tt:tt)*) => {
-        __inner_standings_impl!(@internal [$($expr,)* StaticInnerStanding {
-            points: $points,
-            position: Some($position),
-            position_text: Some($position_text),
-            wins: $wins,
-            driver: __inner_standings_impl!(@driver $($dt)*)
-        }]; $($tt)*)
-    }
-}
-
-macro_rules! __standings_impl {
-    (@internal [$($expr:expr),*];) => {
-        [$($expr),*]
-    };
-    (@internal [$($expr:expr),*]; $(,)?{
-        "season": $season:expr,
-        "round": $round:expr,
-        "driver_standings": [$($st:tt)*]
-    } $($tt:tt)*) => {
-        __standings_impl!(@internal [$($expr,)* StaticStanding {
-            season: $season,
-            round: $round,
-            driver_standings: &__inner_standings_impl![@internal []; $($st)*],
-        }]; $($tt)*)
-    };
-}
-
-macro_rules! standings_from_json {
-    ($($tt:tt)*) => {
-        __standings_impl!(@internal []; $($tt)*)
-    };
-}
-
-use __inner_standings_impl;
-use __standings_impl;
-use standings_from_json;
-
-#[derive(Debug)]
-struct StaticStanding<'a> {
-    season: i32,
-    round: i32,
-    driver_standings: &'a [StaticInnerStanding<'a>],
-}
-
-#[derive(Debug)]
-struct StaticInnerStanding<'a> {
-    points: f32,
-    position: Option<i32>,
-    position_text: Option<&'a str>,
-    wins: i32,
-    driver: StaticDriver<'a>,
-}
-
-#[derive(Debug)]
-struct StaticDriver<'a> {
-    driver_ref: &'a str,
-    number: Option<i32>,
-    code: Option<&'a str>,
-    forename: &'a str,
-    surname: &'a str,
-    dob: Option<&'a str>,
-    nationality: Option<&'a str>,
-    url: &'a str,
-}
-
-impl PartialEq<InnerStandingResponse> for StaticStanding<'_> {
-    fn eq(&self, other: &InnerStandingResponse) -> bool {
-        if let InnerStandingResponse::Driver {
-            season,
-            round,
-            driver_standings,
-        } = other
-        {
-            self.season == *season
-                && self.round == *round
-                && self.driver_standings == driver_standings
-        } else {
-            false
-        }
-    }
-}
-
-impl PartialEq<Standings> for StaticInnerStanding<'_> {
-    fn eq(&self, other: &Standings) -> bool {
-        if let Standings::Driver { standing, driver } = other {
-            self.points == standing.points
-                && self.position == standing.position
-                && self.position_text == standing.position_text.as_deref()
-                && self.wins == standing.wins
-                && self.driver == driver
-        } else {
-            false
-        }
-    }
-}
-
-impl PartialEq<&Driver> for StaticDriver<'_> {
-    fn eq(&self, other: &&Driver) -> bool {
-        let dob = self
-            .dob
-            .map(|d| chrono::NaiveDate::parse_from_str(d, "%Y-%m-%d").unwrap());
-
-        self.driver_ref == other.driver_ref
-            && self.number == other.number
-            && self.code == other.code.as_deref()
-            && self.forename == other.forename
-            && self.surname == other.surname
-            && dob == other.dob
-            && self.nationality == other.nationality.as_deref()
-            && self.url == other.url
-    }
-}
-
-const ALL_STANDINGS: [StaticStanding; 1] = standings_from_json![
+const ALL_STANDINGS: [StaticStanding; 1] = driver_standings_from_json![
     {
         "season": 1950,
         "round": 7,
@@ -647,7 +465,7 @@ const ALL_STANDINGS: [StaticStanding; 1] = standings_from_json![
     }
 ];
 
-const SEASON_2023_STANDINGS: [StaticStanding; 1] = standings_from_json![
+const SEASON_2023_STANDINGS: [StaticStanding; 1] = driver_standings_from_json![
     {
         "season": 2023,
         "round": 22,

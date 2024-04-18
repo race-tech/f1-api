@@ -2,6 +2,8 @@ use shared::prelude::*;
 
 pub mod common;
 
+use common::models::StaticPitStops;
+
 #[test]
 fn test_get_pit_stops() {
     common::Test::<StaticPitStops, PitStopsResponse>::new(
@@ -32,143 +34,6 @@ fn test_get_pit_stops_by_page() {
         total: 50,
     }))
     .test_ok();
-}
-
-#[derive(Debug)]
-struct StaticPitStops<'a> {
-    url: Option<&'a str>,
-    race_name: &'a str,
-    date: &'a str,
-    time: Option<&'a str>,
-    circuit: StaticCircuit<'a>,
-    pit_stops: &'a [StaticPitStop<'a>],
-}
-
-#[derive(Debug)]
-struct StaticCircuit<'a> {
-    circuit_ref: &'a str,
-    name: &'a str,
-    location: Option<&'a str>,
-    country: Option<&'a str>,
-    lat: Option<f32>,
-    lng: Option<f32>,
-    alt: Option<i32>,
-    url: &'a str,
-}
-
-#[derive(Debug)]
-struct StaticPitStop<'a> {
-    driver_ref: &'a str,
-    lap: i32,
-    stop: i32,
-    time: &'a str,
-    duration: Option<&'a str>,
-}
-
-impl PartialEq<PitStopsResponse> for StaticPitStops<'_> {
-    fn eq(&self, other: &PitStopsResponse) -> bool {
-        let date = chrono::NaiveDate::parse_from_str(self.date, "%Y-%m-%d").unwrap();
-        let time = self
-            .time
-            .map(|t| chrono::NaiveTime::parse_from_str(t, "%H:%M:%S").unwrap());
-
-        self.url == other.url.as_deref()
-            && self.race_name == other.race_name
-            && date == other.date
-            && time == other.time
-            && self.circuit == other.circuit
-            && self.pit_stops == other.pit_stops
-    }
-}
-
-impl PartialEq<Circuit> for StaticCircuit<'_> {
-    fn eq(&self, other: &Circuit) -> bool {
-        self.circuit_ref.eq(&other.circuit_ref)
-            && self.name.eq(&other.name)
-            && self.location.eq(&other.location.as_deref())
-            && self.country.eq(&other.country.as_deref())
-            && self.alt.eq(&other.alt)
-            && self.lat.eq(&other.lat)
-            && self.lng.eq(&other.lng)
-            && self.url.eq(&other.url)
-    }
-}
-
-impl PartialEq<PitStop> for StaticPitStop<'_> {
-    fn eq(&self, other: &PitStop) -> bool {
-        let time = chrono::NaiveTime::parse_from_str(self.time, "%H:%M:%S").unwrap();
-
-        self.driver_ref == other.driver_ref
-            && self.lap == other.lap
-            && self.stop == other.stop
-            && time == other.time
-            && self.duration == other.duration.as_deref()
-    }
-}
-
-macro_rules! __stops_impl {
-    (@stops [$($expr:expr),*];) => {
-        [$($expr),*]
-    };
-    (@stops [$($expr:expr),*]; $(,)?{
-        "driver_ref": $ref:literal,
-        "lap": $lap:expr,
-        "stop": $stop:expr,
-        "time": $time:literal,
-        "duration": $duration:literal
-    } $($tt:tt)*) => {
-        __stops_impl!(@stops [$($expr,)* StaticPitStop {
-            driver_ref: $ref,
-            lap: $lap,
-            stop: $stop,
-            time: $time,
-            duration: Some($duration),
-        }]; $($tt)*)
-    };
-    (@circuit
-        "circuit_ref": $ref:literal,
-        "name": $name:literal,
-        "location": $location:literal,
-        "country": $country:literal,
-        "lat": $lat:expr,
-        "lng": $lng:expr,
-        "alt": $alt:expr,
-        "url": $url:literal
-    ) => {
-        StaticCircuit {
-            circuit_ref: $ref,
-            name: $name,
-            location: Some($location),
-            country: Some($country),
-            lat: Some($lat),
-            lng: Some($lng),
-            alt: Some($alt),
-            url: $url,
-        }
-    };
-    (@internal {
-        "url": $url:literal,
-        "race_name": $name:literal,
-        "date": $date:literal,
-        "time": $time:literal,
-        "circuit": {$($ct:tt)*},
-        "pit_stops": [$($tt:tt)*]
-    }) => {
-        StaticPitStops {
-            url: Some($url),
-            race_name: $name,
-            date: $date,
-            time: Some($time),
-            circuit: __stops_impl!(@circuit $($ct)*),
-            pit_stops: &__stops_impl!(@stops []; $($tt)*),
-        }
-    };
-}
-
-macro_rules! stops_from_json {
-    ($($tt:tt)*) => {
-        __stops_impl!(@internal $($tt)*)
-    };
 }
 
 const BAHRAIN_2023_STOPS_PAGE_1: StaticPitStops = stops_from_json! {

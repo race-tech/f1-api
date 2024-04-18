@@ -2,6 +2,8 @@ use shared::prelude::*;
 
 pub mod common;
 
+use common::models::StaticRace;
+
 #[test]
 fn test_get_races_by_year() {
     common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
@@ -37,11 +39,41 @@ fn test_get_races_by_year_and_round() {
 #[test]
 fn test_get_races_by_driver_ref() {
     common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
-        // I query also page 4 because previous races don't hold free practice timings
-        // so parsing from json become annoying
-        "/api/f1/races?driver_ref=leclerc&page=4",
+        "/api/f1/races?driver_ref=leclerc",
         Series::F1,
         &LECLERC_RACES,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 5,
+        total: 129,
+    }))
+    .test_ok();
+}
+
+#[test]
+fn test_get_races_by_constructor_ref() {
+    common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
+        "/api/f1/races?constructor_ref=ferrari",
+        Series::F1,
+        &FERRARI_RACES,
+    )
+    .pagination(Some(Pagination {
+        limit: 30,
+        page: 1,
+        max_page: 36,
+        total: 1080,
+    }))
+    .test_ok();
+}
+
+#[test]
+fn test_get_races_by_driver_ref_and_page() {
+    common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
+        "/api/f1/races?driver_ref=leclerc&page=4",
+        Series::F1,
+        &LECLERC_RACES_PAGE_4,
     )
     .pagination(Some(Pagination {
         limit: 30,
@@ -53,13 +85,11 @@ fn test_get_races_by_driver_ref() {
 }
 
 #[test]
-fn test_get_races_by_constructor_ref() {
+fn test_get_races_by_constructor_ref_and_page() {
     common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
-        // I query also page 36 because previous races don't hold free practice timings
-        // so parsing from json become annoying
         "/api/f1/races?constructor_ref=ferrari&page=36",
         Series::F1,
-        &FERRARI_RACES,
+        &FERRARI_RACES_PAGE_36,
     )
     .pagination(Some(Pagination {
         limit: 30,
@@ -68,208 +98,6 @@ fn test_get_races_by_constructor_ref() {
         total: 1080,
     }))
     .test_ok();
-}
-
-#[derive(Debug)]
-struct StaticRace<'a> {
-    season: i32,
-    round: i32,
-    name: &'a str,
-    date: &'a str,
-    time: Option<&'a str>,
-    url: Option<&'a str>,
-    fp1: Option<StaticDateAndTime<'a>>,
-    fp2: Option<StaticDateAndTime<'a>>,
-    fp3: Option<StaticDateAndTime<'a>>,
-    quali: Option<StaticDateAndTime<'a>>,
-    sprint: Option<StaticDateAndTime<'a>>,
-
-    circuit: StaticCircuit<'a>,
-}
-
-#[derive(Debug)]
-struct StaticCircuit<'a> {
-    circuit_ref: &'a str,
-    name: &'a str,
-    location: Option<&'a str>,
-    country: Option<&'a str>,
-    lat: Option<f32>,
-    lng: Option<f32>,
-    alt: Option<i32>,
-    url: &'a str,
-}
-
-#[derive(Debug)]
-struct StaticDateAndTime<'a> {
-    date: &'a str,
-    time: &'a str,
-}
-
-fn compare<T, U>(t: Option<T>, u: Option<U>) -> bool
-where
-    T: PartialEq<U>,
-{
-    match (t, u) {
-        (Some(t), Some(u)) => t == u,
-        (None, None) => true,
-        _ => false,
-    }
-}
-
-impl PartialEq<Circuit> for StaticCircuit<'_> {
-    fn eq(&self, other: &Circuit) -> bool {
-        self.circuit_ref.eq(&other.circuit_ref)
-            && self.name.eq(&other.name)
-            && self.location.eq(&other.location.as_deref())
-            && self.country.eq(&other.country.as_deref())
-            && self.alt.eq(&other.alt)
-            && self.lat.eq(&other.lat)
-            && self.lng.eq(&other.lng)
-            && self.url.eq(&other.url)
-    }
-}
-
-impl PartialEq<RaceResponse> for StaticRace<'_> {
-    fn eq(&self, other: &RaceResponse) -> bool {
-        let circuit = &other.circuit;
-        let other = &other.race;
-
-        self.season == other.season
-            && self.round == other.round
-            && self.name == other.name
-            && common::parse_date(self.date) == other.date
-            && self.time.map(common::parse_time) == other.time
-            && self.url == other.url.as_deref()
-            && compare(self.fp1.as_ref(), other.fp1.as_ref())
-            && compare(self.fp2.as_ref(), other.fp2.as_ref())
-            && compare(self.fp3.as_ref(), other.fp3.as_ref())
-            && compare(self.quali.as_ref(), other.quali.as_ref())
-            && compare(self.sprint.as_ref(), other.sprint.as_ref())
-            && self.circuit == *circuit
-    }
-}
-
-impl PartialEq<DateAndTime> for StaticDateAndTime<'_> {
-    fn eq(&self, other: &DateAndTime) -> bool {
-        let date = common::parse_date(self.date);
-        let time = common::parse_time(self.time);
-
-        date == other.date && time == other.time
-    }
-}
-
-macro_rules! __races_impl {
-    (@fields [$($fields:tt)*];
-        "season": $season:expr,
-        "round": $round:expr,
-        "name": $name:literal,
-        "date": $date:literal,
-        $($tt:tt)*
-    ) => {
-        __races_impl!(@fields [$($fields)*
-            season: $season,
-            round: $round,
-            name: $name,
-            date: $date,
-        ]; $($tt)*)
-    };
-    (@fields [$($fields:tt)*];
-        "time": $time:literal,
-        $($tt:tt)*
-    ) => {
-        __races_impl!(@fields [$($fields)* time: Some($time),]; $($tt)*)
-    };
-    (@fields [$($fields:tt)*];
-        "url": $url:literal,
-        $($tt:tt)*
-    ) => {
-        __races_impl!(@fields [$($fields)* url: Some($url),]; $($tt)*)
-    };
-    (@fields [$($fields:tt)*];
-        "fp1": {
-            "date": $date:literal,
-            "time": $time:literal
-        },
-        $($tt:tt)*
-    ) => {
-        __races_impl!(@fields [$($fields)* fp1: Some(StaticDateAndTime { date: $date, time: $time }),]; $($tt)*)
-    };
-    (@fields [$($fields:tt)*];
-        "fp2": {
-            "date": $date:literal,
-            "time": $time:literal
-        },
-        $($tt:tt)*
-    ) => {
-        __races_impl!(@fields [$($fields)* fp2: Some(StaticDateAndTime { date: $date, time: $time }),]; $($tt)*)
-    };
-    (@fields [$($fields:tt)*];
-        "fp3": {
-            "date": $date:literal,
-            "time": $time:literal
-        },
-        $($tt:tt)*
-    ) => {
-        __races_impl!(@fields [$($fields)* fp3: Some(StaticDateAndTime { date: $date, time: $time }), sprint: None,]; $($tt)*)
-    };
-    (@fields [$($fields:tt)*];
-        "quali": {
-            "date": $date:literal,
-            "time": $time:literal
-        },
-        $($tt:tt)*
-    ) => {
-        __races_impl!(@fields [$($fields)* quali: Some(StaticDateAndTime { date: $date, time: $time }),]; $($tt)*)
-    };
-    (@fields [$($fields:tt)*];
-        "sprint": {
-            "date": $date:literal,
-            "time": $time:literal
-        },
-        $($tt:tt)*
-    ) => {
-        __races_impl!(@fields [$($fields)* sprint: Some(StaticDateAndTime { date: $date, time: $time }), fp3: None,]; $($tt)*)
-    };
-    (@fields [$($fields:tt)*];
-        "circuit": {
-            "circuit_ref": $ref:literal,
-            "name": $name:literal,
-            "location": $location:literal,
-            "country": $country:literal,
-            "lat": $lat:expr,
-            "lng": $lng:expr,
-            "alt": $alt:expr,
-            "url": $url:literal
-        }
-    ) => {
-        StaticRace {
-            $($fields)*
-            circuit: StaticCircuit {
-                circuit_ref: $ref,
-                name: $name,
-                location: Some($location),
-                country: Some($country),
-                lat: Some($lat),
-                lng: Some($lng),
-                alt: Some($alt),
-                url: $url,
-            },
-        }
-    };
-    (@internal [$($expr:expr),*];) => {
-        [$($expr),*]
-    };
-    (@internal [$($expr:expr),*]; $(,)?{
-        $($fields:tt)*
-    } $($tt:tt)*) => {
-        __races_impl!(@internal [$($expr,)* __races_impl!(@fields []; $($fields)*)]; $($tt)*)
-    }
-}
-
-macro_rules! races_from_json {
-    ($($tt:tt)*) => {
-        __races_impl!(@internal []; $($tt)*)
-    };
 }
 
 const ALL_2024_RACES: [StaticRace; 24] = races_from_json![
@@ -1128,7 +956,7 @@ const BAHRAIN_2024_ROUND_1: [StaticRace; 1] = races_from_json![
     }
 ];
 
-const LECLERC_RACES: [StaticRace; 30] = races_from_json![
+const LECLERC_RACES_PAGE_4: [StaticRace; 30] = races_from_json![
     {
         "season": 2022,
         "round": 10,
@@ -2151,7 +1979,7 @@ const LECLERC_RACES: [StaticRace; 30] = races_from_json![
     }
 ];
 
-const FERRARI_RACES: [StaticRace; 30] = races_from_json![
+const FERRARI_RACES_PAGE_36: [StaticRace; 30] = races_from_json![
     {
         "season": 2022,
         "round": 19,
@@ -3170,6 +2998,1062 @@ const FERRARI_RACES: [StaticRace; 30] = races_from_json![
             "lng": 136.541,
             "alt": 45,
             "url": "http://en.wikipedia.org/wiki/Suzuka_Circuit"
+        }
+    }
+];
+
+const LECLERC_RACES: [StaticRace; 30] = races_from_json![
+    {
+        "season": 2018,
+        "round": 1,
+        "name": "Australian Grand Prix",
+        "date": "2018-03-25",
+        "time": "05:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Australian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "albert_park",
+            "name": "Albert Park Grand Prix Circuit",
+            "location": "Melbourne",
+            "country": "Australia",
+            "lat": -37.8497,
+            "lng": 144.968,
+            "alt": 10,
+            "url": "http://en.wikipedia.org/wiki/Melbourne_Grand_Prix_Circuit"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 2,
+        "name": "Bahrain Grand Prix",
+        "date": "2018-04-08",
+        "time": "15:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Bahrain_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "bahrain",
+            "name": "Bahrain International Circuit",
+            "location": "Sakhir",
+            "country": "Bahrain",
+            "lat": 26.0325,
+            "lng": 50.5106,
+            "alt": 7,
+            "url": "http://en.wikipedia.org/wiki/Bahrain_International_Circuit"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 3,
+        "name": "Chinese Grand Prix",
+        "date": "2018-04-15",
+        "time": "06:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Chinese_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "shanghai",
+            "name": "Shanghai International Circuit",
+            "location": "Shanghai",
+            "country": "China",
+            "lat": 31.3389,
+            "lng": 121.22,
+            "alt": 5,
+            "url": "http://en.wikipedia.org/wiki/Shanghai_International_Circuit"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 4,
+        "name": "Azerbaijan Grand Prix",
+        "date": "2018-04-29",
+        "time": "12:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Azerbaijan_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "baku",
+            "name": "Baku City Circuit",
+            "location": "Baku",
+            "country": "Azerbaijan",
+            "lat": 40.3725,
+            "lng": 49.8533,
+            "alt": -7,
+            "url": "http://en.wikipedia.org/wiki/Baku_City_Circuit"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 5,
+        "name": "Spanish Grand Prix",
+        "date": "2018-05-13",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Spanish_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "catalunya",
+            "name": "Circuit de Barcelona-Catalunya",
+            "location": "Montmeló",
+            "country": "Spain",
+            "lat": 41.57,
+            "lng": 2.26111,
+            "alt": 109,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Barcelona-Catalunya"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 6,
+        "name": "Monaco Grand Prix",
+        "date": "2018-05-27",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Monaco_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "monaco",
+            "name": "Circuit de Monaco",
+            "location": "Monte-Carlo",
+            "country": "Monaco",
+            "lat": 43.7347,
+            "lng": 7.42056,
+            "alt": 7,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Monaco"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 7,
+        "name": "Canadian Grand Prix",
+        "date": "2018-06-10",
+        "time": "18:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Canadian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "villeneuve",
+            "name": "Circuit Gilles Villeneuve",
+            "location": "Montreal",
+            "country": "Canada",
+            "lat": 45.5,
+            "lng": -73.5228,
+            "alt": 13,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Gilles_Villeneuve"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 8,
+        "name": "French Grand Prix",
+        "date": "2018-06-24",
+        "time": "14:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_French_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "ricard",
+            "name": "Circuit Paul Ricard",
+            "location": "Le Castellet",
+            "country": "France",
+            "lat": 43.2506,
+            "lng": 5.79167,
+            "alt": 432,
+            "url": "http://en.wikipedia.org/wiki/Paul_Ricard_Circuit"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 9,
+        "name": "Austrian Grand Prix",
+        "date": "2018-07-01",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Austrian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "red_bull_ring",
+            "name": "Red Bull Ring",
+            "location": "Spielberg",
+            "country": "Austria",
+            "lat": 47.2197,
+            "lng": 14.7647,
+            "alt": 678,
+            "url": "http://en.wikipedia.org/wiki/Red_Bull_Ring"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 10,
+        "name": "British Grand Prix",
+        "date": "2018-07-08",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_British_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "silverstone",
+            "name": "Silverstone Circuit",
+            "location": "Silverstone",
+            "country": "UK",
+            "lat": 52.0786,
+            "lng": -1.01694,
+            "alt": 153,
+            "url": "http://en.wikipedia.org/wiki/Silverstone_Circuit"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 11,
+        "name": "German Grand Prix",
+        "date": "2018-07-22",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_German_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "hockenheimring",
+            "name": "Hockenheimring",
+            "location": "Hockenheim",
+            "country": "Germany",
+            "lat": 49.3278,
+            "lng": 8.56583,
+            "alt": 103,
+            "url": "http://en.wikipedia.org/wiki/Hockenheimring"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 12,
+        "name": "Hungarian Grand Prix",
+        "date": "2018-07-29",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Hungarian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "hungaroring",
+            "name": "Hungaroring",
+            "location": "Budapest",
+            "country": "Hungary",
+            "lat": 47.5789,
+            "lng": 19.2486,
+            "alt": 264,
+            "url": "http://en.wikipedia.org/wiki/Hungaroring"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 13,
+        "name": "Belgian Grand Prix",
+        "date": "2018-08-26",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Belgian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "spa",
+            "name": "Circuit de Spa-Francorchamps",
+            "location": "Spa",
+            "country": "Belgium",
+            "lat": 50.4372,
+            "lng": 5.97139,
+            "alt": 401,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 14,
+        "name": "Italian Grand Prix",
+        "date": "2018-09-02",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Italian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "monza",
+            "name": "Autodromo Nazionale di Monza",
+            "location": "Monza",
+            "country": "Italy",
+            "lat": 45.6156,
+            "lng": 9.28111,
+            "alt": 162,
+            "url": "http://en.wikipedia.org/wiki/Autodromo_Nazionale_Monza"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 15,
+        "name": "Singapore Grand Prix",
+        "date": "2018-09-16",
+        "time": "12:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Singapore_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "marina_bay",
+            "name": "Marina Bay Street Circuit",
+            "location": "Marina Bay",
+            "country": "Singapore",
+            "lat": 1.2914,
+            "lng": 103.864,
+            "alt": 18,
+            "url": "http://en.wikipedia.org/wiki/Marina_Bay_Street_Circuit"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 16,
+        "name": "Russian Grand Prix",
+        "date": "2018-09-30",
+        "time": "11:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Russian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "sochi",
+            "name": "Sochi Autodrom",
+            "location": "Sochi",
+            "country": "Russia",
+            "lat": 43.4057,
+            "lng": 39.9578,
+            "alt": 2,
+            "url": "http://en.wikipedia.org/wiki/Sochi_Autodrom"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 17,
+        "name": "Japanese Grand Prix",
+        "date": "2018-10-07",
+        "time": "05:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Japanese_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "suzuka",
+            "name": "Suzuka Circuit",
+            "location": "Suzuka",
+            "country": "Japan",
+            "lat": 34.8431,
+            "lng": 136.541,
+            "alt": 45,
+            "url": "http://en.wikipedia.org/wiki/Suzuka_Circuit"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 18,
+        "name": "United States Grand Prix",
+        "date": "2018-10-21",
+        "time": "18:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_United_States_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "americas",
+            "name": "Circuit of the Americas",
+            "location": "Austin",
+            "country": "USA",
+            "lat": 30.1328,
+            "lng": -97.6411,
+            "alt": 161,
+            "url": "http://en.wikipedia.org/wiki/Circuit_of_the_Americas"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 19,
+        "name": "Mexican Grand Prix",
+        "date": "2018-10-28",
+        "time": "19:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Mexican_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "rodriguez",
+            "name": "Autódromo Hermanos Rodríguez",
+            "location": "Mexico City",
+            "country": "Mexico",
+            "lat": 19.4042,
+            "lng": -99.0907,
+            "alt": 2227,
+            "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Hermanos_Rodr%C3%ADguez"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 20,
+        "name": "Brazilian Grand Prix",
+        "date": "2018-11-11",
+        "time": "17:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Brazilian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "interlagos",
+            "name": "Autódromo José Carlos Pace",
+            "location": "São Paulo",
+            "country": "Brazil",
+            "lat": -23.7036,
+            "lng": -46.6997,
+            "alt": 785,
+            "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Jos%C3%A9_Carlos_Pace"
+        }
+    },
+    {
+        "season": 2018,
+        "round": 21,
+        "name": "Abu Dhabi Grand Prix",
+        "date": "2018-11-25",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2018_Abu_Dhabi_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "yas_marina",
+            "name": "Yas Marina Circuit",
+            "location": "Abu Dhabi",
+            "country": "UAE",
+            "lat": 24.4672,
+            "lng": 54.6031,
+            "alt": 3,
+            "url": "http://en.wikipedia.org/wiki/Yas_Marina_Circuit"
+        }
+    },
+    {
+        "season": 2019,
+        "round": 1,
+        "name": "Australian Grand Prix",
+        "date": "2019-03-17",
+        "time": "05:10:00",
+        "url": "http://en.wikipedia.org/wiki/2019_Australian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "albert_park",
+            "name": "Albert Park Grand Prix Circuit",
+            "location": "Melbourne",
+            "country": "Australia",
+            "lat": -37.8497,
+            "lng": 144.968,
+            "alt": 10,
+            "url": "http://en.wikipedia.org/wiki/Melbourne_Grand_Prix_Circuit"
+        }
+    },
+    {
+        "season": 2019,
+        "round": 2,
+        "name": "Bahrain Grand Prix",
+        "date": "2019-03-31",
+        "time": "15:10:00",
+        "url": "http://en.wikipedia.org/wiki/2019_Bahrain_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "bahrain",
+            "name": "Bahrain International Circuit",
+            "location": "Sakhir",
+            "country": "Bahrain",
+            "lat": 26.0325,
+            "lng": 50.5106,
+            "alt": 7,
+            "url": "http://en.wikipedia.org/wiki/Bahrain_International_Circuit"
+        }
+    },
+    {
+        "season": 2019,
+        "round": 3,
+        "name": "Chinese Grand Prix",
+        "date": "2019-04-14",
+        "time": "06:10:00",
+        "url": "http://en.wikipedia.org/wiki/2019_Chinese_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "shanghai",
+            "name": "Shanghai International Circuit",
+            "location": "Shanghai",
+            "country": "China",
+            "lat": 31.3389,
+            "lng": 121.22,
+            "alt": 5,
+            "url": "http://en.wikipedia.org/wiki/Shanghai_International_Circuit"
+        }
+    },
+    {
+        "season": 2019,
+        "round": 4,
+        "name": "Azerbaijan Grand Prix",
+        "date": "2019-04-28",
+        "time": "12:10:00",
+        "url": "http://en.wikipedia.org/wiki/2019_Azerbaijan_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "baku",
+            "name": "Baku City Circuit",
+            "location": "Baku",
+            "country": "Azerbaijan",
+            "lat": 40.3725,
+            "lng": 49.8533,
+            "alt": -7,
+            "url": "http://en.wikipedia.org/wiki/Baku_City_Circuit"
+        }
+    },
+    {
+        "season": 2019,
+        "round": 5,
+        "name": "Spanish Grand Prix",
+        "date": "2019-05-12",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2019_Spanish_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "catalunya",
+            "name": "Circuit de Barcelona-Catalunya",
+            "location": "Montmeló",
+            "country": "Spain",
+            "lat": 41.57,
+            "lng": 2.26111,
+            "alt": 109,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Barcelona-Catalunya"
+        }
+    },
+    {
+        "season": 2019,
+        "round": 6,
+        "name": "Monaco Grand Prix",
+        "date": "2019-05-26",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2019_Monaco_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "monaco",
+            "name": "Circuit de Monaco",
+            "location": "Monte-Carlo",
+            "country": "Monaco",
+            "lat": 43.7347,
+            "lng": 7.42056,
+            "alt": 7,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Monaco"
+        }
+    },
+    {
+        "season": 2019,
+        "round": 7,
+        "name": "Canadian Grand Prix",
+        "date": "2019-06-09",
+        "time": "18:10:00",
+        "url": "http://en.wikipedia.org/wiki/2019_Canadian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "villeneuve",
+            "name": "Circuit Gilles Villeneuve",
+            "location": "Montreal",
+            "country": "Canada",
+            "lat": 45.5,
+            "lng": -73.5228,
+            "alt": 13,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Gilles_Villeneuve"
+        }
+    },
+    {
+        "season": 2019,
+        "round": 8,
+        "name": "French Grand Prix",
+        "date": "2019-06-23",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2019_French_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "ricard",
+            "name": "Circuit Paul Ricard",
+            "location": "Le Castellet",
+            "country": "France",
+            "lat": 43.2506,
+            "lng": 5.79167,
+            "alt": 432,
+            "url": "http://en.wikipedia.org/wiki/Paul_Ricard_Circuit"
+        }
+    },
+    {
+        "season": 2019,
+        "round": 9,
+        "name": "Austrian Grand Prix",
+        "date": "2019-06-30",
+        "time": "13:10:00",
+        "url": "http://en.wikipedia.org/wiki/2019_Austrian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "red_bull_ring",
+            "name": "Red Bull Ring",
+            "location": "Spielberg",
+            "country": "Austria",
+            "lat": 47.2197,
+            "lng": 14.7647,
+            "alt": 678,
+            "url": "http://en.wikipedia.org/wiki/Red_Bull_Ring"
+        }
+    }
+];
+
+const FERRARI_RACES: [StaticRace; 30] = races_from_json![
+    {
+        "season": 1950,
+        "round": 2,
+        "name": "Monaco Grand Prix",
+        "date": "1950-05-21",
+        "url": "http://en.wikipedia.org/wiki/1950_Monaco_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "monaco",
+            "name": "Circuit de Monaco",
+            "location": "Monte-Carlo",
+            "country": "Monaco",
+            "lat": 43.7347,
+            "lng": 7.42056,
+            "alt": 7,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Monaco"
+        }
+    },
+    {
+        "season": 1950,
+        "round": 4,
+        "name": "Swiss Grand Prix",
+        "date": "1950-06-04",
+        "url": "http://en.wikipedia.org/wiki/1950_Swiss_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "bremgarten",
+            "name": "Circuit Bremgarten",
+            "location": "Bern",
+            "country": "Switzerland",
+            "lat": 46.9589,
+            "lng": 7.40194,
+            "alt": 551,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Bremgarten"
+        }
+    },
+    {
+        "season": 1950,
+        "round": 5,
+        "name": "Belgian Grand Prix",
+        "date": "1950-06-18",
+        "url": "http://en.wikipedia.org/wiki/1950_Belgian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "spa",
+            "name": "Circuit de Spa-Francorchamps",
+            "location": "Spa",
+            "country": "Belgium",
+            "lat": 50.4372,
+            "lng": 5.97139,
+            "alt": 401,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps"
+        }
+    },
+    {
+        "season": 1950,
+        "round": 6,
+        "name": "French Grand Prix",
+        "date": "1950-07-02",
+        "url": "http://en.wikipedia.org/wiki/1950_French_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "reims",
+            "name": "Reims-Gueux",
+            "location": "Reims",
+            "country": "France",
+            "lat": 49.2542,
+            "lng": 3.93083,
+            "alt": 88,
+            "url": "http://en.wikipedia.org/wiki/Reims-Gueux"
+        }
+    },
+    {
+        "season": 1950,
+        "round": 7,
+        "name": "Italian Grand Prix",
+        "date": "1950-09-03",
+        "url": "http://en.wikipedia.org/wiki/1950_Italian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "monza",
+            "name": "Autodromo Nazionale di Monza",
+            "location": "Monza",
+            "country": "Italy",
+            "lat": 45.6156,
+            "lng": 9.28111,
+            "alt": 162,
+            "url": "http://en.wikipedia.org/wiki/Autodromo_Nazionale_Monza"
+        }
+    },
+    {
+        "season": 1951,
+        "round": 1,
+        "name": "Swiss Grand Prix",
+        "date": "1951-05-27",
+        "url": "http://en.wikipedia.org/wiki/1951_Swiss_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "bremgarten",
+            "name": "Circuit Bremgarten",
+            "location": "Bern",
+            "country": "Switzerland",
+            "lat": 46.9589,
+            "lng": 7.40194,
+            "alt": 551,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Bremgarten"
+        }
+    },
+    {
+        "season": 1951,
+        "round": 3,
+        "name": "Belgian Grand Prix",
+        "date": "1951-06-17",
+        "url": "http://en.wikipedia.org/wiki/1951_Belgian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "spa",
+            "name": "Circuit de Spa-Francorchamps",
+            "location": "Spa",
+            "country": "Belgium",
+            "lat": 50.4372,
+            "lng": 5.97139,
+            "alt": 401,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps"
+        }
+    },
+    {
+        "season": 1951,
+        "round": 4,
+        "name": "French Grand Prix",
+        "date": "1951-07-01",
+        "url": "http://en.wikipedia.org/wiki/1951_French_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "reims",
+            "name": "Reims-Gueux",
+            "location": "Reims",
+            "country": "France",
+            "lat": 49.2542,
+            "lng": 3.93083,
+            "alt": 88,
+            "url": "http://en.wikipedia.org/wiki/Reims-Gueux"
+        }
+    },
+    {
+        "season": 1951,
+        "round": 5,
+        "name": "British Grand Prix",
+        "date": "1951-07-14",
+        "url": "http://en.wikipedia.org/wiki/1951_British_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "silverstone",
+            "name": "Silverstone Circuit",
+            "location": "Silverstone",
+            "country": "UK",
+            "lat": 52.0786,
+            "lng": -1.01694,
+            "alt": 153,
+            "url": "http://en.wikipedia.org/wiki/Silverstone_Circuit"
+        }
+    },
+    {
+        "season": 1951,
+        "round": 6,
+        "name": "German Grand Prix",
+        "date": "1951-07-29",
+        "url": "http://en.wikipedia.org/wiki/1951_German_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "nurburgring",
+            "name": "Nürburgring",
+            "location": "Nürburg",
+            "country": "Germany",
+            "lat": 50.3356,
+            "lng": 6.9475,
+            "alt": 578,
+            "url": "http://en.wikipedia.org/wiki/N%C3%BCrburgring"
+        }
+    },
+    {
+        "season": 1951,
+        "round": 7,
+        "name": "Italian Grand Prix",
+        "date": "1951-09-16",
+        "url": "http://en.wikipedia.org/wiki/1951_Italian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "monza",
+            "name": "Autodromo Nazionale di Monza",
+            "location": "Monza",
+            "country": "Italy",
+            "lat": 45.6156,
+            "lng": 9.28111,
+            "alt": 162,
+            "url": "http://en.wikipedia.org/wiki/Autodromo_Nazionale_Monza"
+        }
+    },
+    {
+        "season": 1951,
+        "round": 8,
+        "name": "Spanish Grand Prix",
+        "date": "1951-10-28",
+        "url": "http://en.wikipedia.org/wiki/1951_Spanish_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "pedralbes",
+            "name": "Circuit de Pedralbes",
+            "location": "Barcelona",
+            "country": "Spain",
+            "lat": 41.3903,
+            "lng": 2.11667,
+            "alt": 85,
+            "url": "http://en.wikipedia.org/wiki/Pedralbes_Circuit"
+        }
+    },
+    {
+        "season": 1952,
+        "round": 1,
+        "name": "Swiss Grand Prix",
+        "date": "1952-05-18",
+        "url": "http://en.wikipedia.org/wiki/1952_Swiss_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "bremgarten",
+            "name": "Circuit Bremgarten",
+            "location": "Bern",
+            "country": "Switzerland",
+            "lat": 46.9589,
+            "lng": 7.40194,
+            "alt": 551,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Bremgarten"
+        }
+    },
+    {
+        "season": 1952,
+        "round": 2,
+        "name": "Indianapolis 500",
+        "date": "1952-05-30",
+        "url": "http://en.wikipedia.org/wiki/1952_Indianapolis_500",
+        "circuit": {
+            "circuit_ref": "indianapolis",
+            "name": "Indianapolis Motor Speedway",
+            "location": "Indianapolis",
+            "country": "USA",
+            "lat": 39.795,
+            "lng": -86.2347,
+            "alt": 223,
+            "url": "http://en.wikipedia.org/wiki/Indianapolis_Motor_Speedway"
+        }
+    },
+    {
+        "season": 1952,
+        "round": 3,
+        "name": "Belgian Grand Prix",
+        "date": "1952-06-22",
+        "url": "http://en.wikipedia.org/wiki/1952_Belgian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "spa",
+            "name": "Circuit de Spa-Francorchamps",
+            "location": "Spa",
+            "country": "Belgium",
+            "lat": 50.4372,
+            "lng": 5.97139,
+            "alt": 401,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps"
+        }
+    },
+    {
+        "season": 1952,
+        "round": 4,
+        "name": "French Grand Prix",
+        "date": "1952-07-06",
+        "url": "http://en.wikipedia.org/wiki/1952_French_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "essarts",
+            "name": "Rouen-Les-Essarts",
+            "location": "Rouen",
+            "country": "France",
+            "lat": 49.3306,
+            "lng": 1.00458,
+            "alt": 81,
+            "url": "http://en.wikipedia.org/wiki/Rouen-Les-Essarts"
+        }
+    },
+    {
+        "season": 1952,
+        "round": 5,
+        "name": "British Grand Prix",
+        "date": "1952-07-19",
+        "url": "http://en.wikipedia.org/wiki/1952_British_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "silverstone",
+            "name": "Silverstone Circuit",
+            "location": "Silverstone",
+            "country": "UK",
+            "lat": 52.0786,
+            "lng": -1.01694,
+            "alt": 153,
+            "url": "http://en.wikipedia.org/wiki/Silverstone_Circuit"
+        }
+    },
+    {
+        "season": 1952,
+        "round": 6,
+        "name": "German Grand Prix",
+        "date": "1952-08-03",
+        "url": "http://en.wikipedia.org/wiki/1952_German_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "nurburgring",
+            "name": "Nürburgring",
+            "location": "Nürburg",
+            "country": "Germany",
+            "lat": 50.3356,
+            "lng": 6.9475,
+            "alt": 578,
+            "url": "http://en.wikipedia.org/wiki/N%C3%BCrburgring"
+        }
+    },
+    {
+        "season": 1952,
+        "round": 7,
+        "name": "Dutch Grand Prix",
+        "date": "1952-08-17",
+        "url": "http://en.wikipedia.org/wiki/1952_Dutch_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "zandvoort",
+            "name": "Circuit Park Zandvoort",
+            "location": "Zandvoort",
+            "country": "Netherlands",
+            "lat": 52.3888,
+            "lng": 4.54092,
+            "alt": 6,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Zandvoort"
+        }
+    },
+    {
+        "season": 1952,
+        "round": 8,
+        "name": "Italian Grand Prix",
+        "date": "1952-09-07",
+        "url": "http://en.wikipedia.org/wiki/1952_Italian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "monza",
+            "name": "Autodromo Nazionale di Monza",
+            "location": "Monza",
+            "country": "Italy",
+            "lat": 45.6156,
+            "lng": 9.28111,
+            "alt": 162,
+            "url": "http://en.wikipedia.org/wiki/Autodromo_Nazionale_Monza"
+        }
+    },
+    {
+        "season": 1953,
+        "round": 1,
+        "name": "Argentine Grand Prix",
+        "date": "1953-01-18",
+        "url": "http://en.wikipedia.org/wiki/1953_Argentine_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "galvez",
+            "name": "Autódromo Juan y Oscar Gálvez",
+            "location": "Buenos Aires",
+            "country": "Argentina",
+            "lat": -34.6943,
+            "lng": -58.4593,
+            "alt": 8,
+            "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Oscar_Alfredo_G%C3%A1lvez"
+        }
+    },
+    {
+        "season": 1953,
+        "round": 3,
+        "name": "Dutch Grand Prix",
+        "date": "1953-06-07",
+        "url": "http://en.wikipedia.org/wiki/1953_Dutch_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "zandvoort",
+            "name": "Circuit Park Zandvoort",
+            "location": "Zandvoort",
+            "country": "Netherlands",
+            "lat": 52.3888,
+            "lng": 4.54092,
+            "alt": 6,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Zandvoort"
+        }
+    },
+    {
+        "season": 1953,
+        "round": 4,
+        "name": "Belgian Grand Prix",
+        "date": "1953-06-21",
+        "url": "http://en.wikipedia.org/wiki/1953_Belgian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "spa",
+            "name": "Circuit de Spa-Francorchamps",
+            "location": "Spa",
+            "country": "Belgium",
+            "lat": 50.4372,
+            "lng": 5.97139,
+            "alt": 401,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps"
+        }
+    },
+    {
+        "season": 1953,
+        "round": 5,
+        "name": "French Grand Prix",
+        "date": "1953-07-05",
+        "url": "http://en.wikipedia.org/wiki/1953_French_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "reims",
+            "name": "Reims-Gueux",
+            "location": "Reims",
+            "country": "France",
+            "lat": 49.2542,
+            "lng": 3.93083,
+            "alt": 88,
+            "url": "http://en.wikipedia.org/wiki/Reims-Gueux"
+        }
+    },
+    {
+        "season": 1953,
+        "round": 6,
+        "name": "British Grand Prix",
+        "date": "1953-07-18",
+        "url": "http://en.wikipedia.org/wiki/1953_British_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "silverstone",
+            "name": "Silverstone Circuit",
+            "location": "Silverstone",
+            "country": "UK",
+            "lat": 52.0786,
+            "lng": -1.01694,
+            "alt": 153,
+            "url": "http://en.wikipedia.org/wiki/Silverstone_Circuit"
+        }
+    },
+    {
+        "season": 1953,
+        "round": 7,
+        "name": "German Grand Prix",
+        "date": "1953-08-02",
+        "url": "http://en.wikipedia.org/wiki/1953_German_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "nurburgring",
+            "name": "Nürburgring",
+            "location": "Nürburg",
+            "country": "Germany",
+            "lat": 50.3356,
+            "lng": 6.9475,
+            "alt": 578,
+            "url": "http://en.wikipedia.org/wiki/N%C3%BCrburgring"
+        }
+    },
+    {
+        "season": 1953,
+        "round": 8,
+        "name": "Swiss Grand Prix",
+        "date": "1953-08-23",
+        "url": "http://en.wikipedia.org/wiki/1953_Swiss_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "bremgarten",
+            "name": "Circuit Bremgarten",
+            "location": "Bern",
+            "country": "Switzerland",
+            "lat": 46.9589,
+            "lng": 7.40194,
+            "alt": 551,
+            "url": "http://en.wikipedia.org/wiki/Circuit_Bremgarten"
+        }
+    },
+    {
+        "season": 1953,
+        "round": 9,
+        "name": "Italian Grand Prix",
+        "date": "1953-09-13",
+        "url": "http://en.wikipedia.org/wiki/1953_Italian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "monza",
+            "name": "Autodromo Nazionale di Monza",
+            "location": "Monza",
+            "country": "Italy",
+            "lat": 45.6156,
+            "lng": 9.28111,
+            "alt": 162,
+            "url": "http://en.wikipedia.org/wiki/Autodromo_Nazionale_Monza"
+        }
+    },
+    {
+        "season": 1954,
+        "round": 1,
+        "name": "Argentine Grand Prix",
+        "date": "1954-01-17",
+        "url": "http://en.wikipedia.org/wiki/1954_Argentine_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "galvez",
+            "name": "Autódromo Juan y Oscar Gálvez",
+            "location": "Buenos Aires",
+            "country": "Argentina",
+            "lat": -34.6943,
+            "lng": -58.4593,
+            "alt": 8,
+            "url": "http://en.wikipedia.org/wiki/Aut%C3%B3dromo_Oscar_Alfredo_G%C3%A1lvez"
+        }
+    },
+    {
+        "season": 1954,
+        "round": 3,
+        "name": "Belgian Grand Prix",
+        "date": "1954-06-20",
+        "url": "http://en.wikipedia.org/wiki/1954_Belgian_Grand_Prix",
+        "circuit": {
+            "circuit_ref": "spa",
+            "name": "Circuit de Spa-Francorchamps",
+            "location": "Spa",
+            "country": "Belgium",
+            "lat": 50.4372,
+            "lng": 5.97139,
+            "alt": 401,
+            "url": "http://en.wikipedia.org/wiki/Circuit_de_Spa-Francorchamps"
         }
     }
 ];

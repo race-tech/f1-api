@@ -2,6 +2,8 @@ use shared::prelude::*;
 
 pub mod common;
 
+use common::models::StaticConstructor;
+
 #[test]
 fn test_get_constructors_by_ref() {
     common::Test::<StaticConstructor, Constructor>::new(
@@ -63,48 +65,6 @@ fn test_get_constructors_with_title() {
         total: 17,
     }))
     .test_ok();
-}
-
-#[derive(Debug)]
-struct StaticConstructor<'a> {
-    constructor_ref: &'a str,
-    name: &'a str,
-    nationality: Option<&'a str>,
-    url: &'a str,
-}
-
-impl PartialEq<Constructor> for StaticConstructor<'_> {
-    fn eq(&self, other: &Constructor) -> bool {
-        self.constructor_ref == other.constructor_ref
-            && self.name == other.name
-            && self.nationality == other.nationality.as_deref()
-            && self.url == other.url
-    }
-}
-
-macro_rules! __inner_constructors_impl {
-    (@internal [$($expr:expr),*];) => {
-        [$($expr),*]
-    };
-    (@internal [$($expr:expr),*]; $(,)?{
-        "constructor_ref": $ref:literal,
-        "name": $name:literal,
-        "nationality": $nationality:literal,
-        "url": $url:literal
-    } $($tt:tt)*) => {
-        __inner_constructors_impl!(@internal [$($expr,)* StaticConstructor {
-            constructor_ref: $ref,
-            name: $name,
-            nationality: Some($nationality),
-            url: $url
-        }]; $($tt)*)
-    }
-}
-
-macro_rules! constructors_from_json {
-    ($($tt:tt)*) => {
-        __inner_constructors_impl!(@internal []; $($tt)*)
-    };
 }
 
 const ALL_CONSTRUCTORS: [StaticConstructor; 30] = constructors_from_json![
