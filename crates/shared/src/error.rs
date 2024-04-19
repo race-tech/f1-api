@@ -18,7 +18,7 @@ impl std::fmt::Display for Error {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum ErrorKind {
     InvalidParameter,
     R2D2,
@@ -108,8 +108,8 @@ impl Serialize for ErrorKind {
 
 impl std::error::Error for Error {}
 
-impl From<&ErrorKind> for rocket::http::Status {
-    fn from(kind: &ErrorKind) -> Self {
+impl From<ErrorKind> for rocket::http::Status {
+    fn from(kind: ErrorKind) -> Self {
         use ErrorKind::*;
 
         match kind {
@@ -158,7 +158,7 @@ impl From<Error> for ErrorResponse {
 impl<'r> Responder<'r, 'static> for Error {
     fn respond_to(self, _: &'r rocket::Request<'_>) -> rocket::response::Result<'static> {
         let mut response = rocket::Response::build()
-            .status((&self.kind).into())
+            .status((self.kind).into())
             .header(rocket::http::ContentType::JSON)
             .finalize();
 

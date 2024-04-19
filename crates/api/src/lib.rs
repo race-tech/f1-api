@@ -8,7 +8,6 @@ mod constructors;
 mod driver_standings;
 mod drivers;
 pub mod fairings;
-pub mod fallbacks;
 pub mod guards;
 mod laps;
 mod pit_stops;
@@ -19,21 +18,9 @@ mod status;
 pub fn rocket_builder() -> Rocket<Build> {
     rocket::build()
         .attach(fairings::helmet::Formula1Helmet)
-        .attach(fairings::rate_limiter::RateLimiter)
         .mount("/api", handlers::handlers())
-        .mount("/fallback", fallbacks::handlers())
         .manage(infrastructure::ConnectionPool::try_new().unwrap())
-        .manage(fairings::rate_limiter::SlidingWindow::new(
-            10,
-            chrono::Duration::seconds(60),
-        ))
-}
-
-pub fn rocket_builder_no_fairings() -> Rocket<Build> {
-    rocket::build()
-        .mount("/api", handlers::handlers())
-        .mount("/fallback", fallbacks::handlers())
-        .manage(infrastructure::ConnectionPool::try_new().unwrap())
+        .manage(guards::rate_limiter::SlidingWindow::default())
 }
 
 mod handlers {

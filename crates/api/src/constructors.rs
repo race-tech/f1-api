@@ -4,12 +4,16 @@ use rocket::{get, routes, State};
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
+use crate::guards::rate_limiter::RateLimiter;
+
 #[get("/<series>/constructors?<constructor_ref>", rank = 1)]
 fn constructors_ref(
     db: &State<ConnectionPool>,
     series: Series,
     constructor_ref: shared::parameters::ConstructorRef,
+    rate_limiter: RateLimiter,
 ) -> Result<Json<Response<Constructor>>> {
+    let _ = rate_limiter;
     let conn = &mut db.from_series(series).get()?;
 
     let constructor =
@@ -29,7 +33,9 @@ fn constructors(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetConstructorsParameter,
+    rate_limiter: RateLimiter,
 ) -> Result<Json<Response<Vec<Constructor>>>> {
+    let _ = rate_limiter;
     let conn = &mut db.from_series(series).get()?;
 
     let res =

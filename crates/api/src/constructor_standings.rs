@@ -4,12 +4,16 @@ use rocket::{get, routes, State};
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
+use crate::guards::rate_limiter::RateLimiter;
+
 #[get("/<series>/constructors/standing?<param..>")]
 fn constructor_standings(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetConstructorStandingsParameter,
+    rate_limiter: RateLimiter,
 ) -> Result<Json<Response<ConstructorStandingResponse>>> {
+    let _ = rate_limiter;
     let conn = &mut db.from_series(series).get()?;
 
     let res = application::constructor_standings::ConstructorStandingsQueryBuilder::params(param)
