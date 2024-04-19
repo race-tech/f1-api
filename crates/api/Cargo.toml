@@ -14,6 +14,8 @@ mysql.workspace = true
 chrono.workspace = true
 redis.workspace = true
 log.workspace = true
+axum.workspace = true
+tokio.workspace = true
 
 application = { path = "../application" }
 infrastructure = { path = "../infrastructure" }

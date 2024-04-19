@@ -11,10 +11,9 @@ dotenvy.workspace = true
 mysql.workspace = true
 chrono.workspace = true
 log.workspace = true
+tokio.workspace = true
 
 api-lib = { path = "../../crates/api" }
 infrastructure = { path = "../../crates/infrastructure" }
 logger = { path = "../../crates/logger" }
-
-[dev-dependencies]
 shared = { path = "../../crates/shared" }

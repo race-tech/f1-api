@@ -1,10 +1,7 @@
-#[macro_use]
-extern crate rocket;
-
 use dotenvy::dotenv;
 
-#[launch]
-fn rocket() -> _ {
+#[tokio::main]
+async fn main() -> shared::error::Result<()> {
     logger::Logger::new()
         .init()
         .expect("cannot initialize the logger");
@@ -14,5 +11,6 @@ fn rocket() -> _ {
         Err(e) => log::error!("cannot load `.env` file: {}", e),
     }
 
-    api_lib::rocket_builder()
+    api_lib::PurpleSector::new(8000).serve().await;
+    Ok(())
 }

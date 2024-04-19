@@ -1,3 +1,7 @@
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
 use rocket::response::Responder;
 use serde::ser::Serialize;
 
@@ -129,6 +133,27 @@ impl From<ErrorKind> for rocket::http::Status {
     }
 }
 
+impl From<ErrorKind> for StatusCode {
+    fn from(kind: ErrorKind) -> Self {
+        use ErrorKind::*;
+
+        match kind {
+            InvalidParameter => Self::BAD_REQUEST,
+            R2D2 => Self::INTERNAL_SERVER_ERROR,
+            Mysql => Self::INTERNAL_SERVER_ERROR,
+            EntityNotFound => Self::NOT_FOUND,
+            IpHeaderNotFound => Self::BAD_REQUEST,
+            RateLimitReached => Self::TOO_MANY_REQUESTS,
+            InternalServer => Self::INTERNAL_SERVER_ERROR,
+            ResourceNotFound => Self::NOT_FOUND,
+            Redis => Self::INTERNAL_SERVER_ERROR,
+            MissingEnvVar => Self::INTERNAL_SERVER_ERROR,
+            ConnectionPool => Self::INTERNAL_SERVER_ERROR,
+            ParseInt => Self::INTERNAL_SERVER_ERROR,
+        }
+    }
+}
+
 impl From<ErrorKind> for Error {
     fn from(kind: ErrorKind) -> Self {
         Self {
@@ -151,6 +176,15 @@ impl From<Error> for ErrorResponse {
             kind: e.kind,
             error: e.message.clone(),
         }
+    }
+}
+
+impl IntoResponse for Error {
+    fn into_response(self) -> Response {
+        let status: StatusCode = self.kind.into();
+        let body = serde_json::to_string(&ErrorResponse::from(self)).unwrap();
+
+        (status, body).into_response()
     }
 }
 

@@ -95,12 +95,13 @@ pub trait FilterValidation {
     fn validate(&self) -> Result<(), crate::error::Error>;
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, FromForm, Deserialize)]
 pub struct GetCircuitsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
     #[validation(skip)]
     pub page: Option<Page>,
+    pub circuit_ref: Option<CircuitRef>,
     pub driver_ref: Option<DriverRef>,
     pub constructor_ref: Option<ConstructorRef>,
     pub status: Option<StatusId>,
@@ -111,7 +112,7 @@ pub struct GetCircuitsParameter {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, FromForm, Deserialize)]
 pub struct GetDriversParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -119,6 +120,7 @@ pub struct GetDriversParameter {
     pub page: Option<Page>,
     pub circuit_ref: Option<CircuitRef>,
     pub constructor_ref: Option<ConstructorRef>,
+    pub driver_ref: Option<DriverRef>,
     pub driver_standing: Option<DriverStanding>,
     pub status: Option<StatusId>,
     pub grid: Option<Grid>,
@@ -128,12 +130,13 @@ pub struct GetDriversParameter {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, FromForm, Deserialize)]
 pub struct GetConstructorsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
     #[validation(skip)]
     pub page: Option<Page>,
+    pub constructor_ref: Option<ConstructorRef>,
     pub circuit_ref: Option<CircuitRef>,
     pub driver_ref: Option<DriverRef>,
     pub constructor_standing: Option<ConstructorStanding>,
@@ -145,7 +148,7 @@ pub struct GetConstructorsParameter {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, FromForm, Deserialize)]
 pub struct GetConstructorStandingsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -157,7 +160,7 @@ pub struct GetConstructorStandingsParameter {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, FromForm, Deserialize)]
 pub struct GetDriverStandingsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -169,7 +172,7 @@ pub struct GetDriverStandingsParameter {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, FromForm, Deserialize)]
 pub struct GetLapsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -183,7 +186,7 @@ pub struct GetLapsParameter {
     pub lap_number: Option<LapNumber>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, FromForm, Deserialize)]
 pub struct GetPitStopsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -196,7 +199,7 @@ pub struct GetPitStopsParameter {
     pub pit_stop_number: Option<PitStopNumber>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, FromForm, Deserialize)]
 pub struct GetRacesParameters {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -213,12 +216,13 @@ pub struct GetRacesParameters {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, FromForm, Deserialize)]
 pub struct GetSeasonsParameters {
     #[validation(skip)]
     pub limit: Option<Limit>,
     #[validation(skip)]
     pub page: Option<Page>,
+    pub season: Option<Year>,
     pub circuit_ref: Option<CircuitRef>,
     pub driver_ref: Option<DriverRef>,
     pub constructor_ref: Option<ConstructorRef>,
@@ -230,7 +234,7 @@ pub struct GetSeasonsParameters {
     pub constructor_standing: Option<ConstructorStanding>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, FromForm, Deserialize)]
 pub struct GetStatusParameters {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -273,7 +277,7 @@ impl Default for Round {
 mod macros {
     macro_rules! query_parameters {
         ($(#[$($traits:ident),*])* $name:ident ($type:ty) => $deref:ty; $($rest:tt)*) => {
-            #[derive(Debug, Clone, FromForm $($(, $traits)*)*)]
+            #[derive(Debug, Clone, Deserialize, FromForm $($(, $traits)*)*)]
             pub struct $name(pub $type);
 
             impl From<$type> for $name {
@@ -293,7 +297,7 @@ mod macros {
             macros::query_parameters!{ $($rest)* }
         };
         ($(#[$($traits:ident),*])* $name:ident ($type:ty); $($rest:tt)*) => {
-            #[derive(Debug, Clone, FromForm $($(, $traits)*)*)]
+            #[derive(Debug, Clone, Deserialize, FromForm $($(, $traits)*)*)]
             pub struct $name(pub $type);
 
             impl From<$type> for $name {

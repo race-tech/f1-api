@@ -9,6 +9,7 @@ type Pool = r2d2::Pool<pool::MySqlConnectionManager>;
 type CachePool = r2d2::Pool<pool::RedisClient>;
 pub type Connection = r2d2::PooledConnection<pool::MySqlConnectionManager>;
 
+#[derive(Clone)]
 pub struct ConnectionPool {
     f1db_pool: Pool,
     pub cache: CachePool,

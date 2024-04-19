@@ -17,3 +17,5 @@ mysql = { version = "25.0.0", default-features = false, features = ["minimal"] }
 mysql_common = { version = "0.32.2", default-features = false, features = ["chrono", "derive", "bigdecimal"] }
 redis = "0.25.3"
 log = "0.4.21"
+axum = { version = "0.7.5", features = ["json"] }
+tokio = { version = "1", features = ["rt", "net", "macros", "rt-multi-thread"] }
