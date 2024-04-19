@@ -6,14 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde.workspace = true
-r2d2.workspace = true
-serde_json.workspace = true
-mysql.workspace = true
 chrono.workspace = true
-redis.workspace = true
 log.workspace = true
 axum.workspace = true
+tower.workspace = true
 tokio.workspace = true
 
 application = { path = "../application" }
@@ -21,6 +17,7 @@ infrastructure = { path = "../infrastructure" }
 shared = { path = "../shared" }
 
 [dev-dependencies]
-tower.workspace = true
+serde.workspace = true
+serde_json.workspace = true
 
 http-body-util = "0.1.0"

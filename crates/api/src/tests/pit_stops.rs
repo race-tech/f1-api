@@ -7,7 +7,7 @@ use crate::stops_from_json;
 #[tokio::test]
 async fn test_get_pit_stops() {
     Test::<StaticPitStops, PitStopsResponse>::new(
-        "/api/f1/pit_stops?year=2023&round=1",
+        "/api/f1/pit-stops?year=2023&round=1",
         Series::F1,
         BAHRAIN_2023_STOPS_PAGE_1,
     )
@@ -24,7 +24,7 @@ async fn test_get_pit_stops() {
 #[tokio::test]
 async fn test_get_pit_stops_by_page() {
     Test::<StaticPitStops, PitStopsResponse>::new(
-        "/api/f1/pit_stops?year=2023&round=1&page=2",
+        "/api/f1/pit-stops?year=2023&round=1&page=2",
         Series::F1,
         BAHRAIN_2023_STOPS_PAGE_2,
     )
