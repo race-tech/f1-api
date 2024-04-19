@@ -35,7 +35,7 @@ fn constructors(
     let res =
         application::constructors::ConstructorsQueryBuilder::params(param).query_and_count(conn)?;
 
-    let response = Response::new(res.0, res.1, series);
+    let response = Response::from_vec(res.0, res.1, series);
 
     Ok(Json(response))
 }

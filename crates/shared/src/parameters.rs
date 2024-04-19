@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 
 use derives::FilterValidation;
 
+use crate::error;
+
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub enum Series {
     #[default]
@@ -17,38 +19,47 @@ pub enum Series {
 }
 
 impl<'r> FromParam<'r> for Series {
-    type Error = ();
+    type Error = crate::error::Error;
 
     fn from_param(param: &str) -> Result<Self, Self::Error> {
         match param {
             "f1" => Ok(Series::F1),
             "f2" => Ok(Series::F2),
-            _ => Err(()),
+            _ => Err(error!(
+                InvalidParameter =>
+                "invalid series parameter, expected a parameter in ['f1', 'f2'] got: {}", param
+            )),
         }
     }
 }
 
 impl<'r> FromParam<'r> for Year {
-    type Error = ();
+    type Error = crate::error::Error;
 
     fn from_param(param: &str) -> Result<Self, Self::Error> {
         match param {
             "current" => Ok(Year::get_current_year()),
             _ => match param.parse::<u32>() {
                 Ok(year) => Ok(Year(year)),
-                Err(_) => Err(()),
+                Err(_) => Err(error!(
+                    ParseInt =>
+                    "invalid year parameter, expected a u32 got: {}", param
+                )),
             },
         }
     }
 }
 
 impl<'r> FromParam<'r> for Round {
-    type Error = ();
+    type Error = crate::error::Error;
 
     fn from_param(param: &str) -> Result<Self, Self::Error> {
         match param.parse::<u32>() {
             Ok(round) => Ok(Round(round)),
-            Err(_) => Err(()),
+            Err(_) => Err(error!(
+                ParseInt =>
+                "invalid round parameter, expected a u32 got: {}", param
+            )),
         }
     }
 }

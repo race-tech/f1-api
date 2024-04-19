@@ -23,7 +23,7 @@ fn rate_limiter_fallback(
         "rate_limiter_fallback should not be called without any parameters, please open an issue"
     );
     Err(
-        error!(InternalServerError => "rate_limiter_fallback should not be called without any parameters, please open an issue"),
+        error!(InternalServer => "rate_limiter_fallback should not be called without any parameters, please open an issue"),
     )
 }
 

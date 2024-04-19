@@ -39,9 +39,11 @@ impl r2d2::ManageConnection for MySqlConnectionManager {
 
 pub struct RedisClient(Client);
 
-impl From<String> for RedisClient {
-    fn from(value: String) -> Self {
-        Self(redis::Client::open(value).unwrap())
+impl TryFrom<String> for RedisClient {
+    type Error = shared::error::Error;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Ok(Self(redis::Client::open(value)?))
     }
 }
 

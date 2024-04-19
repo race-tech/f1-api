@@ -26,8 +26,12 @@ pub enum ErrorKind {
     EntityNotFound,
     IpHeaderNotFound,
     RateLimitReached,
-    InternalServerError,
+    InternalServer,
     InternalRessource,
+    Redis,
+    MissingEnvVar,
+    ConnectionPool,
+    ParseInt,
 }
 
 impl From<r2d2::Error> for Error {
@@ -48,6 +52,15 @@ impl From<mysql::Error> for Error {
     }
 }
 
+impl From<redis::RedisError> for Error {
+    fn from(e: redis::RedisError) -> Self {
+        Error {
+            kind: ErrorKind::Redis,
+            message: Some(e.to_string()),
+        }
+    }
+}
+
 impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use ErrorKind::*;
@@ -59,8 +72,12 @@ impl std::fmt::Display for ErrorKind {
             EntityNotFound => write!(f, "entity not found"),
             IpHeaderNotFound => write!(f, "ip header not found"),
             RateLimitReached => write!(f, "rate limit reached on given the sliding window"),
-            InternalServerError => write!(f, "an unexpected error occured"),
+            InternalServer => write!(f, "an unexpected error occured"),
             InternalRessource => write!(f, "internal ressource queried by external user"),
+            Redis => write!(f, "redis error"),
+            MissingEnvVar => write!(f, "an environment variable is missing"),
+            ConnectionPool => write!(f, "an error occured while setting-up a connection pool"),
+            ParseInt => write!(f, "can't parse int"),
         }
     }
 }
@@ -79,8 +96,12 @@ impl Serialize for ErrorKind {
             EntityNotFound => s.serialize_unit_variant("ErrorKind", 3, "EntityNotFound"),
             IpHeaderNotFound => s.serialize_unit_variant("ErrorKind", 4, "IpHeaderNotFound"),
             RateLimitReached => s.serialize_unit_variant("ErrorKind", 5, "RateLimitReached"),
-            InternalServerError => s.serialize_unit_variant("ErrorKind", 6, "InternalServerError"),
+            InternalServer => s.serialize_unit_variant("ErrorKind", 6, "InternalServerError"),
             InternalRessource => s.serialize_unit_variant("ErrorKind", 7, "InternalRessource"),
+            Redis => s.serialize_unit_variant("ErrorKind", 8, "Redis"),
+            MissingEnvVar => s.serialize_unit_variant("ErrorKind", 9, "MissingEnvVar"),
+            ConnectionPool => s.serialize_unit_variant("ErrorKind", 10, "ConnectionPool"),
+            ParseInt => s.serialize_unit_variant("ErrorKind", 11, "ParseInt"),
         }
     }
 }
@@ -98,8 +119,12 @@ impl From<&ErrorKind> for rocket::http::Status {
             EntityNotFound => Self::NotFound,
             IpHeaderNotFound => Self::BadRequest,
             RateLimitReached => Self::TooManyRequests,
-            InternalServerError => Self::InternalServerError,
+            InternalServer => Self::InternalServerError,
             InternalRessource => Self::Unauthorized,
+            Redis => Self::InternalServerError,
+            MissingEnvVar => Self::InternalServerError,
+            ConnectionPool => Self::InternalServerError,
+            ParseInt => Self::InternalServerError,
         }
     }
 }

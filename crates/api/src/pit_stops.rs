@@ -15,7 +15,7 @@ fn pit_stops(
     let res = application::pit_stops::PitStopsQueryBuilder::params(param).query_and_count(conn)?;
 
     let response = Response {
-        data: res.0.into(),
+        data: res.0.try_into()?,
         pagination: Some(res.1),
         series,
     };

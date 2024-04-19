@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::error;
+use crate::error::Result;
 use crate::parameters::Series;
 
 #[derive(Debug, Serialize, Deserialize, Default, PartialEq, Eq)]
@@ -21,7 +23,7 @@ pub struct Response<T> {
 }
 
 impl<T> Response<Vec<T>> {
-    pub fn new<U: Into<T>>(data: Vec<U>, pagination: Pagination, series: Series) -> Self {
+    pub fn from_vec<U: Into<T>>(data: Vec<U>, pagination: Pagination, series: Series) -> Self {
         Response {
             data: data.into_iter().map(Into::into).collect(),
             pagination: Some(pagination),
@@ -237,33 +239,55 @@ impl From<crate::models::Season> for Season {
     }
 }
 
-impl From<Vec<crate::models::PitStop>> for PitStopsResponse {
-    fn from(value: Vec<crate::models::PitStop>) -> Self {
-        let circuit: Circuit = value.first().unwrap().into();
-        let url = value.first().unwrap().race_url.clone();
-        let race_name = value.first().unwrap().race_name.clone();
-        let date = value.first().unwrap().race_date;
-        let time = value.first().unwrap().race_time;
+impl TryFrom<Vec<crate::models::PitStop>> for PitStopsResponse {
+    type Error = crate::error::Error;
+
+    fn try_from(value: Vec<crate::models::PitStop>) -> Result<Self> {
+        let first = match value.first() {
+            Some(first) => first,
+            None => {
+                return Err(
+                    error!(EntityNotFound => "cannot find any pit stop matching the given parameters"),
+                )
+            }
+        };
+
+        let circuit: Circuit = first.into();
+        let url = first.race_url.clone();
+        let race_name = first.race_name.clone();
+        let date = first.race_date;
+        let time = first.race_time;
         let pit_stops = value.into_iter().map(Into::into).collect();
 
-        PitStopsResponse {
+        Ok(PitStopsResponse {
             circuit,
             url,
             race_name,
             date,
             time,
             pit_stops,
-        }
+        })
     }
 }
 
-impl From<Vec<crate::models::Lap>> for LapsResponse {
-    fn from(value: Vec<crate::models::Lap>) -> Self {
-        let circuit: Circuit = value.first().unwrap().into();
-        let url = value.first().unwrap().race_url.clone();
-        let race_name = value.first().unwrap().race_name.clone();
-        let date = value.first().unwrap().race_date;
-        let time = value.first().unwrap().race_time;
+impl TryFrom<Vec<crate::models::Lap>> for LapsResponse {
+    type Error = crate::error::Error;
+
+    fn try_from(value: Vec<crate::models::Lap>) -> Result<Self> {
+        let first = match value.first() {
+            Some(first) => first,
+            None => {
+                return Err(
+                    error!(EntityNotFound => "cannot find any laps matching the given parameters"),
+                )
+            }
+        };
+
+        let circuit: Circuit = first.into();
+        let url = first.race_url.clone();
+        let race_name = first.race_name.clone();
+        let date = first.race_date;
+        let time = first.race_time;
 
         let mut curr_lap_number = -1;
         let mut laps = Vec::new();
@@ -277,6 +301,8 @@ impl From<Vec<crate::models::Lap>> for LapsResponse {
                 });
             }
 
+            // SAFETY: laps contains at least one entry because
+            // `curr_lap_number` starts at -1 and `laps.number` are unsigned integers
             laps.last_mut().unwrap().timings.push(LapTiming {
                 driver_ref: lap.driver_ref.clone(),
                 position: lap.position,
@@ -284,14 +310,14 @@ impl From<Vec<crate::models::Lap>> for LapsResponse {
             });
         }
 
-        Self {
+        Ok(Self {
             url,
             race_name,
             date,
             time,
             circuit,
             laps,
-        }
+        })
     }
 }
 
@@ -406,49 +432,29 @@ impl From<crate::models::Driver> for Driver {
 
 impl From<crate::models::Race> for RaceResponse {
     fn from(value: crate::models::Race) -> Self {
-        let fp1 = if value.fp1_date.is_some() && value.fp1_time.is_some() {
-            Some(DateAndTime {
-                date: value.fp1_date.unwrap(),
-                time: value.fp1_time.unwrap(),
-            })
-        } else {
-            None
+        let fp1 = match (value.fp1_date, value.fp1_time) {
+            (Some(date), Some(time)) => Some(DateAndTime { date, time }),
+            _ => None,
         };
 
-        let fp2 = if value.fp2_date.is_some() && value.fp2_time.is_some() {
-            Some(DateAndTime {
-                date: value.fp2_date.unwrap(),
-                time: value.fp2_time.unwrap(),
-            })
-        } else {
-            None
+        let fp2 = match (value.fp2_date, value.fp2_time) {
+            (Some(date), Some(time)) => Some(DateAndTime { date, time }),
+            _ => None,
         };
 
-        let fp3 = if value.fp3_date.is_some() && value.fp3_time.is_some() {
-            Some(DateAndTime {
-                date: value.fp3_date.unwrap(),
-                time: value.fp3_time.unwrap(),
-            })
-        } else {
-            None
+        let fp3 = match (value.fp3_date, value.fp3_time) {
+            (Some(date), Some(time)) => Some(DateAndTime { date, time }),
+            _ => None,
         };
 
-        let quali = if value.quali_date.is_some() && value.quali_time.is_some() {
-            Some(DateAndTime {
-                date: value.quali_date.unwrap(),
-                time: value.quali_time.unwrap(),
-            })
-        } else {
-            None
+        let quali = match (value.quali_date, value.quali_time) {
+            (Some(date), Some(time)) => Some(DateAndTime { date, time }),
+            _ => None,
         };
 
-        let sprint = if value.sprint_date.is_some() && value.sprint_time.is_some() {
-            Some(DateAndTime {
-                date: value.sprint_date.unwrap(),
-                time: value.sprint_time.unwrap(),
-            })
-        } else {
-            None
+        let sprint = match (value.sprint_date, value.sprint_time) {
+            (Some(date), Some(time)) => Some(DateAndTime { date, time }),
+            _ => None,
         };
 
         Self {
