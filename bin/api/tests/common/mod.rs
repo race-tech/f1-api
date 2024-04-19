@@ -7,6 +7,9 @@ use rocket::local::blocking::{Client, LocalResponse};
 use api_lib::rocket_builder_no_fairings;
 use shared::prelude::{Pagination, Response, Series};
 
+pub mod macros;
+pub mod models;
+
 pub struct Test<'a, T, U> {
     uri: &'a str,
     series: Series,

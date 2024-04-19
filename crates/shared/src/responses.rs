@@ -207,15 +207,15 @@ pub struct PitStop {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Season {
-    year: i32,
-    url: String,
+    pub year: i32,
+    pub url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Status {
-    status_id: i32,
-    status: String,
-    count: i32,
+    pub status_id: i32,
+    pub status: String,
+    pub count: i32,
 }
 
 impl From<crate::models::Status> for Status {

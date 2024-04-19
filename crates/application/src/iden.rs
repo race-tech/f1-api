@@ -68,6 +68,7 @@ pub(crate) enum Results {
     Rank,
     FastestLapTime,
     FastestLapSpeed,
+    #[iden = "statusId"]
     StatusId,
 }
 

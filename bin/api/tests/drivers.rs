@@ -2,6 +2,8 @@ use shared::prelude::*;
 
 pub mod common;
 
+use common::models::StaticDriver;
+
 #[test]
 fn test_get_driver() {
     common::Test::<StaticDriver, Driver>::new(
@@ -59,125 +61,6 @@ fn test_get_drivers_by_driver_standing() {
     }))
     .test_ok();
 }
-
-#[derive(Debug)]
-struct StaticDriver<'a> {
-    driver_ref: &'a str,
-    number: Option<i32>,
-    code: Option<&'a str>,
-    forename: &'a str,
-    surname: &'a str,
-    dob: Option<&'a str>,
-    nationality: Option<&'a str>,
-    url: &'a str,
-}
-
-impl PartialEq<Driver> for StaticDriver<'_> {
-    fn eq(&self, other: &Driver) -> bool {
-        self.driver_ref.eq(&other.driver_ref)
-            && self.number.eq(&other.number)
-            && self.code.eq(&other.code.as_deref())
-            && self.forename.eq(&other.forename)
-            && self.surname.eq(&other.surname)
-            && self
-                .dob
-                .map(|d| chrono::NaiveDate::parse_from_str(d, "%Y-%m-%d").expect("invalid date"))
-                .eq(&other.dob)
-            && self.nationality.eq(&other.nationality.as_deref())
-            && self.url.eq(&other.url)
-    }
-}
-
-impl PartialEq<&Driver> for StaticDriver<'_> {
-    fn eq(&self, other: &&Driver) -> bool {
-        self.driver_ref.eq(&other.driver_ref)
-            && self.number.eq(&other.number)
-            && self.code.eq(&other.code.as_deref())
-            && self.forename.eq(&other.forename)
-            && self.surname.eq(&other.surname)
-            && self
-                .dob
-                .map(|d| chrono::NaiveDate::parse_from_str(d, "%Y-%m-%d").expect("invalid date"))
-                .eq(&other.dob)
-            && self.nationality.eq(&other.nationality.as_deref())
-            && self.url.eq(&other.url)
-    }
-}
-
-macro_rules! __drivers_impl {
-    (@internal [$($expr:expr),*];) => {
-        [$($expr),*]
-    };
-    (@internal [$($expr:expr),*]; $(,)?{
-        "driver_ref": $ref:literal,
-        "forename": $forename:literal,
-        "surname": $surname:literal,
-        "dob": $dob:literal,
-        "nationality": $nationality:literal,
-        "url": $url:literal
-    } $($tt:tt)*) => {
-        __drivers_impl!(@internal [$($expr,)* StaticDriver {
-            driver_ref: $ref,
-            number: None,
-            code: None,
-            forename: $forename,
-            surname: $surname,
-            dob: Some($dob),
-            nationality: Some($nationality),
-            url: $url,
-        }]; $($tt)*)
-    };
-    (@internal [$($expr:expr),*]; $(,)?{
-        "driver_ref": $ref:literal,
-        "code": $code:literal,
-        "forename": $forename:literal,
-        "surname": $surname:literal,
-        "dob": $dob:literal,
-        "nationality": $nationality:literal,
-        "url": $url:literal
-    } $($tt:tt)*) => {
-        __drivers_impl!(@internal [$($expr,)* StaticDriver {
-            driver_ref: $ref,
-            number: None,
-            code: Some($code),
-            forename: $forename,
-            surname: $surname,
-            dob: Some($dob),
-            nationality: Some($nationality),
-            url: $url,
-        }]; $($tt)*)
-    };
-    (@internal [$($expr:expr),*]; $(,)?{
-        "driver_ref": $ref:literal,
-        "number": $number:expr,
-        "code": $code:literal,
-        "forename": $forename:literal,
-        "surname": $surname:literal,
-        "dob": $dob:literal,
-        "nationality": $nationality:literal,
-        "url": $url:literal
-    } $($tt:tt)*) => {
-        __drivers_impl!(@internal [$($expr,)* StaticDriver {
-            driver_ref: $ref,
-            number: Some($number),
-            code: Some($code),
-            forename: $forename,
-            surname: $surname,
-            dob: Some($dob),
-            nationality: Some($nationality),
-            url: $url,
-        }]; $($tt)*)
-    };
-}
-
-macro_rules! drivers_from_json {
-    ($($tt:tt)*) => {
-        __drivers_impl!(@internal []; $($tt)*)
-    };
-}
-
-use __drivers_impl;
-use drivers_from_json;
 
 const LECLERC: StaticDriver = StaticDriver {
     driver_ref: "leclerc",

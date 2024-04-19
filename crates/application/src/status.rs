@@ -1,10 +1,7 @@
-use mysql::prelude::Queryable;
-use sea_query::{Alias, Expr, MysqlQueryBuilder, Query, SelectStatement};
+use sea_query::{Alias, Asterisk, Expr, Func, Query, SelectStatement};
 
-use shared::error;
-use shared::error::Result;
 use shared::models::Status as StatusModel;
-use shared::parameters::{GetStatusParameters, StatusId};
+use shared::parameters::GetStatusParameters;
 
 use crate::{
     iden::*,
@@ -19,25 +16,12 @@ pub struct StatusQueryBuilder {
 }
 
 impl StatusQueryBuilder {
-    pub fn get(status_id: StatusId, conn: &mut infrastructure::Connection) -> Result<StatusModel> {
-        let query = Query::select()
-            .distinct()
-            .column((Status::Table, Status::Id))
-            .column((Status::Table, Status::Content))
-            .from(Status::Table)
-            .and_where(Expr::col((Status::Table, Status::Id)).eq(Expr::value(*status_id)))
-            .to_string(MysqlQueryBuilder);
-
-        conn.query_first(query)?
-            .ok_or(error!(EntityNotFound => "status with id `{}` not found", status_id.0))
-    }
-
     pub fn params(params: GetStatusParameters) -> Paginated<StatusModel> {
         let stmt = Query::select()
             .distinct()
             .column((Status::Table, Status::Id))
             .column((Status::Table, Status::Content))
-            .expr_as(Expr::cust("COUNT (*)"), Alias::new("count"))
+            .expr_as(Func::count(Expr::col(Asterisk)), Alias::new("count"))
             .from(Status::Table)
             .from(Results::Table)
             .and_where(

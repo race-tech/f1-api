@@ -2,6 +2,8 @@ use shared::prelude::*;
 
 pub mod common;
 
+use common::models::StaticStanding;
+
 #[test]
 fn test_get_constructor_standings() {
     common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
@@ -50,133 +52,7 @@ fn test_get_constructor_standings_by_ref_and_result() {
     .test_ok()
 }
 
-macro_rules! __inner_standings_impl {
-    (@internal [$($expr:expr),*];) => {
-        [$($expr),*]
-    };
-    (@internal [$($expr:expr),*]; $(,)?{
-        "points": $points:expr,
-        "position": $position:expr,
-        "position_text": $position_text:literal,
-        "wins": $wins:expr,
-        "constructor": {
-            "constructor_ref": $ref:literal,
-            "name": $name:literal,
-            "nationality": $nationality:literal,
-            "url": $url:literal
-        }
-    } $($tt:tt)*) => {
-        __inner_standings_impl!(@internal [$($expr,)* StaticInnerStanding {
-            points: $points,
-            position: Some($position),
-            position_text: Some($position_text),
-            wins: $wins,
-            constructor: StaticConstructor {
-                constructor_ref: $ref,
-                name: $name,
-                nationality: Some($nationality),
-                url: $url
-            }
-        }]; $($tt)*)
-    }
-}
-
-macro_rules! __standings_impl {
-    (@internal [$($expr:expr),*];) => {
-        [$($expr),*]
-    };
-    (@internal [$($expr:expr),*]; $(,)?{
-        "season": $season:expr,
-        "round": $round:expr,
-        "constructor_standings": [$($st:tt)*]
-    } $($tt:tt)*) => {
-        __standings_impl!(@internal [$($expr,)* StaticStanding {
-            season: $season,
-            round: $round,
-            constructor_standings: &__inner_standings_impl![@internal []; $($st)*],
-        }]; $($tt)*)
-    };
-}
-
-macro_rules! standings_from_json {
-    ($($tt:tt)*) => {
-        __standings_impl!(@internal []; $($tt)*)
-    };
-}
-
-use __inner_standings_impl;
-use __standings_impl;
-use standings_from_json;
-
-#[derive(Debug)]
-struct StaticStanding<'a> {
-    season: i32,
-    round: i32,
-    constructor_standings: &'a [StaticInnerStanding<'a>],
-}
-
-#[derive(Debug)]
-struct StaticInnerStanding<'a> {
-    points: f32,
-    position: Option<i32>,
-    position_text: Option<&'a str>,
-    wins: i32,
-    constructor: StaticConstructor<'a>,
-}
-
-#[derive(Debug)]
-struct StaticConstructor<'a> {
-    constructor_ref: &'a str,
-    name: &'a str,
-    nationality: Option<&'a str>,
-    url: &'a str,
-}
-
-impl PartialEq<InnerStandingResponse> for StaticStanding<'_> {
-    fn eq(&self, other: &InnerStandingResponse) -> bool {
-        if let InnerStandingResponse::Constructor {
-            season,
-            round,
-            constructor_standings,
-        } = other
-        {
-            self.season == *season
-                && self.round == *round
-                && self.constructor_standings == constructor_standings
-        } else {
-            false
-        }
-    }
-}
-
-impl PartialEq<Standings> for StaticInnerStanding<'_> {
-    fn eq(&self, other: &Standings) -> bool {
-        if let Standings::Constructor {
-            standing,
-            constructor,
-        } = other
-        {
-            self.points == standing.points
-                && self.position == standing.position
-                && self.position_text == standing.position_text.as_deref()
-                && self.wins == standing.wins
-                && self.constructor == constructor
-        } else {
-            false
-        }
-    }
-}
-
-impl PartialEq<&Constructor> for StaticConstructor<'_> {
-    fn eq(&self, other: &&Constructor) -> bool {
-        self.constructor_ref == other.constructor_ref
-            && self.name == other.name
-            && self.nationality == other.nationality.as_deref()
-            && self.url == other.url
-    }
-}
-
-const ALL_STANDINGS: [StaticStanding; 3] = standings_from_json![
+const ALL_STANDINGS: [StaticStanding; 3] = constructor_standings_from_json![
     {
         "season": 1958,
         "round": 11,
@@ -557,7 +433,7 @@ const ALL_STANDINGS: [StaticStanding; 3] = standings_from_json![
     }
 ];
 
-const FERRARI_STANDINGS: [StaticStanding; 30] = standings_from_json![
+const FERRARI_STANDINGS: [StaticStanding; 30] = constructor_standings_from_json![
     {
         "season": 1958,
         "round": 11,
@@ -1100,7 +976,7 @@ const FERRARI_STANDINGS: [StaticStanding; 30] = standings_from_json![
     }
 ];
 
-const FERRARI_WINS: [StaticStanding; 16] = standings_from_json![
+const FERRARI_WINS: [StaticStanding; 16] = constructor_standings_from_json![
     {
         "season": 1961,
         "round": 8,
