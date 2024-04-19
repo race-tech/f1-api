@@ -11,6 +11,8 @@ log.workspace = true
 axum.workspace = true
 tower.workspace = true
 tokio.workspace = true
+serde_json.workspace = true
+redis.workspace = true
 
 application = { path = "../application" }
 infrastructure = { path = "../infrastructure" }
@@ -18,6 +20,5 @@ shared = { path = "../shared" }
 
 [dev-dependencies]
 serde.workspace = true
-serde_json.workspace = true
 
 http-body-util = "0.1.0"

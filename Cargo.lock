@@ -69,6 +69,7 @@ dependencies = [
  "http-body-util",
  "infrastructure",
  "log",
+ "redis",
  "serde",
  "serde_json",
  "shared",

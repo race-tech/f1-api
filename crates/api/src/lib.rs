@@ -1,4 +1,7 @@
-use axum::Router;
+use axum::{middleware, Router};
+use tower::ServiceBuilder;
+
+use crate::middlewares::rate_limiter::{RateLimiter, RateLimiterKind};
 
 mod handlers;
 mod middlewares;
@@ -23,12 +26,20 @@ impl PurpleSector {
             .await
             .unwrap();
 
-        axum::serve(listener, self.router).await.unwrap();
+        axum::serve(
+            listener,
+            self.router
+                .into_make_service_with_connect_info::<std::net::SocketAddr>(),
+        )
+        .await
+        .unwrap();
     }
 }
 
 pub fn router() -> Router {
     use axum::routing::get;
+
+    let pool = infrastructure::ConnectionPool::try_new().unwrap();
 
     let api_routes = Router::new()
         .route("/circuits", get(handlers::circuits::circuits))
@@ -47,7 +58,14 @@ pub fn router() -> Router {
         .route("/pit-stops", get(handlers::pit_stops::pit_stops))
         .route("/seasons", get(handlers::seasons::seasons))
         .route("/status", get(handlers::status::status))
-        .with_state(infrastructure::ConnectionPool::try_new().unwrap());
+        .layer(ServiceBuilder::new().layer(middleware::from_fn_with_state(
+            RateLimiter {
+                kind: RateLimiterKind::default(),
+                cache: pool.cache.clone(),
+            },
+            middlewares::rate_limiter::mw_rate_limiter,
+        )))
+        .with_state(pool);
 
     Router::new().nest("/api/:series", api_routes)
 }
