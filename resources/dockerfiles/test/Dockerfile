@@ -16,6 +16,7 @@ RUN cargo new --lib crates/application
 RUN cargo new --lib crates/derives
 RUN cargo new --lib crates/infrastructure
 RUN cargo new --lib crates/shared
+RUN cargo new --lib crates/logger
 
 # Copy the Cargo.toml files
 COPY bin/api/Cargo.toml bin/api/Cargo.toml
@@ -24,6 +25,7 @@ COPY crates/application/Cargo.toml crates/application/Cargo.toml
 COPY crates/derives/Cargo.toml crates/derives/Cargo.toml
 COPY crates/infrastructure/Cargo.toml crates/infrastructure/Cargo.toml
 COPY crates/shared/Cargo.toml crates/shared/Cargo.toml
+COPY crates/logger/Cargo.toml crates/logger/Cargo.toml
 
 FROM chef AS planner
 
