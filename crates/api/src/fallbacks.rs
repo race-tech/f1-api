@@ -19,6 +19,9 @@ fn rate_limiter_fallback(
         );
     }
 
+    log::error!(
+        "rate_limiter_fallback should not be called without any parameters, please open an issue"
+    );
     Err(
         error!(InternalServerError => "rate_limiter_fallback should not be called without any parameters, please open an issue"),
     )

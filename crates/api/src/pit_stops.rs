@@ -10,7 +10,7 @@ fn pit_stops(
     series: Series,
     param: shared::parameters::GetPitStopsParameter,
 ) -> Result<Json<Response<PitStopsResponse>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let res = application::pit_stops::PitStopsQueryBuilder::params(param).query_and_count(conn)?;
 

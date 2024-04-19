@@ -10,7 +10,7 @@ fn constructor_standings(
     series: Series,
     param: shared::parameters::GetConstructorStandingsParameter,
 ) -> Result<Json<Response<ConstructorStandingResponse>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let res = application::constructor_standings::ConstructorStandingsQueryBuilder::params(param)
         .query_and_count(conn)?;

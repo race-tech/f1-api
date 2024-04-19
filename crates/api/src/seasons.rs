@@ -10,7 +10,7 @@ fn seasons_year(
     series: Series,
     season: shared::parameters::Year,
 ) -> Result<Json<Response<Season>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let season = application::seasons::SeasonsQueryBuilder::get(season, conn)?;
 
@@ -29,7 +29,7 @@ fn seasons(
     series: Series,
     param: shared::parameters::GetSeasonsParameters,
 ) -> Result<Json<Response<Vec<Season>>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let res = application::seasons::SeasonsQueryBuilder::params(param).query_and_count(conn)?;
 

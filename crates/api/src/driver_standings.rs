@@ -10,7 +10,7 @@ fn driver_standings(
     series: Series,
     param: shared::parameters::GetDriverStandingsParameter,
 ) -> Result<Json<Response<DriverStandingResponse>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let res = application::driver_standings::DriverStandingsQueryBuilder::params(param)
         .query_and_count(conn)?;

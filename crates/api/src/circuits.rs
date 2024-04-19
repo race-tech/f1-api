@@ -10,7 +10,7 @@ fn circuits_ref(
     series: Series,
     circuit_ref: shared::parameters::CircuitRef,
 ) -> Result<Json<Response<Circuit>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let circuit = application::circuits::CircuitsQueryBuilder::get(circuit_ref, conn)?;
 
@@ -29,7 +29,7 @@ fn circuits(
     series: Series,
     param: shared::parameters::GetCircuitsParameter,
 ) -> Result<Json<Response<Vec<Circuit>>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let res = application::circuits::CircuitsQueryBuilder::params(param).query_and_count(conn)?;
 

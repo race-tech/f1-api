@@ -13,6 +13,7 @@ serde_json.workspace = true
 mysql.workspace = true
 chrono.workspace = true
 redis.workspace = true
+log.workspace = true
 
 application = { path = "../application" }
 infrastructure = { path = "../infrastructure" }

@@ -4,13 +4,13 @@ use rocket::{get, routes, State};
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
-#[get("/<series>/status?<param..>", rank = 2)]
+#[get("/<series>/status?<param..>")]
 fn status(
     db: &State<ConnectionPool>,
     series: Series,
     param: shared::parameters::GetStatusParameters,
 ) -> Result<Json<Response<Vec<Status>>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let res = application::status::StatusQueryBuilder::params(param).query_and_count(conn)?;
 

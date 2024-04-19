@@ -10,7 +10,7 @@ fn constructors_ref(
     series: Series,
     constructor_ref: shared::parameters::ConstructorRef,
 ) -> Result<Json<Response<Constructor>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let constructor =
         application::constructors::ConstructorsQueryBuilder::get(constructor_ref, conn)?;
@@ -30,7 +30,7 @@ fn constructors(
     series: Series,
     param: shared::parameters::GetConstructorsParameter,
 ) -> Result<Json<Response<Vec<Constructor>>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let res =
         application::constructors::ConstructorsQueryBuilder::params(param).query_and_count(conn)?;

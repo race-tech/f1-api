@@ -10,7 +10,7 @@ fn races(
     series: Series,
     param: shared::parameters::GetRacesParameters,
 ) -> Result<Json<Response<Vec<RaceResponse>>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let res = application::races::RacesQueryBuilder::params(param).query_and_count(conn)?;
 

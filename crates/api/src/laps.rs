@@ -10,7 +10,7 @@ fn laps(
     series: Series,
     param: shared::parameters::GetLapsParameter,
 ) -> Result<Json<Response<LapsResponse>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let res = application::laps::LapsQueryBuilder::params(param).query_and_count(conn)?;
 

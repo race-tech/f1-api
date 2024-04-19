@@ -66,6 +66,7 @@ dependencies = [
  "application",
  "chrono",
  "infrastructure",
+ "log",
  "mysql",
  "r2d2",
  "redis",

@@ -10,7 +10,7 @@ fn drivers_ref(
     series: Series,
     driver_ref: shared::parameters::DriverRef,
 ) -> Result<Json<Response<Driver>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let driver = application::drivers::DriversQueryBuilder::get(driver_ref, conn)?;
 
@@ -29,7 +29,7 @@ fn drivers(
     series: Series,
     param: shared::parameters::GetDriversParameter,
 ) -> Result<Json<Response<Vec<Driver>>>> {
-    let conn = &mut db.from_series(series).get().unwrap();
+    let conn = &mut db.from_series(series).get()?;
 
     let res = application::drivers::DriversQueryBuilder::params(param).query_and_count(conn)?;
 
