@@ -7,7 +7,7 @@ use common::models::StaticConstructor;
 #[tokio::test]
 async fn test_get_constructors_by_ref() {
     common::Test::<StaticConstructor, Constructor>::new(
-        "/api/f1/constructors/?constructor_ref=ferrari",
+        "/api/f1/constructors?constructor_ref=ferrari",
         Series::F1,
         StaticConstructor {
             constructor_ref: "ferrari",
@@ -23,7 +23,7 @@ async fn test_get_constructors_by_ref() {
 #[tokio::test]
 async fn test_get_constructors() {
     common::Test::<&[StaticConstructor], Vec<Constructor>>::new(
-        "/api/f1/constructors/",
+        "/api/f1/constructors",
         Series::F1,
         &ALL_CONSTRUCTORS,
     )
@@ -40,7 +40,7 @@ async fn test_get_constructors() {
 #[tokio::test]
 async fn test_get_constructors_by_driver_ref() {
     common::Test::<&[StaticConstructor], Vec<Constructor>>::new(
-        "/api/f1/constructors/?driver_ref=leclerc",
+        "/api/f1/constructors?driver_ref=leclerc",
         Series::F1,
         &LECLERC_CONSTRUCTORS,
     )
@@ -57,7 +57,7 @@ async fn test_get_constructors_by_driver_ref() {
 #[tokio::test]
 async fn test_get_constructors_with_title() {
     common::Test::<&[StaticConstructor], Vec<Constructor>>::new(
-        "/api/f1/constructors/?constructor_standing=1",
+        "/api/f1/constructors?constructor_standing=1",
         Series::F1,
         &CONSTRUCTORS_WITH_TITLE,
     )

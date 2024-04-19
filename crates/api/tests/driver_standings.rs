@@ -7,7 +7,7 @@ use common::models::StaticStanding;
 #[tokio::test]
 async fn test_get_driver_standings() {
     common::Test::<'_, &[StaticStanding], Vec<InnerStandingResponse>>::new(
-        "/api/f1/drivers/standing/",
+        "/api/f1/drivers/standings",
         Series::F1,
         &ALL_STANDINGS,
     )
@@ -24,7 +24,7 @@ async fn test_get_driver_standings() {
 #[tokio::test]
 async fn test_get_driver_standings_by_year() {
     common::Test::<'_, &[StaticStanding<'_>], Vec<InnerStandingResponse>>::new(
-        "/api/f1/drivers/standing/?year=2023",
+        "/api/f1/drivers/standings?year=2023",
         Series::F1,
         &SEASON_2023_STANDINGS,
     )

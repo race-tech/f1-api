@@ -7,7 +7,7 @@ use common::models::StaticStanding;
 #[tokio::test]
 async fn test_get_constructor_standings() {
     common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
-        "/api/f1/constructors/standing/",
+        "/api/f1/constructors/standings",
         Series::F1,
         &ALL_STANDINGS,
     )
@@ -24,7 +24,7 @@ async fn test_get_constructor_standings() {
 #[tokio::test]
 async fn test_get_constructor_standings_by_ref() {
     common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
-        "/api/f1/constructors/standing/?constructor_ref=ferrari",
+        "/api/f1/constructors/standings?constructor_ref=ferrari",
         Series::F1,
         &FERRARI_STANDINGS,
     )
@@ -41,7 +41,7 @@ async fn test_get_constructor_standings_by_ref() {
 #[tokio::test]
 async fn test_get_constructor_standings_by_ref_and_result() {
     common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
-        "/api/f1/constructors/standing/?constructor_ref=ferrari&position=1",
+        "/api/f1/constructors/standings?constructor_ref=ferrari&position=1",
         Series::F1,
         &FERRARI_WINS,
     )
