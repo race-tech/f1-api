@@ -1,26 +1,20 @@
 use chrono::{DateTime, Duration, Utc};
 use redis::Commands;
-use rocket::fairing::{Fairing, Info, Kind};
-use rocket::{uri, Data, Request};
+use rocket::request::{self, FromRequest, Outcome, Request};
 
 use infrastructure::ConnectionPool;
-
-use crate::fallbacks::rocket_uri_macro_rate_limiter_fallback;
+use shared::error;
+use shared::error::ErrorKind::*;
 
 const RATE_LIMITER_KEY_PREFIX: &str = "RATE_LIMITER_";
 
 pub struct RateLimiter;
 
 #[rocket::async_trait]
-impl Fairing for RateLimiter {
-    fn info(&self) -> Info {
-        Info {
-            name: "RateLimiter",
-            kind: Kind::Request,
-        }
-    }
+impl<'r> FromRequest<'r> for RateLimiter {
+    type Error = shared::error::Error;
 
-    async fn on_request(&self, req: &mut Request<'_>, _: &mut Data<'_>) {
+    async fn from_request(req: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
         // SAFETY: This values should always be defined
         let ip_header = req
             .rocket()
@@ -36,8 +30,10 @@ impl Fairing for RateLimiter {
         let ip_addr = match req.real_ip() {
             Some(ip_addr) => ip_addr,
             None => {
-                req.set_uri(uri!("/fallback", rate_limiter_fallback(Some(ip_header), _)));
-                return;
+                return Outcome::Error((
+                    IpHeaderNotFound.into(),
+                    error!(IpHeaderNotFound => "ip header not found, expected to find it under the `{}` header", ip_header),
+                ))
             }
         };
 
@@ -46,19 +42,30 @@ impl Fairing for RateLimiter {
         let timestamps: String = match rate_limiter.get(&key) {
             Ok(res) => res,
             Err(_) => {
-                rate_limiter
-                    .set::<String, String, ()>(
-                        key,
-                        serde_json::to_string(&[(now.timestamp(), now.timestamp_subsec_nanos())])
-                            .unwrap(),
-                    )
-                    .unwrap();
-                return;
+                let timestamps =
+                    match serde_json::to_string(&[(now.timestamp(), now.timestamp_subsec_nanos())])
+                    {
+                        Ok(s) => s,
+                        Err(e) => {
+                            return Outcome::Error((
+                                InternalServer.into(),
+                                error!(InternalServer => e),
+                            ))
+                        }
+                    };
+
+                match rate_limiter.set(key, timestamps) {
+                    Ok(()) => return Outcome::Success(Self),
+                    Err(e) => {
+                        return Outcome::Error((InternalServer.into(), error!(InternalServer => e)))
+                    }
+                }
             }
         };
 
         let window_validation = |date| now - date > window.duration;
         let mut timestamps = cleanup(
+            // SAFETY: values are stored this way in the cache
             serde_json::from_str(&timestamps).unwrap(),
             window_validation,
         );
@@ -71,17 +78,22 @@ impl Fairing for RateLimiter {
                 .map(|&(secs, nsecs)| DateTime::from_timestamp(secs, nsecs).unwrap())
                 .unwrap();
             let time_to_wait = (window.duration - (now - first)).num_seconds();
-            req.set_uri(uri!(
-                "/fallback",
-                rate_limiter_fallback(_, Some(time_to_wait))
+            return Outcome::Error((
+                RateLimitReached.into(),
+                error!(RateLimitReached => "you reached the rate limit, please wait `{}s` before your next request", time_to_wait),
             ));
-            return;
         }
 
         timestamps.push((now.timestamp(), now.timestamp_subsec_nanos()));
-        rate_limiter
-            .set::<String, String, ()>(key, serde_json::to_string(&timestamps).unwrap())
-            .unwrap();
+        let timestamps = match serde_json::to_string(&timestamps) {
+            Ok(s) => s,
+            Err(e) => return Outcome::Error((InternalServer.into(), error!(InternalServer => e))),
+        };
+
+        match rate_limiter.set(key, timestamps) {
+            Ok(()) => Outcome::Success(Self),
+            Err(e) => Outcome::Error((InternalServer.into(), error!(InternalServer => e))),
+        }
     }
 }
 
@@ -97,6 +109,12 @@ impl SlidingWindow {
             request_num,
             duration,
         }
+    }
+}
+
+impl Default for SlidingWindow {
+    fn default() -> Self {
+        Self::new(120, Duration::seconds(10))
     }
 }
 

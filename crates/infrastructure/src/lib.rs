@@ -1,8 +1,8 @@
 use std::env;
 
+use shared::error;
 use shared::parameters::Series;
 
-mod error;
 mod pool;
 
 type Pool = r2d2::Pool<pool::MySqlConnectionManager>;
@@ -15,7 +15,7 @@ pub struct ConnectionPool {
 }
 
 impl ConnectionPool {
-    pub fn try_new() -> Result<Self, error::Error> {
+    pub fn try_new() -> shared::error::Result<Self> {
         let env_vars = EnvVars::try_new()?;
 
         let opts = mysql::OptsBuilder::new()
@@ -24,21 +24,21 @@ impl ConnectionPool {
             .user(Some(env_vars.user))
             .pass(Some(env_vars.password))
             .tcp_port(env_vars.port.parse().map_err(
-                |_| error!(ParseIntError => "failed to parse port number from env variable"),
+                |_| error!(ParseInt => "failed to parse port number from env variable"),
             )?);
 
         let manager = pool::MySqlConnectionManager::new(opts);
         let f1db_pool = r2d2::Pool::builder()
             .max_size(20)
             .build(manager)
-            .map_err(|_| error!(ConnectionPoolError => "Failed to create connection pool"))?;
+            .map_err(|_| error!(ConnectionPool => "Failed to create connection pool"))?;
 
         let rate_limiter_url = env_vars.rate_limiter_config.to_string();
         let cache = r2d2::Pool::builder()
             .max_size(10)
-            .build(pool::RedisClient::from(rate_limiter_url))
+            .build(pool::RedisClient::try_from(rate_limiter_url)?)
             .map_err(
-                |_| error!(ConnectionPoolError => "Failed to create rate limiter connection pool"),
+                |_| error!(ConnectionPool => "Failed to create rate limiter connection pool"),
             )?;
 
         Ok(Self { f1db_pool, cache })
