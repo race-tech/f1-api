@@ -1,12 +1,12 @@
 use shared::prelude::*;
 
-pub mod common;
-
-use common::models::StaticRace;
+use super::common::models::*;
+use super::common::Test;
+use crate::races_from_json;
 
 #[tokio::test]
 async fn test_get_races_by_year() {
-    common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
+    Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?year=2024",
         Series::F1,
         &ALL_2024_RACES,
@@ -23,7 +23,7 @@ async fn test_get_races_by_year() {
 
 #[tokio::test]
 async fn test_get_races_by_year_and_round() {
-    common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
+    Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?year=2024&round=1",
         Series::F1,
         &BAHRAIN_2024_ROUND_1,
@@ -40,7 +40,7 @@ async fn test_get_races_by_year_and_round() {
 
 #[tokio::test]
 async fn test_get_races_by_driver_ref() {
-    common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
+    Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?driver_ref=leclerc",
         Series::F1,
         &LECLERC_RACES,
@@ -57,7 +57,7 @@ async fn test_get_races_by_driver_ref() {
 
 #[tokio::test]
 async fn test_get_races_by_constructor_ref() {
-    common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
+    Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?constructor_ref=ferrari",
         Series::F1,
         &FERRARI_RACES,
@@ -74,7 +74,7 @@ async fn test_get_races_by_constructor_ref() {
 
 #[tokio::test]
 async fn test_get_races_by_driver_ref_and_page() {
-    common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
+    Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?driver_ref=leclerc&page=4",
         Series::F1,
         &LECLERC_RACES_PAGE_4,
@@ -91,7 +91,7 @@ async fn test_get_races_by_driver_ref_and_page() {
 
 #[tokio::test]
 async fn test_get_races_by_constructor_ref_and_page() {
-    common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
+    Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?constructor_ref=ferrari&page=36",
         Series::F1,
         &FERRARI_RACES_PAGE_36,

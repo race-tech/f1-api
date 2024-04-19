@@ -1,12 +1,12 @@
 use shared::prelude::*;
 
-pub mod common;
-
-use common::models::StaticLaps;
+use super::common::models::*;
+use super::common::Test;
+use crate::laps_from_json;
 
 #[tokio::test]
 async fn test_get_laps() {
-    common::Test::<StaticLaps, LapsResponse>::new(
+    Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1",
         Series::F1,
         BAHRAIN_2023_LAPS,
@@ -23,7 +23,7 @@ async fn test_get_laps() {
 
 #[tokio::test]
 async fn test_get_laps_by_driver_ref() {
-    common::Test::<StaticLaps, LapsResponse>::new(
+    Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1&driver_ref=max_verstappen",
         Series::F1,
         BAHRAIN_VERSTAPPEN_LAPS,
@@ -40,7 +40,7 @@ async fn test_get_laps_by_driver_ref() {
 
 #[tokio::test]
 async fn test_get_laps_by_driver_ref_and_page() {
-    common::Test::<StaticLaps, LapsResponse>::new(
+    Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1&driver_ref=max_verstappen&page=2",
         Series::F1,
         BAHRAIN_VERSTAPPEN_LAPS_PAGE_2,
@@ -57,7 +57,7 @@ async fn test_get_laps_by_driver_ref_and_page() {
 
 #[tokio::test]
 async fn test_get_laps_by_driver_ref_and_lap_number() {
-    common::Test::<StaticLaps, LapsResponse>::new(
+    Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1&driver_ref=max_verstappen&lap_number=10",
         Series::F1,
         BAHRAIN_VERSTAPPEN_LAP_10,

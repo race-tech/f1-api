@@ -1,19 +1,19 @@
 use shared::prelude::*;
 
-pub mod common;
-
-use common::models::StaticCircuit;
+use super::common::models::*;
+use super::common::Test;
+use crate::circuits_from_json;
 
 #[tokio::test]
 async fn test_get_circuit() {
-    common::Test::<StaticCircuit, Circuit>::new("/api/f1/circuits?circuit_ref=spa", Series::F1, SPA)
+    Test::<StaticCircuit, Circuit>::new("/api/f1/circuits?circuit_ref=spa", Series::F1, SPA)
         .test_ok()
         .await
 }
 
 #[tokio::test]
 async fn test_get_circuits_by_driver_ref() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?driver_ref=leclerc",
         Series::F1,
         &LECLERC_CIRCUITS,
@@ -30,7 +30,7 @@ async fn test_get_circuits_by_driver_ref() {
 
 #[tokio::test]
 async fn test_get_circuits_by_driver_ref_and_win() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?result=1&driver_ref=leclerc",
         Series::F1,
         &LECLERC_CIRCUITS_WINS,
@@ -47,7 +47,7 @@ async fn test_get_circuits_by_driver_ref_and_win() {
 
 #[tokio::test]
 async fn test_get_circuits_by_driver_ref_and_win_and_pole() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?grid=1&result=1&driver_ref=leclerc",
         Series::F1,
         &LECLERC_CIRCUITS_WINS_AND_POLE,
@@ -64,7 +64,7 @@ async fn test_get_circuits_by_driver_ref_and_win_and_pole() {
 
 #[tokio::test]
 async fn test_get_circuits_by_constructor_ref() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?constructor_ref=ferrari",
         Series::F1,
         &FERRARI_CIRCUITS,
@@ -81,7 +81,7 @@ async fn test_get_circuits_by_constructor_ref() {
 
 #[tokio::test]
 async fn test_get_circuits_by_constructor_ref_and_page() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?constructor_ref=ferrari&page=2",
         Series::F1,
         &FERRARI_PAGE_2_CIRCUITS,
@@ -98,7 +98,7 @@ async fn test_get_circuits_by_constructor_ref_and_page() {
 
 #[tokio::test]
 async fn test_get_circuits_by_year_and_round() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?year=2023&round=22",
         Series::F1,
         &circuits_from_json![{

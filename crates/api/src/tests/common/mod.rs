@@ -8,7 +8,7 @@ use axum::Router;
 use http_body_util::BodyExt;
 use tower::Service; // for `collect`
 
-use api_lib::PurpleSector;
+use crate::PurpleSector;
 use shared::prelude::{Pagination, Response, Series};
 
 pub mod macros;

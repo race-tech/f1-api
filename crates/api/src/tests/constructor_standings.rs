@@ -1,12 +1,12 @@
 use shared::prelude::*;
 
-pub mod common;
-
-use common::models::StaticStanding;
+use super::common::models::*;
+use super::common::Test;
+use crate::constructor_standings_from_json;
 
 #[tokio::test]
 async fn test_get_constructor_standings() {
-    common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
+    Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
         "/api/f1/constructors/standings",
         Series::F1,
         &ALL_STANDINGS,
@@ -23,7 +23,7 @@ async fn test_get_constructor_standings() {
 
 #[tokio::test]
 async fn test_get_constructor_standings_by_ref() {
-    common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
+    Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
         "/api/f1/constructors/standings?constructor_ref=ferrari",
         Series::F1,
         &FERRARI_STANDINGS,
@@ -40,7 +40,7 @@ async fn test_get_constructor_standings_by_ref() {
 
 #[tokio::test]
 async fn test_get_constructor_standings_by_ref_and_result() {
-    common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
+    Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
         "/api/f1/constructors/standings?constructor_ref=ferrari&position=1",
         Series::F1,
         &FERRARI_WINS,

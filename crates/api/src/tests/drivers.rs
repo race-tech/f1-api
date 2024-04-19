@@ -1,23 +1,19 @@
 use shared::prelude::*;
 
-pub mod common;
-
-use common::models::StaticDriver;
+use super::common::models::*;
+use super::common::Test;
+use crate::drivers_from_json;
 
 #[tokio::test]
 async fn test_get_driver() {
-    common::Test::<StaticDriver, Driver>::new(
-        "/api/f1/drivers?driver_ref=leclerc",
-        Series::F1,
-        LECLERC,
-    )
-    .test_ok()
-    .await
+    Test::<StaticDriver, Driver>::new("/api/f1/drivers?driver_ref=leclerc", Series::F1, LECLERC)
+        .test_ok()
+        .await
 }
 
 #[tokio::test]
 async fn test_get_drivers_by_circuit_ref() {
-    common::Test::<&[StaticDriver], Vec<Driver>>::new(
+    Test::<&[StaticDriver], Vec<Driver>>::new(
         "/api/f1/drivers?circuit_ref=spa",
         Series::F1,
         &SPA_DRIVERS,
@@ -34,7 +30,7 @@ async fn test_get_drivers_by_circuit_ref() {
 
 #[tokio::test]
 async fn test_get_drivers_by_circuit_ref_and_result() {
-    common::Test::<&[StaticDriver], Vec<Driver>>::new(
+    Test::<&[StaticDriver], Vec<Driver>>::new(
         "/api/f1/drivers?result=1&circuit_ref=spa",
         Series::F1,
         &SPA_WINNERS_DRIVERS,
@@ -51,7 +47,7 @@ async fn test_get_drivers_by_circuit_ref_and_result() {
 
 #[tokio::test]
 async fn test_get_drivers_by_driver_standing() {
-    common::Test::<&[StaticDriver], Vec<Driver>>::new(
+    Test::<&[StaticDriver], Vec<Driver>>::new(
         "/api/f1/drivers?driver_standing=1",
         Series::F1,
         &CHAMPIONSHIP_WINNERS,

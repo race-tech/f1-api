@@ -1,12 +1,12 @@
 use shared::prelude::*;
 
-pub mod common;
-
-use common::models::StaticStanding;
+use super::common::models::*;
+use super::common::Test;
+use crate::driver_standings_from_json;
 
 #[tokio::test]
 async fn test_get_driver_standings() {
-    common::Test::<'_, &[StaticStanding], Vec<InnerStandingResponse>>::new(
+    Test::<'_, &[StaticStanding], Vec<InnerStandingResponse>>::new(
         "/api/f1/drivers/standings",
         Series::F1,
         &ALL_STANDINGS,
@@ -23,7 +23,7 @@ async fn test_get_driver_standings() {
 
 #[tokio::test]
 async fn test_get_driver_standings_by_year() {
-    common::Test::<'_, &[StaticStanding<'_>], Vec<InnerStandingResponse>>::new(
+    Test::<'_, &[StaticStanding<'_>], Vec<InnerStandingResponse>>::new(
         "/api/f1/drivers/standings?year=2023",
         Series::F1,
         &SEASON_2023_STANDINGS,

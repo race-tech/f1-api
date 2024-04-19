@@ -1,12 +1,12 @@
 use shared::prelude::*;
 
-pub mod common;
-
-use common::models::StaticStatus;
+use super::common::models::*;
+use super::common::Test;
+use crate::status_from_json;
 
 #[tokio::test]
 async fn test_get_status() {
-    common::Test::<&[StaticStatus], Vec<Status>>::new("/api/f1/status", Series::F1, &ALL_STATUS)
+    Test::<&[StaticStatus], Vec<Status>>::new("/api/f1/status", Series::F1, &ALL_STATUS)
         .pagination(Some(Pagination {
             limit: 30,
             page: 1,
@@ -19,7 +19,7 @@ async fn test_get_status() {
 
 #[tokio::test]
 async fn test_get_status_by_driver_ref() {
-    common::Test::<&[StaticStatus], Vec<Status>>::new(
+    Test::<&[StaticStatus], Vec<Status>>::new(
         "/api/f1/status?driver_ref=leclerc",
         Series::F1,
         &LECLERC_STATUS,
@@ -36,7 +36,7 @@ async fn test_get_status_by_driver_ref() {
 
 #[tokio::test]
 async fn test_get_status_by_constructor_ref() {
-    common::Test::<&[StaticStatus], Vec<Status>>::new(
+    Test::<&[StaticStatus], Vec<Status>>::new(
         "/api/f1/status?constructor_ref=ferrari",
         Series::F1,
         &FERRARI_STATUS,

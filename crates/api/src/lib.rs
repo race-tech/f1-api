@@ -1,10 +1,13 @@
 use axum::Router;
 
 mod handlers;
+mod middlewares;
+#[cfg(test)]
+mod tests;
 
 pub struct PurpleSector {
     port: u16,
-    pub router: Router,
+    router: Router,
 }
 
 impl PurpleSector {
