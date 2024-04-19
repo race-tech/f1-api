@@ -66,6 +66,7 @@ dependencies = [
  "application",
  "axum",
  "chrono",
+ "dotenvy",
  "http-body-util",
  "infrastructure",
  "log",

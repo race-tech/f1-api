@@ -8,7 +8,7 @@ use axum::Router;
 use http_body_util::BodyExt;
 use tower::Service; // for `collect`
 
-use crate::PurpleSector;
+use crate::handlers;
 use shared::prelude::{Pagination, Response, Series};
 
 pub mod macros;
@@ -57,7 +57,30 @@ where
 }
 
 pub fn setup() -> Router {
-    PurpleSector::new(30).router
+    use axum::routing::get;
+
+    let pool = infrastructure::ConnectionPool::try_new().unwrap();
+
+    let api_routes = Router::new()
+        .route("/circuits", get(handlers::circuits::circuits))
+        .route(
+            "/constructors/standings",
+            get(handlers::constructor_standings::constructor_standings),
+        )
+        .route("/constructors", get(handlers::constructors::constructors))
+        .route(
+            "/drivers/standings",
+            get(handlers::driver_standings::driver_standings),
+        )
+        .route("/drivers", get(handlers::drivers::drivers))
+        .route("/laps", get(handlers::laps::laps))
+        .route("/races", get(handlers::races::races))
+        .route("/pit-stops", get(handlers::pit_stops::pit_stops))
+        .route("/seasons", get(handlers::seasons::seasons))
+        .route("/status", get(handlers::status::status))
+        .with_state(pool);
+
+    Router::new().nest("/api/:series", api_routes)
 }
 
 pub async fn get(mut router: Router, uri: &str) -> Result<axum::http::Response<Body>, Infallible> {
