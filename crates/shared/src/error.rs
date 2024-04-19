@@ -1,4 +1,7 @@
-use rocket::response::Responder;
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Response},
+};
 use serde::ser::Serialize;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -85,7 +88,7 @@ impl std::fmt::Display for ErrorKind {
 impl Serialize for ErrorKind {
     fn serialize<S>(&self, s: S) -> std::prelude::v1::Result<S::Ok, S::Error>
     where
-        S: rocket::serde::Serializer,
+        S: serde::Serializer,
     {
         use ErrorKind::*;
 
@@ -108,23 +111,23 @@ impl Serialize for ErrorKind {
 
 impl std::error::Error for Error {}
 
-impl From<ErrorKind> for rocket::http::Status {
+impl From<ErrorKind> for StatusCode {
     fn from(kind: ErrorKind) -> Self {
         use ErrorKind::*;
 
         match kind {
-            InvalidParameter => Self::BadRequest,
-            R2D2 => Self::InternalServerError,
-            Mysql => Self::InternalServerError,
-            EntityNotFound => Self::NotFound,
-            IpHeaderNotFound => Self::BadRequest,
-            RateLimitReached => Self::TooManyRequests,
-            InternalServer => Self::InternalServerError,
-            ResourceNotFound => Self::NotFound,
-            Redis => Self::InternalServerError,
-            MissingEnvVar => Self::InternalServerError,
-            ConnectionPool => Self::InternalServerError,
-            ParseInt => Self::InternalServerError,
+            InvalidParameter => Self::BAD_REQUEST,
+            R2D2 => Self::INTERNAL_SERVER_ERROR,
+            Mysql => Self::INTERNAL_SERVER_ERROR,
+            EntityNotFound => Self::NOT_FOUND,
+            IpHeaderNotFound => Self::BAD_REQUEST,
+            RateLimitReached => Self::TOO_MANY_REQUESTS,
+            InternalServer => Self::INTERNAL_SERVER_ERROR,
+            ResourceNotFound => Self::NOT_FOUND,
+            Redis => Self::INTERNAL_SERVER_ERROR,
+            MissingEnvVar => Self::INTERNAL_SERVER_ERROR,
+            ConnectionPool => Self::INTERNAL_SERVER_ERROR,
+            ParseInt => Self::INTERNAL_SERVER_ERROR,
         }
     }
 }
@@ -154,19 +157,12 @@ impl From<Error> for ErrorResponse {
     }
 }
 
-#[rocket::async_trait]
-impl<'r> Responder<'r, 'static> for Error {
-    fn respond_to(self, _: &'r rocket::Request<'_>) -> rocket::response::Result<'static> {
-        let mut response = rocket::Response::build()
-            .status((self.kind).into())
-            .header(rocket::http::ContentType::JSON)
-            .finalize();
-
+impl IntoResponse for Error {
+    fn into_response(self) -> Response {
+        let status: StatusCode = self.kind.into();
         let body = serde_json::to_string(&ErrorResponse::from(self)).unwrap();
 
-        response.set_sized_body(body.len(), std::io::Cursor::new(body));
-
-        Ok(response)
+        (status, body).into_response()
     }
 }
 

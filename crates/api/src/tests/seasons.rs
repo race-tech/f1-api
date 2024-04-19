@@ -1,29 +1,27 @@
 use shared::prelude::*;
 
-pub mod common;
+use super::common::models::*;
+use super::common::Test;
+use crate::seasons_from_json;
 
-use common::models::StaticSeason;
-
-#[test]
-fn test_get_seasons() {
-    common::Test::<&[StaticSeason], Vec<Season>>::new("/api/f1/seasons", Series::F1, &ALL_SEASONS)
+#[tokio::test]
+async fn test_get_seasons() {
+    Test::<&[StaticSeason], Vec<Season>>::new("/api/f1/seasons", Series::F1, &ALL_SEASONS)
         .pagination(Some(Pagination {
             limit: 30,
             page: 1,
             max_page: 3,
             total: 75,
         }))
-        .test_ok();
+        .test_ok()
+        .await
 }
 
-#[test]
-fn test_get_seasons_by_year() {
-    common::Test::<StaticSeason, Season>::new(
-        "/api/f1/seasons?season=2023",
-        Series::F1,
-        SEASON_2023,
-    )
-    .test_ok();
+#[tokio::test]
+async fn test_get_seasons_by_year() {
+    Test::<StaticSeason, Season>::new("/api/f1/seasons?season=2023", Series::F1, SEASON_2023)
+        .test_ok()
+        .await
 }
 
 const SEASON_2023: StaticSeason = seasons_from_json! {{

@@ -22,6 +22,13 @@ pub struct Response<T> {
     pub series: Series,
 }
 
+impl<T> Response<T> {
+    pub fn pagination(mut self, pagination: Pagination) -> Self {
+        self.pagination = Some(pagination);
+        self
+    }
+}
+
 impl<T> Response<Vec<T>> {
     pub fn from_vec<U: Into<T>>(data: Vec<U>, pagination: Pagination, series: Series) -> Self {
         Response {
@@ -30,6 +37,26 @@ impl<T> Response<Vec<T>> {
             series,
         }
     }
+}
+
+impl<T, U> From<(U, Series)> for Response<T>
+where
+    U: Into<T>,
+{
+    fn from(value: (U, Series)) -> Self {
+        Self {
+            data: value.0.into(),
+            pagination: None,
+            series: value.1,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum VecResponse<T> {
+    Single(T),
+    Multiple(Vec<T>),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -218,6 +245,66 @@ pub struct Status {
     pub status_id: i32,
     pub status: String,
     pub count: i32,
+}
+
+impl From<crate::models::Circuit> for VecResponse<Circuit> {
+    fn from(value: crate::models::Circuit) -> Self {
+        Self::Single(value.into())
+    }
+}
+
+impl From<Vec<crate::models::Circuit>> for VecResponse<Circuit> {
+    fn from(value: Vec<crate::models::Circuit>) -> Self {
+        Self::Multiple(value.into_iter().map(Into::into).collect())
+    }
+}
+
+impl From<crate::models::Constructor> for VecResponse<Constructor> {
+    fn from(value: crate::models::Constructor) -> Self {
+        Self::Single(value.into())
+    }
+}
+
+impl From<Vec<crate::models::Constructor>> for VecResponse<Constructor> {
+    fn from(value: Vec<crate::models::Constructor>) -> Self {
+        Self::Multiple(value.into_iter().map(Into::into).collect())
+    }
+}
+
+impl From<crate::models::Driver> for VecResponse<Driver> {
+    fn from(value: crate::models::Driver) -> Self {
+        Self::Single(value.into())
+    }
+}
+
+impl From<Vec<crate::models::Driver>> for VecResponse<Driver> {
+    fn from(value: Vec<crate::models::Driver>) -> Self {
+        Self::Multiple(value.into_iter().map(Into::into).collect())
+    }
+}
+
+impl From<Vec<crate::models::Race>> for VecResponse<RaceResponse> {
+    fn from(value: Vec<crate::models::Race>) -> Self {
+        Self::Multiple(value.into_iter().map(Into::into).collect())
+    }
+}
+
+impl From<crate::models::Season> for VecResponse<Season> {
+    fn from(value: crate::models::Season) -> Self {
+        Self::Single(value.into())
+    }
+}
+
+impl From<Vec<crate::models::Season>> for VecResponse<Season> {
+    fn from(value: Vec<crate::models::Season>) -> Self {
+        Self::Multiple(value.into_iter().map(Into::into).collect())
+    }
+}
+
+impl From<Vec<crate::models::Status>> for VecResponse<Status> {
+    fn from(value: Vec<crate::models::Status>) -> Self {
+        Self::Multiple(value.into_iter().map(Into::into).collect())
+    }
 }
 
 impl From<crate::models::Status> for Status {

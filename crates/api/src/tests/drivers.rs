@@ -1,22 +1,19 @@
 use shared::prelude::*;
 
-pub mod common;
+use super::common::models::*;
+use super::common::Test;
+use crate::drivers_from_json;
 
-use common::models::StaticDriver;
-
-#[test]
-fn test_get_driver() {
-    common::Test::<StaticDriver, Driver>::new(
-        "/api/f1/drivers?driver_ref=leclerc",
-        Series::F1,
-        LECLERC,
-    )
-    .test_ok();
+#[tokio::test]
+async fn test_get_driver() {
+    Test::<StaticDriver, Driver>::new("/api/f1/drivers?driver_ref=leclerc", Series::F1, LECLERC)
+        .test_ok()
+        .await
 }
 
-#[test]
-fn test_get_drivers_by_circuit_ref() {
-    common::Test::<&[StaticDriver], Vec<Driver>>::new(
+#[tokio::test]
+async fn test_get_drivers_by_circuit_ref() {
+    Test::<&[StaticDriver], Vec<Driver>>::new(
         "/api/f1/drivers?circuit_ref=spa",
         Series::F1,
         &SPA_DRIVERS,
@@ -27,12 +24,13 @@ fn test_get_drivers_by_circuit_ref() {
         max_page: 11,
         total: 326,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_drivers_by_circuit_ref_and_result() {
-    common::Test::<&[StaticDriver], Vec<Driver>>::new(
+#[tokio::test]
+async fn test_get_drivers_by_circuit_ref_and_result() {
+    Test::<&[StaticDriver], Vec<Driver>>::new(
         "/api/f1/drivers?result=1&circuit_ref=spa",
         Series::F1,
         &SPA_WINNERS_DRIVERS,
@@ -43,12 +41,13 @@ fn test_get_drivers_by_circuit_ref_and_result() {
         max_page: 1,
         total: 28,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_drivers_by_driver_standing() {
-    common::Test::<&[StaticDriver], Vec<Driver>>::new(
+#[tokio::test]
+async fn test_get_drivers_by_driver_standing() {
+    Test::<&[StaticDriver], Vec<Driver>>::new(
         "/api/f1/drivers?driver_standing=1",
         Series::F1,
         &CHAMPIONSHIP_WINNERS,
@@ -59,7 +58,8 @@ fn test_get_drivers_by_driver_standing() {
         max_page: 2,
         total: 34,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
 const LECLERC: StaticDriver = StaticDriver {

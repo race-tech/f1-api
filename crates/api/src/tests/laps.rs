@@ -1,12 +1,12 @@
 use shared::prelude::*;
 
-pub mod common;
+use super::common::models::*;
+use super::common::Test;
+use crate::laps_from_json;
 
-use common::models::StaticLaps;
-
-#[test]
-fn test_get_laps() {
-    common::Test::<StaticLaps, LapsResponse>::new(
+#[tokio::test]
+async fn test_get_laps() {
+    Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1",
         Series::F1,
         BAHRAIN_2023_LAPS,
@@ -17,12 +17,13 @@ fn test_get_laps() {
         max_page: 36,
         total: 1055,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_laps_by_driver_ref() {
-    common::Test::<StaticLaps, LapsResponse>::new(
+#[tokio::test]
+async fn test_get_laps_by_driver_ref() {
+    Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1&driver_ref=max_verstappen",
         Series::F1,
         BAHRAIN_VERSTAPPEN_LAPS,
@@ -33,12 +34,13 @@ fn test_get_laps_by_driver_ref() {
         max_page: 2,
         total: 57,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_laps_by_driver_ref_and_page() {
-    common::Test::<StaticLaps, LapsResponse>::new(
+#[tokio::test]
+async fn test_get_laps_by_driver_ref_and_page() {
+    Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1&driver_ref=max_verstappen&page=2",
         Series::F1,
         BAHRAIN_VERSTAPPEN_LAPS_PAGE_2,
@@ -49,12 +51,13 @@ fn test_get_laps_by_driver_ref_and_page() {
         max_page: 2,
         total: 57,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_laps_by_driver_ref_and_lap_number() {
-    common::Test::<StaticLaps, LapsResponse>::new(
+#[tokio::test]
+async fn test_get_laps_by_driver_ref_and_lap_number() {
+    Test::<StaticLaps, LapsResponse>::new(
         "/api/f1/laps?year=2023&round=1&driver_ref=max_verstappen&lap_number=10",
         Series::F1,
         BAHRAIN_VERSTAPPEN_LAP_10,
@@ -65,7 +68,8 @@ fn test_get_laps_by_driver_ref_and_lap_number() {
         max_page: 1,
         total: 1,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
 const BAHRAIN_2023_LAPS: StaticLaps = laps_from_json! {

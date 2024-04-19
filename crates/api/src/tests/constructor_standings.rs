@@ -1,13 +1,13 @@
 use shared::prelude::*;
 
-pub mod common;
+use super::common::models::*;
+use super::common::Test;
+use crate::constructor_standings_from_json;
 
-use common::models::StaticStanding;
-
-#[test]
-fn test_get_constructor_standings() {
-    common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
-        "/api/f1/constructors/standing/",
+#[tokio::test]
+async fn test_get_constructor_standings() {
+    Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
+        "/api/f1/constructors/standings",
         Series::F1,
         &ALL_STANDINGS,
     )
@@ -18,12 +18,13 @@ fn test_get_constructor_standings() {
         total: 910,
     }))
     .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_constructor_standings_by_ref() {
-    common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
-        "/api/f1/constructors/standing/?constructor_ref=ferrari",
+#[tokio::test]
+async fn test_get_constructor_standings_by_ref() {
+    Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
+        "/api/f1/constructors/standings?constructor_ref=ferrari",
         Series::F1,
         &FERRARI_STANDINGS,
     )
@@ -34,12 +35,13 @@ fn test_get_constructor_standings_by_ref() {
         total: 66,
     }))
     .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_constructor_standings_by_ref_and_result() {
-    common::Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
-        "/api/f1/constructors/standing/?constructor_ref=ferrari&position=1",
+#[tokio::test]
+async fn test_get_constructor_standings_by_ref_and_result() {
+    Test::<&[StaticStanding], Vec<InnerStandingResponse>>::new(
+        "/api/f1/constructors/standings?constructor_ref=ferrari&position=1",
         Series::F1,
         &FERRARI_WINS,
     )
@@ -50,6 +52,7 @@ fn test_get_constructor_standings_by_ref_and_result() {
         total: 16,
     }))
     .test_ok()
+    .await
 }
 
 const ALL_STANDINGS: [StaticStanding; 3] = constructor_standings_from_json![

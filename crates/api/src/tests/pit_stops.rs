@@ -1,13 +1,13 @@
 use shared::prelude::*;
 
-pub mod common;
+use super::common::models::*;
+use super::common::Test;
+use crate::stops_from_json;
 
-use common::models::StaticPitStops;
-
-#[test]
-fn test_get_pit_stops() {
-    common::Test::<StaticPitStops, PitStopsResponse>::new(
-        "/api/f1/pit_stops?year=2023&round=1",
+#[tokio::test]
+async fn test_get_pit_stops() {
+    Test::<StaticPitStops, PitStopsResponse>::new(
+        "/api/f1/pit-stops?year=2023&round=1",
         Series::F1,
         BAHRAIN_2023_STOPS_PAGE_1,
     )
@@ -17,13 +17,14 @@ fn test_get_pit_stops() {
         max_page: 2,
         total: 50,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_pit_stops_by_page() {
-    common::Test::<StaticPitStops, PitStopsResponse>::new(
-        "/api/f1/pit_stops?year=2023&round=1&page=2",
+#[tokio::test]
+async fn test_get_pit_stops_by_page() {
+    Test::<StaticPitStops, PitStopsResponse>::new(
+        "/api/f1/pit-stops?year=2023&round=1&page=2",
         Series::F1,
         BAHRAIN_2023_STOPS_PAGE_2,
     )
@@ -33,7 +34,8 @@ fn test_get_pit_stops_by_page() {
         max_page: 2,
         total: 50,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
 const BAHRAIN_2023_STOPS_PAGE_1: StaticPitStops = stops_from_json! {

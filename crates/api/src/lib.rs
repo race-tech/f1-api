@@ -1,46 +1,71 @@
-#![allow(clippy::too_many_arguments)]
+use axum::{middleware, Router};
+use tower::ServiceBuilder;
 
-use rocket::{Build, Rocket};
+use crate::middlewares::rate_limiter::{RateLimiter, RateLimiterKind};
 
-mod catchers;
-mod circuits;
-mod constructor_standings;
-mod constructors;
-mod driver_standings;
-mod drivers;
-mod fairings;
-mod guards;
-mod laps;
-mod pit_stops;
-mod races;
-mod seasons;
-mod status;
+mod handlers;
+mod middlewares;
+#[cfg(test)]
+mod tests;
 
-pub fn rocket_builder() -> Rocket<Build> {
-    rocket::build()
-        .attach(fairings::helmet::Formula1Helmet)
-        .register("/", catchers::catchers())
-        .mount("/api", handlers::handlers())
-        .manage(infrastructure::ConnectionPool::try_new().unwrap())
-        .manage(guards::rate_limiter::SlidingWindow::default())
+pub struct PurpleSector {
+    port: u16,
+    router: Router,
 }
 
-mod handlers {
-    use crate::*;
-    use rocket::Route;
-
-    pub fn handlers() -> Vec<Route> {
-        circuits::handlers()
-            .into_iter()
-            .chain(drivers::handlers())
-            .chain(constructors::handlers())
-            .chain(constructor_standings::handlers())
-            .chain(driver_standings::handlers())
-            .chain(laps::handlers())
-            .chain(pit_stops::handlers())
-            .chain(races::handlers())
-            .chain(seasons::handlers())
-            .chain(status::handlers())
-            .collect()
+impl PurpleSector {
+    pub fn new(port: u16) -> PurpleSector {
+        Self {
+            port,
+            router: router(),
+        }
     }
+
+    pub async fn serve(self) {
+        let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", self.port))
+            .await
+            .unwrap();
+
+        axum::serve(
+            listener,
+            self.router
+                .into_make_service_with_connect_info::<std::net::SocketAddr>(),
+        )
+        .await
+        .unwrap();
+    }
+}
+
+pub fn router() -> Router {
+    use axum::routing::get;
+
+    let pool = infrastructure::ConnectionPool::try_new().unwrap();
+
+    let api_routes = Router::new()
+        .route("/circuits", get(handlers::circuits::circuits))
+        .route(
+            "/constructors/standings",
+            get(handlers::constructor_standings::constructor_standings),
+        )
+        .route("/constructors", get(handlers::constructors::constructors))
+        .route(
+            "/drivers/standings",
+            get(handlers::driver_standings::driver_standings),
+        )
+        .route("/drivers", get(handlers::drivers::drivers))
+        .route("/laps", get(handlers::laps::laps))
+        .route("/races", get(handlers::races::races))
+        .route("/pit-stops", get(handlers::pit_stops::pit_stops))
+        .route("/seasons", get(handlers::seasons::seasons))
+        .route("/status", get(handlers::status::status))
+        .layer(ServiceBuilder::new().layer(middleware::from_fn_with_state(
+            RateLimiter {
+                kind: RateLimiterKind::default(),
+                cache: pool.cache.clone(),
+            },
+            middlewares::rate_limiter::mw_rate_limiter,
+        )))
+        .with_state(pool);
+
+    Router::new().nest("/api/:series", api_routes)
 }

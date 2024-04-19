@@ -1,24 +1,25 @@
 use shared::prelude::*;
 
-pub mod common;
+use super::common::models::*;
+use super::common::Test;
+use crate::status_from_json;
 
-use common::models::StaticStatus;
-
-#[test]
-fn test_get_status() {
-    common::Test::<&[StaticStatus], Vec<Status>>::new("/api/f1/status", Series::F1, &ALL_STATUS)
+#[tokio::test]
+async fn test_get_status() {
+    Test::<&[StaticStatus], Vec<Status>>::new("/api/f1/status", Series::F1, &ALL_STATUS)
         .pagination(Some(Pagination {
             limit: 30,
             page: 1,
             max_page: 5,
             total: 137,
         }))
-        .test_ok();
+        .test_ok()
+        .await
 }
 
-#[test]
-fn test_get_status_by_driver_ref() {
-    common::Test::<&[StaticStatus], Vec<Status>>::new(
+#[tokio::test]
+async fn test_get_status_by_driver_ref() {
+    Test::<&[StaticStatus], Vec<Status>>::new(
         "/api/f1/status?driver_ref=leclerc",
         Series::F1,
         &LECLERC_STATUS,
@@ -29,12 +30,13 @@ fn test_get_status_by_driver_ref() {
         max_page: 1,
         total: 16,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_status_by_constructor_ref() {
-    common::Test::<&[StaticStatus], Vec<Status>>::new(
+#[tokio::test]
+async fn test_get_status_by_constructor_ref() {
+    Test::<&[StaticStatus], Vec<Status>>::new(
         "/api/f1/status?constructor_ref=ferrari",
         Series::F1,
         &FERRARI_STATUS,
@@ -45,7 +47,8 @@ fn test_get_status_by_constructor_ref() {
         max_page: 3,
         total: 75,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
 const FERRARI_STATUS: [StaticStatus; 30] = status_from_json![

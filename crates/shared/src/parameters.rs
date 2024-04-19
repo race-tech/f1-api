@@ -1,13 +1,6 @@
-#![allow(clippy::needless_update)]
-#![allow(clippy::blocks_in_conditions)]
-
-use rocket::form::FromForm;
-use rocket::request::FromParam;
 use serde::{Deserialize, Serialize};
 
 use derives::FilterValidation;
-
-use crate::error;
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub enum Series {
@@ -16,52 +9,6 @@ pub enum Series {
     F1,
     #[serde(rename = "f2")]
     F2,
-}
-
-impl<'r> FromParam<'r> for Series {
-    type Error = crate::error::Error;
-
-    fn from_param(param: &str) -> Result<Self, Self::Error> {
-        match param {
-            "f1" => Ok(Series::F1),
-            "f2" => Ok(Series::F2),
-            _ => Err(error!(
-                InvalidParameter =>
-                "invalid series parameter, expected a parameter in ['f1', 'f2'] got: {}", param
-            )),
-        }
-    }
-}
-
-impl<'r> FromParam<'r> for Year {
-    type Error = crate::error::Error;
-
-    fn from_param(param: &str) -> Result<Self, Self::Error> {
-        match param {
-            "current" => Ok(Year::get_current_year()),
-            _ => match param.parse::<u32>() {
-                Ok(year) => Ok(Year(year)),
-                Err(_) => Err(error!(
-                    ParseInt =>
-                    "invalid year parameter, expected a u32 got: {}", param
-                )),
-            },
-        }
-    }
-}
-
-impl<'r> FromParam<'r> for Round {
-    type Error = crate::error::Error;
-
-    fn from_param(param: &str) -> Result<Self, Self::Error> {
-        match param.parse::<u32>() {
-            Ok(round) => Ok(Round(round)),
-            Err(_) => Err(error!(
-                ParseInt =>
-                "invalid round parameter, expected a u32 got: {}", param
-            )),
-        }
-    }
 }
 
 macros::query_parameters! {
@@ -95,12 +42,13 @@ pub trait FilterValidation {
     fn validate(&self) -> Result<(), crate::error::Error>;
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, Deserialize)]
 pub struct GetCircuitsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
     #[validation(skip)]
     pub page: Option<Page>,
+    pub circuit_ref: Option<CircuitRef>,
     pub driver_ref: Option<DriverRef>,
     pub constructor_ref: Option<ConstructorRef>,
     pub status: Option<StatusId>,
@@ -111,7 +59,7 @@ pub struct GetCircuitsParameter {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, Deserialize)]
 pub struct GetDriversParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -119,6 +67,7 @@ pub struct GetDriversParameter {
     pub page: Option<Page>,
     pub circuit_ref: Option<CircuitRef>,
     pub constructor_ref: Option<ConstructorRef>,
+    pub driver_ref: Option<DriverRef>,
     pub driver_standing: Option<DriverStanding>,
     pub status: Option<StatusId>,
     pub grid: Option<Grid>,
@@ -128,12 +77,13 @@ pub struct GetDriversParameter {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, Deserialize)]
 pub struct GetConstructorsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
     #[validation(skip)]
     pub page: Option<Page>,
+    pub constructor_ref: Option<ConstructorRef>,
     pub circuit_ref: Option<CircuitRef>,
     pub driver_ref: Option<DriverRef>,
     pub constructor_standing: Option<ConstructorStanding>,
@@ -145,7 +95,7 @@ pub struct GetConstructorsParameter {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, Deserialize)]
 pub struct GetConstructorStandingsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -157,7 +107,7 @@ pub struct GetConstructorStandingsParameter {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, Deserialize)]
 pub struct GetDriverStandingsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -169,7 +119,7 @@ pub struct GetDriverStandingsParameter {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, Deserialize)]
 pub struct GetLapsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -183,7 +133,7 @@ pub struct GetLapsParameter {
     pub lap_number: Option<LapNumber>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, Deserialize)]
 pub struct GetPitStopsParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -196,7 +146,7 @@ pub struct GetPitStopsParameter {
     pub pit_stop_number: Option<PitStopNumber>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, Deserialize)]
 pub struct GetRacesParameters {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -213,12 +163,13 @@ pub struct GetRacesParameters {
     pub round: Option<Round>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, Deserialize)]
 pub struct GetSeasonsParameters {
     #[validation(skip)]
     pub limit: Option<Limit>,
     #[validation(skip)]
     pub page: Option<Page>,
+    pub season: Option<Year>,
     pub circuit_ref: Option<CircuitRef>,
     pub driver_ref: Option<DriverRef>,
     pub constructor_ref: Option<ConstructorRef>,
@@ -230,7 +181,7 @@ pub struct GetSeasonsParameters {
     pub constructor_standing: Option<ConstructorStanding>,
 }
 
-#[derive(Debug, Default, FilterValidation, FromForm)]
+#[derive(Debug, Default, FilterValidation, Deserialize)]
 pub struct GetStatusParameters {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -273,7 +224,7 @@ impl Default for Round {
 mod macros {
     macro_rules! query_parameters {
         ($(#[$($traits:ident),*])* $name:ident ($type:ty) => $deref:ty; $($rest:tt)*) => {
-            #[derive(Debug, Clone, FromForm $($(, $traits)*)*)]
+            #[derive(Debug, Clone, Deserialize $($(, $traits)*)*)]
             pub struct $name(pub $type);
 
             impl From<$type> for $name {
@@ -293,7 +244,7 @@ mod macros {
             macros::query_parameters!{ $($rest)* }
         };
         ($(#[$($traits:ident),*])* $name:ident ($type:ty); $($rest:tt)*) => {
-            #[derive(Debug, Clone, FromForm $($(, $traits)*)*)]
+            #[derive(Debug, Clone, Deserialize $($(, $traits)*)*)]
             pub struct $name(pub $type);
 
             impl From<$type> for $name {

@@ -1,13 +1,13 @@
 use shared::prelude::*;
 
-pub mod common;
+use super::common::models::*;
+use super::common::Test;
+use crate::driver_standings_from_json;
 
-use common::models::StaticStanding;
-
-#[test]
-fn test_get_driver_standings() {
-    common::Test::<'_, &[StaticStanding], Vec<InnerStandingResponse>>::new(
-        "/api/f1/drivers/standing/",
+#[tokio::test]
+async fn test_get_driver_standings() {
+    Test::<'_, &[StaticStanding], Vec<InnerStandingResponse>>::new(
+        "/api/f1/drivers/standings",
         Series::F1,
         &ALL_STANDINGS,
     )
@@ -18,12 +18,13 @@ fn test_get_driver_standings() {
         total: 3168,
     }))
     .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_driver_standings_by_year() {
-    common::Test::<'_, &[StaticStanding<'_>], Vec<InnerStandingResponse>>::new(
-        "/api/f1/drivers/standing/?year=2023",
+#[tokio::test]
+async fn test_get_driver_standings_by_year() {
+    Test::<'_, &[StaticStanding<'_>], Vec<InnerStandingResponse>>::new(
+        "/api/f1/drivers/standings?year=2023",
         Series::F1,
         &SEASON_2023_STANDINGS,
     )
@@ -34,6 +35,7 @@ fn test_get_driver_standings_by_year() {
         total: 22,
     }))
     .test_ok()
+    .await
 }
 
 const ALL_STANDINGS: [StaticStanding; 1] = driver_standings_from_json![

@@ -1,22 +1,19 @@
 use shared::prelude::*;
 
-pub mod common;
+use super::common::models::*;
+use super::common::Test;
+use crate::circuits_from_json;
 
-use common::models::StaticCircuit;
-
-#[test]
-fn test_get_circuit() {
-    common::Test::<StaticCircuit, Circuit>::new(
-        "/api/f1/circuits?circuit_ref=spa",
-        Series::F1,
-        SPA,
-    )
-    .test_ok();
+#[tokio::test]
+async fn test_get_circuit() {
+    Test::<StaticCircuit, Circuit>::new("/api/f1/circuits?circuit_ref=spa", Series::F1, SPA)
+        .test_ok()
+        .await
 }
 
-#[test]
-fn test_get_circuits_by_driver_ref() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+#[tokio::test]
+async fn test_get_circuits_by_driver_ref() {
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?driver_ref=leclerc",
         Series::F1,
         &LECLERC_CIRCUITS,
@@ -27,12 +24,13 @@ fn test_get_circuits_by_driver_ref() {
         max_page: 2,
         total: 31,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_circuits_by_driver_ref_and_win() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+#[tokio::test]
+async fn test_get_circuits_by_driver_ref_and_win() {
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?result=1&driver_ref=leclerc",
         Series::F1,
         &LECLERC_CIRCUITS_WINS,
@@ -43,12 +41,13 @@ fn test_get_circuits_by_driver_ref_and_win() {
         max_page: 1,
         total: 5,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_circuits_by_driver_ref_and_win_and_pole() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+#[tokio::test]
+async fn test_get_circuits_by_driver_ref_and_win_and_pole() {
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?grid=1&result=1&driver_ref=leclerc",
         Series::F1,
         &LECLERC_CIRCUITS_WINS_AND_POLE,
@@ -59,12 +58,13 @@ fn test_get_circuits_by_driver_ref_and_win_and_pole() {
         max_page: 1,
         total: 4,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_circuits_by_constructor_ref() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+#[tokio::test]
+async fn test_get_circuits_by_constructor_ref() {
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?constructor_ref=ferrari",
         Series::F1,
         &FERRARI_CIRCUITS,
@@ -75,12 +75,13 @@ fn test_get_circuits_by_constructor_ref() {
         max_page: 3,
         total: 76,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_circuits_by_constructor_ref_and_page() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+#[tokio::test]
+async fn test_get_circuits_by_constructor_ref_and_page() {
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?constructor_ref=ferrari&page=2",
         Series::F1,
         &FERRARI_PAGE_2_CIRCUITS,
@@ -91,12 +92,13 @@ fn test_get_circuits_by_constructor_ref_and_page() {
         max_page: 3,
         total: 76,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_circuits_by_year_and_round() {
-    common::Test::<&[StaticCircuit], Vec<Circuit>>::new(
+#[tokio::test]
+async fn test_get_circuits_by_year_and_round() {
+    Test::<&[StaticCircuit], Vec<Circuit>>::new(
         "/api/f1/circuits?year=2023&round=22",
         Series::F1,
         &circuits_from_json![{
@@ -116,7 +118,8 @@ fn test_get_circuits_by_year_and_round() {
         max_page: 1,
         total: 1,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
 const SPA: StaticCircuit = StaticCircuit {
