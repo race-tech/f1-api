@@ -4,18 +4,19 @@ pub mod common;
 
 use common::models::StaticDriver;
 
-#[test]
-fn test_get_driver() {
+#[tokio::test]
+async fn test_get_driver() {
     common::Test::<StaticDriver, Driver>::new(
         "/api/f1/drivers?driver_ref=leclerc",
         Series::F1,
         LECLERC,
     )
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_drivers_by_circuit_ref() {
+#[tokio::test]
+async fn test_get_drivers_by_circuit_ref() {
     common::Test::<&[StaticDriver], Vec<Driver>>::new(
         "/api/f1/drivers?circuit_ref=spa",
         Series::F1,
@@ -27,11 +28,12 @@ fn test_get_drivers_by_circuit_ref() {
         max_page: 11,
         total: 326,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_drivers_by_circuit_ref_and_result() {
+#[tokio::test]
+async fn test_get_drivers_by_circuit_ref_and_result() {
     common::Test::<&[StaticDriver], Vec<Driver>>::new(
         "/api/f1/drivers?result=1&circuit_ref=spa",
         Series::F1,
@@ -43,11 +45,12 @@ fn test_get_drivers_by_circuit_ref_and_result() {
         max_page: 1,
         total: 28,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_drivers_by_driver_standing() {
+#[tokio::test]
+async fn test_get_drivers_by_driver_standing() {
     common::Test::<&[StaticDriver], Vec<Driver>>::new(
         "/api/f1/drivers?driver_standing=1",
         Series::F1,
@@ -59,7 +62,8 @@ fn test_get_drivers_by_driver_standing() {
         max_page: 2,
         total: 34,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
 const LECLERC: StaticDriver = StaticDriver {

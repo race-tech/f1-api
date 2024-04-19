@@ -1605,15 +1605,19 @@ name = "purple-sector"
 version = "0.1.0"
 dependencies = [
  "api-lib",
+ "axum",
  "chrono",
  "dotenvy",
+ "http-body-util",
  "infrastructure",
  "log",
  "logger",
  "mysql",
  "rocket",
+ "serde_json",
  "shared",
  "tokio",
+ "tower",
 ]
 
 [[package]]

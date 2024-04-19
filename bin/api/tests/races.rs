@@ -4,8 +4,8 @@ pub mod common;
 
 use common::models::StaticRace;
 
-#[test]
-fn test_get_races_by_year() {
+#[tokio::test]
+async fn test_get_races_by_year() {
     common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?year=2024",
         Series::F1,
@@ -17,11 +17,12 @@ fn test_get_races_by_year() {
         max_page: 1,
         total: 24,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_races_by_year_and_round() {
+#[tokio::test]
+async fn test_get_races_by_year_and_round() {
     common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?year=2024&round=1",
         Series::F1,
@@ -33,11 +34,12 @@ fn test_get_races_by_year_and_round() {
         max_page: 1,
         total: 1,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_races_by_driver_ref() {
+#[tokio::test]
+async fn test_get_races_by_driver_ref() {
     common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?driver_ref=leclerc",
         Series::F1,
@@ -49,11 +51,12 @@ fn test_get_races_by_driver_ref() {
         max_page: 5,
         total: 129,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_races_by_constructor_ref() {
+#[tokio::test]
+async fn test_get_races_by_constructor_ref() {
     common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?constructor_ref=ferrari",
         Series::F1,
@@ -65,11 +68,12 @@ fn test_get_races_by_constructor_ref() {
         max_page: 36,
         total: 1080,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_races_by_driver_ref_and_page() {
+#[tokio::test]
+async fn test_get_races_by_driver_ref_and_page() {
     common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?driver_ref=leclerc&page=4",
         Series::F1,
@@ -81,11 +85,12 @@ fn test_get_races_by_driver_ref_and_page() {
         max_page: 5,
         total: 129,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_races_by_constructor_ref_and_page() {
+#[tokio::test]
+async fn test_get_races_by_constructor_ref_and_page() {
     common::Test::<&[StaticRace], Vec<RaceResponse>>::new(
         "/api/f1/races?constructor_ref=ferrari&page=36",
         Series::F1,
@@ -97,7 +102,8 @@ fn test_get_races_by_constructor_ref_and_page() {
         max_page: 36,
         total: 1080,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
 const ALL_2024_RACES: [StaticRace; 24] = races_from_json![

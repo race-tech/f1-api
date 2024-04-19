@@ -28,7 +28,7 @@ pub fn rocket_builder() -> Rocket<Build> {
 
 pub struct PurpleSector {
     port: u16,
-    router: Router,
+    pub router: Router,
 }
 
 impl PurpleSector {

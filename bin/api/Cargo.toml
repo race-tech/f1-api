@@ -17,3 +17,10 @@ api-lib = { path = "../../crates/api" }
 infrastructure = { path = "../../crates/infrastructure" }
 logger = { path = "../../crates/logger" }
 shared = { path = "../../crates/shared" }
+
+[dev-dependencies]
+axum.workspace = true
+tower.workspace = true
+serde_json.workspace = true
+
+http-body-util = "0.1.0"

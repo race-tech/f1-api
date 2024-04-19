@@ -4,8 +4,8 @@ pub mod common;
 
 use common::models::StaticConstructor;
 
-#[test]
-fn test_get_constructors_by_ref() {
+#[tokio::test]
+async fn test_get_constructors_by_ref() {
     common::Test::<StaticConstructor, Constructor>::new(
         "/api/f1/constructors/?constructor_ref=ferrari",
         Series::F1,
@@ -16,11 +16,12 @@ fn test_get_constructors_by_ref() {
             url: "http://en.wikipedia.org/wiki/Scuderia_Ferrari",
         },
     )
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_constructors() {
+#[tokio::test]
+async fn test_get_constructors() {
     common::Test::<&[StaticConstructor], Vec<Constructor>>::new(
         "/api/f1/constructors/",
         Series::F1,
@@ -32,11 +33,12 @@ fn test_get_constructors() {
         max_page: 8,
         total: 212,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_constructors_by_driver_ref() {
+#[tokio::test]
+async fn test_get_constructors_by_driver_ref() {
     common::Test::<&[StaticConstructor], Vec<Constructor>>::new(
         "/api/f1/constructors/?driver_ref=leclerc",
         Series::F1,
@@ -48,11 +50,12 @@ fn test_get_constructors_by_driver_ref() {
         max_page: 1,
         total: 2,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
-#[test]
-fn test_get_constructors_with_title() {
+#[tokio::test]
+async fn test_get_constructors_with_title() {
     common::Test::<&[StaticConstructor], Vec<Constructor>>::new(
         "/api/f1/constructors/?constructor_standing=1",
         Series::F1,
@@ -64,7 +67,8 @@ fn test_get_constructors_with_title() {
         max_page: 1,
         total: 17,
     }))
-    .test_ok();
+    .test_ok()
+    .await
 }
 
 const ALL_CONSTRUCTORS: [StaticConstructor; 30] = constructors_from_json![

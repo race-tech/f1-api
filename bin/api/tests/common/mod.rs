@@ -1,10 +1,14 @@
+use std::convert::Infallible;
 use std::marker::PhantomData;
 
-use rocket::http::uri::Origin;
-use rocket::http::{Header, Status};
-use rocket::local::blocking::{Client, LocalResponse};
+use axum::body::Body;
+use axum::extract::Request;
+use axum::http::StatusCode;
+use axum::Router;
+use http_body_util::BodyExt;
+use tower::Service; // for `collect`
 
-use api_lib::rocket_builder;
+use api_lib::PurpleSector;
 use shared::prelude::{Pagination, Response, Series};
 
 pub mod macros;
@@ -38,12 +42,13 @@ where
         self
     }
 
-    pub fn test_ok(self) {
-        let client = setup();
+    pub async fn test_ok(self) {
+        let router = setup();
 
-        let resp = get(&client, self.uri);
-        assert_eq!(resp.status(), Status::Ok);
-        let json = resp.into_json::<Response<U>>().unwrap();
+        let resp = get(router, self.uri).await.unwrap();
+        assert_eq!(resp.status(), StatusCode::OK);
+        let body = resp.into_body().collect().await.unwrap().to_bytes();
+        let json: Response<U> = serde_json::from_slice(&body).unwrap();
 
         assert_eq!(json.series, self.series);
         assert_eq!(json.pagination, self.pagination);
@@ -51,17 +56,20 @@ where
     }
 }
 
-pub fn setup() -> Client {
-    Client::tracked(rocket_builder()).expect("invalid rocket instance")
+pub fn setup() -> Router {
+    PurpleSector::new(30).router
 }
 
-pub fn get<'c, U>(client: &'c Client, uri: U) -> LocalResponse<'c>
-where
-    U: TryInto<Origin<'c>> + std::fmt::Display,
-{
-    let mut req = client.get(uri);
-    req.add_header(Header::new("x-real-ip", "127.0.0.1"));
-    req.dispatch()
+pub async fn get(mut router: Router, uri: &str) -> Result<axum::http::Response<Body>, Infallible> {
+    router
+        .call(
+            Request::builder()
+                .uri(uri)
+                .header("x-real-ip", "127.0.0.1")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
 }
 
 pub fn parse_date(date: &str) -> chrono::NaiveDate {

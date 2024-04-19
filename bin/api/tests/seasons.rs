@@ -4,8 +4,8 @@ pub mod common;
 
 use common::models::StaticSeason;
 
-#[test]
-fn test_get_seasons() {
+#[tokio::test]
+async fn test_get_seasons() {
     common::Test::<&[StaticSeason], Vec<Season>>::new("/api/f1/seasons", Series::F1, &ALL_SEASONS)
         .pagination(Some(Pagination {
             limit: 30,
@@ -13,17 +13,19 @@ fn test_get_seasons() {
             max_page: 3,
             total: 75,
         }))
-        .test_ok();
+        .test_ok()
+        .await
 }
 
-#[test]
-fn test_get_seasons_by_year() {
+#[tokio::test]
+async fn test_get_seasons_by_year() {
     common::Test::<StaticSeason, Season>::new(
         "/api/f1/seasons?season=2023",
         Series::F1,
         SEASON_2023,
     )
-    .test_ok();
+    .test_ok()
+    .await
 }
 
 const SEASON_2023: StaticSeason = seasons_from_json! {{
