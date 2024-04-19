@@ -2,13 +2,14 @@
 
 use rocket::{Build, Rocket};
 
+mod catchers;
 mod circuits;
 mod constructor_standings;
 mod constructors;
 mod driver_standings;
 mod drivers;
-pub mod fairings;
-pub mod guards;
+mod fairings;
+mod guards;
 mod laps;
 mod pit_stops;
 mod races;
@@ -18,6 +19,7 @@ mod status;
 pub fn rocket_builder() -> Rocket<Build> {
     rocket::build()
         .attach(fairings::helmet::Formula1Helmet)
+        .register("/", catchers::catchers())
         .mount("/api", handlers::handlers())
         .manage(infrastructure::ConnectionPool::try_new().unwrap())
         .manage(guards::rate_limiter::SlidingWindow::default())
