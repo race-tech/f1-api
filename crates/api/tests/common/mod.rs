@@ -24,7 +24,7 @@ pub struct Test<'a, T, U> {
 
 impl<'a, T, U> Test<'a, T, U>
 where
-    U: rocket::serde::DeserializeOwned + std::marker::Send + std::fmt::Debug + 'static,
+    U: serde::de::DeserializeOwned + std::fmt::Debug,
     T: PartialEq<U> + std::fmt::Debug,
 {
     pub fn new(uri: &'a str, series: Series, expected: T) -> Self {

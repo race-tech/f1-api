@@ -2,7 +2,6 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
-use rocket::response::Responder;
 use serde::ser::Serialize;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -89,7 +88,7 @@ impl std::fmt::Display for ErrorKind {
 impl Serialize for ErrorKind {
     fn serialize<S>(&self, s: S) -> std::prelude::v1::Result<S::Ok, S::Error>
     where
-        S: rocket::serde::Serializer,
+        S: serde::Serializer,
     {
         use ErrorKind::*;
 
@@ -111,27 +110,6 @@ impl Serialize for ErrorKind {
 }
 
 impl std::error::Error for Error {}
-
-impl From<ErrorKind> for rocket::http::Status {
-    fn from(kind: ErrorKind) -> Self {
-        use ErrorKind::*;
-
-        match kind {
-            InvalidParameter => Self::BadRequest,
-            R2D2 => Self::InternalServerError,
-            Mysql => Self::InternalServerError,
-            EntityNotFound => Self::NotFound,
-            IpHeaderNotFound => Self::BadRequest,
-            RateLimitReached => Self::TooManyRequests,
-            InternalServer => Self::InternalServerError,
-            ResourceNotFound => Self::NotFound,
-            Redis => Self::InternalServerError,
-            MissingEnvVar => Self::InternalServerError,
-            ConnectionPool => Self::InternalServerError,
-            ParseInt => Self::InternalServerError,
-        }
-    }
-}
 
 impl From<ErrorKind> for StatusCode {
     fn from(kind: ErrorKind) -> Self {
@@ -185,22 +163,6 @@ impl IntoResponse for Error {
         let body = serde_json::to_string(&ErrorResponse::from(self)).unwrap();
 
         (status, body).into_response()
-    }
-}
-
-#[rocket::async_trait]
-impl<'r> Responder<'r, 'static> for Error {
-    fn respond_to(self, _: &'r rocket::Request<'_>) -> rocket::response::Result<'static> {
-        let mut response = rocket::Response::build()
-            .status((self.kind).into())
-            .header(rocket::http::ContentType::JSON)
-            .finalize();
-
-        let body = serde_json::to_string(&ErrorResponse::from(self)).unwrap();
-
-        response.set_sized_body(body.len(), std::io::Cursor::new(body));
-
-        Ok(response)
     }
 }
 

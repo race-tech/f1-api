@@ -1,30 +1,6 @@
-#![allow(clippy::too_many_arguments)]
+use axum::Router;
 
-use axum::{extract::State, Router};
-use rocket::{Build, Rocket};
-
-mod catchers;
-mod circuits;
-mod constructor_standings;
-mod constructors;
-mod driver_standings;
-mod drivers;
-mod fairings;
-mod guards;
 mod handlers;
-mod laps;
-mod pit_stops;
-mod races;
-mod seasons;
-mod status;
-
-pub fn rocket_builder() -> Rocket<Build> {
-    rocket::build()
-        .attach(fairings::helmet::Formula1Helmet)
-        .register("/", catchers::catchers())
-        .manage(infrastructure::ConnectionPool::try_new().unwrap())
-        .manage(guards::rate_limiter::SlidingWindow::default())
-}
 
 pub struct PurpleSector {
     port: u16,
