@@ -17,5 +17,4 @@ redis = "0.25.3"
 log = { version = "0.4.21", features = ["std"] }
 axum = { version = "0.7.5", features = ["json"] }
 tokio = { version = "1", features = ["rt", "net", "macros", "rt-multi-thread"] }
-tower = { version = "0.4.13", features = ["util"] }
 figment = { version = "0.10.18", default-feature = false, features = ["yaml"] }

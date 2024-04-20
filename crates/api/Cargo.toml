@@ -9,7 +9,6 @@ edition = "2021"
 chrono.workspace = true
 log.workspace = true
 axum.workspace = true
-tower.workspace = true
 tokio.workspace = true
 serde_json.workspace = true
 redis.workspace = true
@@ -21,4 +20,5 @@ shared = { path = "../shared" }
 [dev-dependencies]
 serde.workspace = true
 
+tower = "0.4.13"
 http-body-util = "0.1.0"
