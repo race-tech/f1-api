@@ -1,10 +1,11 @@
 use std::net::SocketAddr;
 
+use axum::Extension;
 use axum::{body::Body, extract::State, http::Request, middleware::Next, response::Response};
 use chrono::{DateTime, Duration, Utc};
 use redis::Commands;
 
-use infrastructure::CachePool;
+use infrastructure::ConnectionPool;
 use shared::error;
 use shared::prelude::*;
 
@@ -13,7 +14,6 @@ const RATE_LIMITER_KEY_PREFIX: &str = "RATE_LIMITER_";
 #[derive(Clone)]
 pub struct RateLimiter {
     kind: RateLimiterKind,
-    cache: CachePool,
     request_num: usize,
     duration: Duration,
 }
@@ -24,6 +24,7 @@ pub enum RateLimiterKind {
 }
 
 pub async fn mw_rate_limiter(
+    Extension(conn): Extension<ConnectionPool>,
     State(rate_limiter): State<RateLimiter>,
     req: Request<Body>,
     next: Next,
@@ -34,7 +35,7 @@ pub async fn mw_rate_limiter(
         .get::<axum::extract::ConnectInfo<SocketAddr>>()
         .map(|addr| addr.ip())
         .ok_or(error!(IpHeaderNotFound => "ip header not found"))?;
-    let conn = &mut rate_limiter.cache.get()?;
+    let conn = &mut conn.cache.get()?;
 
     let key = format!("{}{}", RATE_LIMITER_KEY_PREFIX, ip_addr);
     let now = Utc::now();
@@ -75,15 +76,9 @@ pub async fn mw_rate_limiter(
 }
 
 impl RateLimiter {
-    pub fn new<T: Into<RateLimiterKind>>(
-        kind: T,
-        cache: CachePool,
-        request_num: usize,
-        seconds: i64,
-    ) -> Self {
+    pub fn new<T: Into<RateLimiterKind>>(kind: T, request_num: usize, seconds: i64) -> Self {
         Self {
             kind: kind.into(),
-            cache,
             request_num,
             duration: Duration::seconds(seconds),
         }

@@ -15,6 +15,6 @@ mysql = { version = "25.0.0", default-features = false, features = ["minimal"] }
 mysql_common = { version = "0.32.2", default-features = false, features = ["chrono", "derive", "bigdecimal"] }
 redis = "0.25.3"
 log = { version = "0.4.21", features = ["std"] }
-axum = { version = "0.7.5", features = ["json"] }
+axum = { version = "0.7.5", features = ["json", "tokio"] }
 tokio = { version = "1", features = ["rt", "net", "macros", "rt-multi-thread"] }
 figment = { version = "0.10.18", default-feature = false, features = ["yaml"] }

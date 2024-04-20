@@ -1,9 +1,6 @@
-use axum::{middleware, Router};
+use axum::{middleware, Extension, Router};
 
-use infrastructure::{
-    config::{Config, MiddlewareConfig},
-    CachePool,
-};
+use infrastructure::config::{Config, MiddlewareConfig};
 use shared::error::Result;
 
 use crate::middlewares::rate_limiter::RateLimiter;
@@ -66,24 +63,23 @@ fn router(config: &Config) -> Result<Router> {
         .route("/races", get(handlers::races::races))
         .route("/pit-stops", get(handlers::pit_stops::pit_stops))
         .route("/seasons", get(handlers::seasons::seasons))
-        .route("/status", get(handlers::status::status))
-        .with_state(pool.clone());
+        .route("/status", get(handlers::status::status));
 
     let builder = ServiceBuilder {
         config,
         router: api_routes,
-        cache: pool.cache,
     };
 
-    let api_routes = builder.middlewares()?;
+    let api_routes = builder.middlewares()?.route_layer(Extension(pool));
 
-    Ok(Router::new().nest("/api/:series", api_routes))
+    let router = Router::new().nest("/api/:series", api_routes);
+
+    Ok(router)
 }
 
 struct ServiceBuilder<'c> {
     config: &'c Config,
     router: Router,
-    cache: CachePool,
 }
 
 impl<'c> ServiceBuilder<'c> {
@@ -95,8 +91,8 @@ impl<'c> ServiceBuilder<'c> {
                     ty,
                     seconds,
                     requests,
-                } if enabled => router.layer(middleware::from_fn_with_state(
-                    RateLimiter::new(ty, self.cache.clone(), requests, seconds),
+                } if enabled => router.route_layer(middleware::from_fn_with_state(
+                    RateLimiter::new(ty, requests, seconds),
                     middlewares::rate_limiter::mw_rate_limiter,
                 )),
                 _ => router,
