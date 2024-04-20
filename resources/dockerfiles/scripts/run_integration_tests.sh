@@ -21,4 +21,11 @@ docker run -e MYSQL_DATABASE=${DB_NAME} -e MYSQL_USER=${DB_USER} -e MYSQL_PASSWO
 docker run -d --network purple-sector -h ${REDIS_IP_OR_HOSTNAME} docker.dragonflydb.io/dragonflydb/dragonfly:v1.16.1
 
 # Run the tests
-docker run -e DB_IP_OR_HOSTNAME -e DB_PORT -e DB_NAME -e DB_USER -e DB_PASSWORD -e REDIS_IP_OR_HOSTNAME -e REDIS_PORT --rm --network purple-sector purple-sector cargo test $@
+docker run --rm --network purple-sector purple-sector cargo test $@
+
+# Stop the database and cache
+docker stop $(docker ps -q --filter ancestor=thibaultcne/purple-sector:db-test)
+docker stop $(docker ps -q --filter ancestor=docker.dragonflydb.io/dragonflydb/dragonfly:v1.16.1)
+
+# Remove the network
+docker network rm purple-sector
