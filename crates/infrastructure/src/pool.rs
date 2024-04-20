@@ -19,14 +19,14 @@ impl TryFrom<&DatabaseConfig> for MySqlConnectionManager {
     fn try_from(
         DatabaseConfig {
             name,
-            ip,
+            hostname,
             port,
             user,
             password,
         }: &DatabaseConfig,
     ) -> Result<Self, Self::Error> {
         let opts = OptsBuilder::new()
-            .ip_or_hostname(Some(ip.to_string()))
+            .ip_or_hostname(Some(hostname))
             .db_name(Some(name))
             .user(Some(user))
             .pass(Some(password))
@@ -59,8 +59,8 @@ pub struct RedisClient(Client);
 impl TryFrom<&CacheConfig> for RedisClient {
     type Error = shared::error::Error;
 
-    fn try_from(CacheConfig { ip, port }: &CacheConfig) -> Result<Self, Self::Error> {
-        let url = format!("redis://{}:{}", ip, port);
+    fn try_from(CacheConfig { hostname, port }: &CacheConfig) -> Result<Self, Self::Error> {
+        let url = format!("redis://{}:{}", hostname, port);
         Ok(Self(redis::Client::open(url)?))
     }
 }

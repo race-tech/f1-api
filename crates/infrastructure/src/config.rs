@@ -1,5 +1,3 @@
-use std::net::IpAddr;
-
 use figment::{
     providers::{Format, Yaml},
     Figment,
@@ -23,7 +21,7 @@ impl Config {
 #[derive(Deserialize, Debug)]
 pub struct DatabaseConfig {
     pub name: String,
-    pub ip: IpAddr,
+    pub hostname: String,
     pub port: u16,
     pub user: String,
     pub password: String,
@@ -31,7 +29,7 @@ pub struct DatabaseConfig {
 
 #[derive(Deserialize, Debug)]
 pub struct CacheConfig {
-    pub ip: IpAddr,
+    pub hostname: String,
     pub port: u16,
 }
 
