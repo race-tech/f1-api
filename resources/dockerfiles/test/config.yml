@@ -1,11 +1,11 @@
 ---
 database:
   name: f1db
-  ip: 127.0.0.1
+  ip: mysql
   port: 3306
   user: user
   password: password
 
 cache:
-  ip: 127.0.0.1
+  ip: dragonfly
   port: 6379

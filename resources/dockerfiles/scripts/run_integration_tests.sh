@@ -6,15 +6,6 @@ if ! docker info > /dev/null 2>&1; then
   exit 1
 fi
 
-# Create all env variables
-export DB_IP_OR_HOSTNAME=mysql
-export DB_PORT=3306
-export DB_NAME=f1db
-export DB_USER=user
-export DB_PASSWORD=password
-export REDIS_IP_OR_HOSTNAME=dragonfly
-export REDIS_PORT=6379
-
 # Create a network
 docker network create purple-sector
 
