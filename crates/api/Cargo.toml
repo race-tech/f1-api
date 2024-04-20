@@ -19,7 +19,6 @@ infrastructure = { path = "../infrastructure" }
 shared = { path = "../shared" }
 
 [dev-dependencies]
-dotenvy.workspace = true
 serde.workspace = true
 
 http-body-util = "0.1.0"

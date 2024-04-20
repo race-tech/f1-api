@@ -6,10 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dotenvy.workspace = true
 log.workspace = true
 tokio.workspace = true
 
 api-lib = { path = "../../crates/api" }
 logger = { path = "../../crates/logger" }
 shared = { path = "../../crates/shared" }
+infrastructure = { path = "../../crates/infrastructure" }

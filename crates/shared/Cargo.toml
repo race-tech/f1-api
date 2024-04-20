@@ -15,5 +15,6 @@ mysql_common.workspace = true
 redis.workspace = true
 log.workspace = true
 axum.workspace = true
+figment.workspace = true
 
 derives = { path = "../derives" }
