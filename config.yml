@@ -1,13 +1,13 @@
 ---
 database:
   name: f1db
-  hostname: 127.0.0.1
+  hostname: database
   port: 3306
   user: user
   password: password
 
 cache:
-  hostname: 127.0.0.1
+  hostname: dragonfly
   port: 6379
 
 middlewares:
