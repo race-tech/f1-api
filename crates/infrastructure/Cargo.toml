@@ -9,5 +9,7 @@ edition = "2021"
 mysql.workspace = true
 r2d2.workspace = true
 redis.workspace = true
+figment.workspace = true
+serde.workspace = true
 
 shared = { path = "../shared" }

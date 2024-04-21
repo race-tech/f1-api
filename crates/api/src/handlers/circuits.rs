@@ -1,10 +1,13 @@
-use axum::extract::{Json, Path, Query, State};
+use axum::{
+    extract::{Json, Path, Query},
+    Extension,
+};
 
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 pub async fn circuits(
-    pool: State<ConnectionPool>,
+    Extension(pool): Extension<ConnectionPool>,
     Path(series): Path<Series>,
     Query(params): Query<GetCircuitsParameter>,
 ) -> Result<Json<Response<VecResponse<Circuit>>>> {

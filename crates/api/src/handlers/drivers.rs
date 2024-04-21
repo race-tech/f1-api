@@ -1,10 +1,10 @@
-use axum::extract::{Json, Path, Query, State};
+use axum::extract::{Extension, Json, Path, Query};
 
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 pub async fn drivers(
-    pool: State<ConnectionPool>,
+    Extension(pool): Extension<ConnectionPool>,
     Path(series): Path<Series>,
     Query(params): Query<GetDriversParameter>,
 ) -> Result<Json<Response<VecResponse<Driver>>>> {

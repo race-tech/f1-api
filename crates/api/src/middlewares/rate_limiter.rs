@@ -1,10 +1,11 @@
 use std::net::SocketAddr;
 
+use axum::Extension;
 use axum::{body::Body, extract::State, http::Request, middleware::Next, response::Response};
 use chrono::{DateTime, Duration, Utc};
 use redis::Commands;
 
-use infrastructure::CachePool;
+use infrastructure::ConnectionPool;
 use shared::error;
 use shared::prelude::*;
 
@@ -12,19 +13,18 @@ const RATE_LIMITER_KEY_PREFIX: &str = "RATE_LIMITER_";
 
 #[derive(Clone)]
 pub struct RateLimiter {
-    pub kind: RateLimiterKind,
-    pub cache: CachePool,
+    kind: RateLimiterKind,
+    request_num: usize,
+    duration: Duration,
 }
 
 #[derive(Clone, Copy)]
 pub enum RateLimiterKind {
-    SlidingWindow {
-        request_num: usize,
-        duration: Duration,
-    },
+    SlidingWindow,
 }
 
 pub async fn mw_rate_limiter(
+    Extension(conn): Extension<ConnectionPool>,
     State(rate_limiter): State<RateLimiter>,
     req: Request<Body>,
     next: Next,
@@ -35,7 +35,7 @@ pub async fn mw_rate_limiter(
         .get::<axum::extract::ConnectInfo<SocketAddr>>()
         .map(|addr| addr.ip())
         .ok_or(error!(IpHeaderNotFound => "ip header not found"))?;
-    let conn = &mut rate_limiter.cache.get()?;
+    let conn = &mut conn.cache.get()?;
 
     let key = format!("{}{}", RATE_LIMITER_KEY_PREFIX, ip_addr);
     let now = Utc::now();
@@ -76,44 +76,32 @@ pub async fn mw_rate_limiter(
 }
 
 impl RateLimiter {
-    fn cleanup(&self, timestamps: Vec<(i64, u32)>, now: DateTime<Utc>) -> Vec<(i64, u32)> {
-        self.kind.cleanup(timestamps, now)
-    }
-
-    fn is_allowed(&self, timestamps: &[(i64, u32)]) -> bool {
-        self.kind.is_allowed(timestamps)
-    }
-
-    fn time_to_wait(&self, timestamps: &[(i64, u32)], now: DateTime<Utc>) -> Duration {
-        self.kind.time_to_wait(timestamps, now)
-    }
-}
-
-impl RateLimiterKind {
-    fn cleanup(&self, timestamps: Vec<(i64, u32)>, now: DateTime<Utc>) -> Vec<(i64, u32)> {
-        match self {
-            RateLimiterKind::SlidingWindow { duration, .. } => {
-                cleanup(timestamps, |date| now - date > *duration)
-            }
+    pub fn new<T: Into<RateLimiterKind>>(kind: T, request_num: usize, seconds: i64) -> Self {
+        Self {
+            kind: kind.into(),
+            request_num,
+            duration: Duration::seconds(seconds),
         }
     }
 
+    fn cleanup(&self, timestamps: Vec<(i64, u32)>, now: DateTime<Utc>) -> Vec<(i64, u32)> {
+        cleanup(timestamps, |date| now - date > self.duration)
+    }
+
     fn is_allowed(&self, timestamps: &[(i64, u32)]) -> bool {
-        match self {
-            RateLimiterKind::SlidingWindow { request_num, .. } => timestamps.len() < *request_num,
-        }
+        timestamps.len() < self.request_num
     }
 
     fn time_to_wait(&self, timestamps: &[(i64, u32)], now: DateTime<Utc>) -> Duration {
-        match self {
-            RateLimiterKind::SlidingWindow { duration, .. } => {
+        match self.kind {
+            RateLimiterKind::SlidingWindow => {
                 // SAFETY: timestamps is not empty and secs and nsecs
                 // are from DateTime::timestamp and DateTime::timestamp_subsec_nanos
                 let first = timestamps
                     .first()
                     .map(|&(secs, nsecs)| DateTime::from_timestamp(secs, nsecs).unwrap())
                     .unwrap();
-                *duration - (now - first)
+                self.duration - (now - first)
             }
         }
     }
@@ -134,11 +122,19 @@ where
         .collect()
 }
 
-impl Default for RateLimiterKind {
-    fn default() -> Self {
-        Self::SlidingWindow {
-            request_num: 120,
-            duration: Duration::seconds(10),
+impl From<infrastructure::config::RateLimiterType> for RateLimiterKind {
+    fn from(value: infrastructure::config::RateLimiterType) -> Self {
+        match value {
+            infrastructure::config::RateLimiterType::SlidingWindow => Self::SlidingWindow,
+        }
+    }
+}
+
+impl From<Option<infrastructure::config::RateLimiterType>> for RateLimiterKind {
+    fn from(value: Option<infrastructure::config::RateLimiterType>) -> Self {
+        match value {
+            Some(v) => v.into(),
+            None => Self::SlidingWindow,
         }
     }
 }

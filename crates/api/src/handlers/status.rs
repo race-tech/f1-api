@@ -1,10 +1,10 @@
-use axum::extract::{Json, Path, Query, State};
+use axum::extract::{Extension, Json, Path, Query};
 
 use infrastructure::ConnectionPool;
 use shared::prelude::*;
 
 pub async fn status(
-    pool: State<ConnectionPool>,
+    Extension(pool): Extension<ConnectionPool>,
     Path(series): Path<Series>,
     Query(params): Query<GetStatusParameters>,
 ) -> Result<Json<Response<VecResponse<Status>>>> {

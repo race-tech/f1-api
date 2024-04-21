@@ -24,45 +24,31 @@ impl std::fmt::Display for Error {
 #[derive(Debug, Clone, Copy)]
 pub enum ErrorKind {
     InvalidParameter,
-    R2D2,
-    Mysql,
     EntityNotFound,
     ResourceNotFound,
     IpHeaderNotFound,
     RateLimitReached,
     InternalServer,
-    Redis,
     MissingEnvVar,
     ConnectionPool,
     ParseInt,
+
+    // External error kinds
+    R2D2,
+    Mysql,
+    Redis,
+    Figment,
+    Serde,
+    Axum,
 }
 
-impl From<r2d2::Error> for Error {
-    fn from(e: r2d2::Error) -> Self {
-        Error {
-            kind: ErrorKind::R2D2,
-            message: Some(e.to_string()),
-        }
-    }
-}
-
-impl From<mysql::Error> for Error {
-    fn from(e: mysql::Error) -> Self {
-        Error {
-            kind: ErrorKind::Mysql,
-            message: Some(e.to_string()),
-        }
-    }
-}
-
-impl From<redis::RedisError> for Error {
-    fn from(e: redis::RedisError) -> Self {
-        Error {
-            kind: ErrorKind::Redis,
-            message: Some(e.to_string()),
-        }
-    }
-}
+macros::error_from!(R2D2 => r2d2::Error);
+macros::error_from!(Mysql => mysql::Error);
+macros::error_from!(Redis => redis::RedisError);
+macros::error_from!(Figment => figment::Error);
+macros::error_from!(Serde => serde_json::Error);
+macros::error_from!(Axum => axum::Error);
+macros::error_from!(Axum => axum::http::Error);
 
 impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -81,6 +67,9 @@ impl std::fmt::Display for ErrorKind {
             MissingEnvVar => write!(f, "an environment variable is missing"),
             ConnectionPool => write!(f, "an error occured while setting-up a connection pool"),
             ParseInt => write!(f, "can't parse int"),
+            Figment => write!(f, "figment error"),
+            Serde => write!(f, "serde error"),
+            Axum => write!(f, "axum error"),
         }
     }
 }
@@ -105,6 +94,9 @@ impl Serialize for ErrorKind {
             MissingEnvVar => s.serialize_unit_variant("ErrorKind", 9, "MissingEnvVar"),
             ConnectionPool => s.serialize_unit_variant("ErrorKind", 10, "ConnectionPool"),
             ParseInt => s.serialize_unit_variant("ErrorKind", 11, "ParseInt"),
+            Figment => s.serialize_unit_variant("ErrorKind", 11, "Figment"),
+            Serde => s.serialize_unit_variant("ErrorKind", 12, "Serde"),
+            Axum => s.serialize_unit_variant("ErrorKind", 13, "Axum"),
         }
     }
 }
@@ -128,6 +120,9 @@ impl From<ErrorKind> for StatusCode {
             MissingEnvVar => Self::INTERNAL_SERVER_ERROR,
             ConnectionPool => Self::INTERNAL_SERVER_ERROR,
             ParseInt => Self::INTERNAL_SERVER_ERROR,
+            Figment => Self::INTERNAL_SERVER_ERROR,
+            Serde => Self::INTERNAL_SERVER_ERROR,
+            Axum => Self::INTERNAL_SERVER_ERROR,
         }
     }
 }
@@ -188,4 +183,19 @@ mod macros {
             }
         };
     }
+
+    macro_rules! error_from {
+        ($kind:ident => $error:ty) => {
+            impl From<$error> for Error {
+                fn from(e: $error) -> Self {
+                    Error {
+                        kind: ErrorKind::$kind,
+                        message: Some(e.to_string()),
+                    }
+                }
+            }
+        };
+    }
+
+    pub(super) use error_from;
 }

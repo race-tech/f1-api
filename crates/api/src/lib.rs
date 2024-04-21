@@ -1,7 +1,9 @@
-use axum::{middleware, Router};
-use tower::ServiceBuilder;
+use axum::{middleware, Extension, Router};
 
-use crate::middlewares::rate_limiter::{RateLimiter, RateLimiterKind};
+use infrastructure::config::{Config, MiddlewareConfig};
+use shared::error::Result;
+
+use crate::middlewares::rate_limiter::RateLimiter;
 
 mod handlers;
 mod middlewares;
@@ -14,13 +16,6 @@ pub struct PurpleSector {
 }
 
 impl PurpleSector {
-    pub fn new(port: u16) -> PurpleSector {
-        Self {
-            port,
-            router: router(),
-        }
-    }
-
     pub async fn serve(self) {
         let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", self.port))
             .await
@@ -36,10 +31,21 @@ impl PurpleSector {
     }
 }
 
-pub fn router() -> Router {
+impl TryFrom<Config> for PurpleSector {
+    type Error = shared::error::Error;
+
+    fn try_from(config: Config) -> std::prelude::v1::Result<Self, Self::Error> {
+        Ok(Self {
+            port: 8000,
+            router: router(&config)?,
+        })
+    }
+}
+
+fn router(config: &Config) -> Result<Router> {
     use axum::routing::get;
 
-    let pool = infrastructure::ConnectionPool::try_new().unwrap();
+    let pool = infrastructure::ConnectionPool::try_from(config)?;
 
     let api_routes = Router::new()
         .route("/circuits", get(handlers::circuits::circuits))
@@ -57,15 +63,43 @@ pub fn router() -> Router {
         .route("/races", get(handlers::races::races))
         .route("/pit-stops", get(handlers::pit_stops::pit_stops))
         .route("/seasons", get(handlers::seasons::seasons))
-        .route("/status", get(handlers::status::status))
-        .layer(ServiceBuilder::new().layer(middleware::from_fn_with_state(
-            RateLimiter {
-                kind: RateLimiterKind::default(),
-                cache: pool.cache.clone(),
-            },
-            middlewares::rate_limiter::mw_rate_limiter,
-        )))
-        .with_state(pool);
+        .route("/status", get(handlers::status::status));
 
-    Router::new().nest("/api/:series", api_routes)
+    let builder = ServiceBuilder {
+        config,
+        router: api_routes,
+    };
+
+    let api_routes = builder.middlewares()?.route_layer(Extension(pool));
+
+    let router = Router::new().nest("/api/:series", api_routes);
+
+    Ok(router)
+}
+
+struct ServiceBuilder<'c> {
+    config: &'c Config,
+    router: Router,
+}
+
+impl<'c> ServiceBuilder<'c> {
+    fn middlewares(self) -> Result<Router> {
+        if let Some(middlewares) = &self.config.middlewares {
+            let router = middlewares.iter().fold(self.router, |router, m| match m {
+                &MiddlewareConfig::RateLimiter {
+                    enabled,
+                    ty,
+                    seconds,
+                    requests,
+                } if enabled => router.route_layer(middleware::from_fn_with_state(
+                    RateLimiter::new(ty, requests, seconds),
+                    middlewares::rate_limiter::mw_rate_limiter,
+                )),
+                _ => router,
+            });
+            Ok(router)
+        } else {
+            Ok(self.router)
+        }
+    }
 }

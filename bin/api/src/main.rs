@@ -1,4 +1,4 @@
-use dotenvy::dotenv;
+use infrastructure::config::Config;
 
 #[tokio::main]
 async fn main() -> shared::error::Result<()> {
@@ -6,11 +6,18 @@ async fn main() -> shared::error::Result<()> {
         .init()
         .expect("cannot initialize the logger");
 
-    match dotenv() {
-        Ok(_) => log::info!("loadded `.env` file"),
-        Err(e) => log::error!("cannot load `.env` file: {}", e),
-    }
+    let config = match Config::try_new() {
+        Ok(config) => {
+            log::info!("config successfully loaded: {:?}", config);
+            config
+        }
+        Err(e) => {
+            log::error!("cannot load config : {}", e);
+            log::error!("aborting API launch");
+            return Err(e);
+        }
+    };
 
-    api_lib::PurpleSector::new(8000).serve().await;
+    api_lib::PurpleSector::try_from(config)?.serve().await;
     Ok(())
 }

@@ -5,18 +5,35 @@
 use mysql::{error::Error as MySqlError, prelude::*, Conn, Opts, OptsBuilder};
 use redis::{Client, ConnectionLike, RedisError};
 
+use crate::config::{CacheConfig, DatabaseConfig};
+
 /// An [`r2d2`] connection manager for [`mysql`] connections.
 #[derive(Clone, Debug)]
 pub struct MySqlConnectionManager {
-    params: Opts,
+    opts: Opts,
 }
 
-impl MySqlConnectionManager {
-    /// Constructs a new MySQL connection manager from `params`.
-    pub fn new(params: OptsBuilder) -> MySqlConnectionManager {
-        MySqlConnectionManager {
-            params: Opts::from(params),
-        }
+impl TryFrom<&DatabaseConfig> for MySqlConnectionManager {
+    type Error = shared::error::Error;
+
+    fn try_from(
+        DatabaseConfig {
+            name,
+            hostname,
+            port,
+            user,
+            password,
+        }: &DatabaseConfig,
+    ) -> Result<Self, Self::Error> {
+        let opts = OptsBuilder::new()
+            .ip_or_hostname(Some(hostname))
+            .db_name(Some(name))
+            .user(Some(user))
+            .pass(Some(password))
+            .tcp_port(*port)
+            .into();
+
+        Ok(Self { opts })
     }
 }
 
@@ -25,7 +42,7 @@ impl r2d2::ManageConnection for MySqlConnectionManager {
     type Error = MySqlError;
 
     fn connect(&self) -> Result<Conn, Self::Error> {
-        Conn::new(self.params.clone())
+        Conn::new(self.opts.clone())
     }
 
     fn is_valid(&self, conn: &mut Conn) -> Result<(), Self::Error> {
@@ -39,11 +56,12 @@ impl r2d2::ManageConnection for MySqlConnectionManager {
 
 pub struct RedisClient(Client);
 
-impl TryFrom<String> for RedisClient {
+impl TryFrom<&CacheConfig> for RedisClient {
     type Error = shared::error::Error;
 
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        Ok(Self(redis::Client::open(value)?))
+    fn try_from(CacheConfig { hostname, port }: &CacheConfig) -> Result<Self, Self::Error> {
+        let url = format!("redis://{}:{}", hostname, port);
+        Ok(Self(redis::Client::open(url)?))
     }
 }
 
