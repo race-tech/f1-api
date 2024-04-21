@@ -17,11 +17,12 @@ export REDIS_IP_OR_HOSTNAME=dragonfly
 docker network create purple-sector
 
 # Start the database and cache
-docker run -e MYSQL_DATABASE=${DB_NAME} -e MYSQL_USER=${DB_USER} -e MYSQL_PASSWORD=${DB_PASSWORD} --network purple-sector -h ${DB_IP_OR_HOSTNAME} -d thibaultcne/purple-sector:db-test --default-authentication-plugin=mysql_native_password
-docker run -d --network purple-sector -h ${REDIS_IP_OR_HOSTNAME} docker.dragonflydb.io/dragonflydb/dragonfly:v1.16.1
+docker run -e MYSQL_DATABASE=${DB_NAME} -e MYSQL_USER=${DB_USER} -e MYSQL_PASSWORD=${DB_PASSWORD} --network purple-sector -h ${DB_IP_OR_HOSTNAME} -d --rm thibaultcne/purple-sector:db-test --default-authentication-plugin=mysql_native_password
+docker run -d --network purple-sector -h ${REDIS_IP_OR_HOSTNAME} --rm docker.dragonflydb.io/dragonflydb/dragonfly:v1.16.1
 
 # Run the tests
 docker run --rm --network purple-sector purple-sector cargo test $@
+TEST_RES=$?
 
 # Stop the database and cache
 docker stop $(docker ps -q --filter ancestor=thibaultcne/purple-sector:db-test)
@@ -29,3 +30,5 @@ docker stop $(docker ps -q --filter ancestor=docker.dragonflydb.io/dragonflydb/d
 
 # Remove the network
 docker network rm purple-sector
+
+exit $TEST_RES
