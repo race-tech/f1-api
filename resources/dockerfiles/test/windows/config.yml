@@ -1,0 +1,11 @@
+---
+database:
+  name: f1db
+  hostname: localhost
+  port: 3306
+  user: user
+  password: password
+
+cache:
+  hostname: localhost
+  port: 6379
