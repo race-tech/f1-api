@@ -9,17 +9,38 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
   dragonfly:
     image: docker.dragonflydb.io/dragonflydb/dragonfly:v1.16.1
     ulimits:
       memlock: -1
-    ports:
-      - "6379:6379"
     volumes:
       - dragonflydata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      timeout: 20s
+      retries: 10
+
+  api:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config.yml:/config.yml
+    depends_on:
+      database:
+        condition: service_healthy
+      dragonfly:
+        condition: service_healthy
 
 volumes:
   dragonflydata:
+
+networks:
+  default:
+    driver: bridge
