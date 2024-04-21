@@ -24,24 +24,31 @@ impl std::fmt::Display for Error {
 #[derive(Debug, Clone, Copy)]
 pub enum ErrorKind {
     InvalidParameter,
-    R2D2,
-    Mysql,
     EntityNotFound,
     ResourceNotFound,
     IpHeaderNotFound,
     RateLimitReached,
     InternalServer,
-    Redis,
     MissingEnvVar,
     ConnectionPool,
     ParseInt,
+
+    // External error kinds
+    R2D2,
+    Mysql,
+    Redis,
     Figment,
+    Serde,
+    Axum,
 }
 
 macros::error_from!(R2D2 => r2d2::Error);
 macros::error_from!(Mysql => mysql::Error);
 macros::error_from!(Redis => redis::RedisError);
 macros::error_from!(Figment => figment::Error);
+macros::error_from!(Serde => serde_json::Error);
+macros::error_from!(Axum => axum::Error);
+macros::error_from!(Axum => axum::http::Error);
 
 impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -61,6 +68,8 @@ impl std::fmt::Display for ErrorKind {
             ConnectionPool => write!(f, "an error occured while setting-up a connection pool"),
             ParseInt => write!(f, "can't parse int"),
             Figment => write!(f, "figment error"),
+            Serde => write!(f, "serde error"),
+            Axum => write!(f, "axum error"),
         }
     }
 }
@@ -86,6 +95,8 @@ impl Serialize for ErrorKind {
             ConnectionPool => s.serialize_unit_variant("ErrorKind", 10, "ConnectionPool"),
             ParseInt => s.serialize_unit_variant("ErrorKind", 11, "ParseInt"),
             Figment => s.serialize_unit_variant("ErrorKind", 11, "Figment"),
+            Serde => s.serialize_unit_variant("ErrorKind", 12, "Serde"),
+            Axum => s.serialize_unit_variant("ErrorKind", 13, "Axum"),
         }
     }
 }
@@ -110,6 +121,8 @@ impl From<ErrorKind> for StatusCode {
             ConnectionPool => Self::INTERNAL_SERVER_ERROR,
             ParseInt => Self::INTERNAL_SERVER_ERROR,
             Figment => Self::INTERNAL_SERVER_ERROR,
+            Serde => Self::INTERNAL_SERVER_ERROR,
+            Axum => Self::INTERNAL_SERVER_ERROR,
         }
     }
 }
