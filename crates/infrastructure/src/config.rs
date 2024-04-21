@@ -1,6 +1,5 @@
 use figment::providers::{Format, Serialized, Yaml};
-use figment::value::{Dict, Map};
-use figment::{Figment, Metadata, Profile, Provider};
+use figment::Figment;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -12,11 +11,10 @@ pub struct Config {
 
 impl Config {
     pub fn try_new() -> shared::error::Result<Self> {
-        let config = Figment::from(Config::default())
-            .merge(
-                Yaml::file(std::env::var("PURPLE_SECTOR_CONFIG").unwrap_or("config.yml".into()))
-                    .nested(),
-            )
+        let config = Figment::from(Serialized::defaults(Config::default()))
+            .merge(Yaml::file(
+                std::env::var("PURPLE_SECTOR_CONFIG").unwrap_or("config.yml".into()),
+            ))
             .extract()?;
         Ok(config)
     }
@@ -41,6 +39,7 @@ pub struct CacheConfig {
 #[serde(rename_all = "snake_case")]
 pub enum MiddlewareConfig {
     RateLimiter {
+        #[serde(default)]
         enabled: bool,
         #[serde(rename = "type")]
         ty: Option<RateLimiterType>,
@@ -73,27 +72,5 @@ impl Default for CacheConfig {
             hostname: "127.0.0.1".into(),
             port: 6379,
         }
-    }
-}
-
-impl Provider for Config {
-    fn metadata(&self) -> figment::Metadata {
-        Metadata::named("purple_sector::config")
-    }
-
-    fn data(
-        &self,
-    ) -> std::result::Result<
-        figment::value::Map<figment::Profile, figment::value::Dict>,
-        figment::Error,
-    > {
-        let map: Map<Profile, Dict> = Serialized::defaults(self).data()?;
-
-        Ok(map)
-    }
-
-    fn profile(&self) -> Option<figment::Profile> {
-        // We don't indent to use profiles here
-        None
     }
 }
