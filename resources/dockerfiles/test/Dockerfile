@@ -41,6 +41,5 @@ RUN rm -rf src bin/* crates/*
 
 COPY bin bin
 COPY crates crates
-COPY resources/dockerfiles/test/config.yml .
 
 RUN cargo build
