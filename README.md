@@ -7,13 +7,17 @@
 
 This is a Fomula API build in Rust and currently under development. The goal is to provide a simple and easy to use API to access the ergast database and in the end, provide a new maintained database after the 2024 season.
 
-## Project Roadmap
+## Prerequisites
 
-- [x] Create all the basic API endpoints to access the ergast DB
-- [ ] Add a configuration file to the API
-- [ ] Create a complete swagger documentation
-- [ ] Create an automated tool to update the DB in prevision of the ergast deprecated DB for next season
-- [ ] Create a new DB for the F2 championship (maybe even F3 and F1 academy as well as WEC or other championships)
-- [ ] Add a predictor to the API (an LLM model that will try to predict upcoming races results)
-- [ ] Create a landing page for the API
-- [ ] Create a simple front-end to access the API
+To build and run the PurpleSector API, you need to have the following tools installed on your system:
+
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Docker](https://docs.docker.com/get-docker/)
+
+## Development
+
+To run the PurpleSector API locally, follow these steps:
+
+1. Clone the repository: `git clone https://github.com/thibault-cne/purple-sector.git`
+2. Run the database: `docker-compose up -d database dragonfly`
+3. Run the project: `cargo run --release`
