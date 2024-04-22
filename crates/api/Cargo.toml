@@ -13,6 +13,8 @@ tokio.workspace = true
 serde_json.workspace = true
 redis.workspace = true
 
+http-body-util = "0.1.0"
+
 application = { path = "../application" }
 infrastructure = { path = "../infrastructure" }
 shared = { path = "../shared" }
@@ -21,4 +23,3 @@ shared = { path = "../shared" }
 serde.workspace = true
 
 tower = "0.4.13"
-http-body-util = "0.1.0"
