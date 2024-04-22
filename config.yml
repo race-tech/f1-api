@@ -16,3 +16,6 @@ middlewares:
       requests: 100
       seconds: 60
       type: sliding_window
+  - cache:
+      enabled: true
+      ttl: 10

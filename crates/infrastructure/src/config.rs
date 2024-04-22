@@ -46,6 +46,11 @@ pub enum MiddlewareConfig {
         seconds: i64,
         requests: usize,
     },
+    Cache {
+        #[serde(default)]
+        enabled: bool,
+        ttl: u64,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]

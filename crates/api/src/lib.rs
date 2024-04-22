@@ -1,6 +1,7 @@
 use axum::{middleware, Extension, Router};
 
 use infrastructure::config::{Config, MiddlewareConfig};
+use middlewares::cache::Cache;
 use shared::error::Result;
 
 use crate::middlewares::rate_limiter::RateLimiter;
@@ -85,8 +86,8 @@ struct ServiceBuilder<'c> {
 impl<'c> ServiceBuilder<'c> {
     fn middlewares(self) -> Result<Router> {
         if let Some(middlewares) = &self.config.middlewares {
-            let router = middlewares.iter().fold(self.router, |router, m| match m {
-                &MiddlewareConfig::RateLimiter {
+            let router = middlewares.iter().fold(self.router, |router, m| match *m {
+                MiddlewareConfig::RateLimiter {
                     enabled,
                     ty,
                     seconds,
@@ -95,6 +96,12 @@ impl<'c> ServiceBuilder<'c> {
                     RateLimiter::new(ty, requests, seconds),
                     middlewares::rate_limiter::mw_rate_limiter,
                 )),
+                MiddlewareConfig::Cache { enabled, ttl } if enabled => {
+                    router.route_layer(middleware::from_fn_with_state(
+                        Cache::new(ttl),
+                        middlewares::cache::mw_cache_layer,
+                    ))
+                }
                 _ => router,
             });
             Ok(router)
