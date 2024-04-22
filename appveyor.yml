@@ -2,10 +2,10 @@
 # https://github.com/japaric/trust/tree/v0.1.2
 
 environment:
-  DB_NAME: "f1db"
-  DB_USER: "user"
-  DB_PASSWORD: "password"
-  PURPLE_SECTOR_CONFIG: "resources/dockerfiles/test/windows/config.yml"
+  DB_NAME: f1db
+  DB_USER: user
+  DB_PASSWORD: password
+  PURPLE_SECTOR_CONFIG: resources/dockerfiles/test/windows/config.yml
 
 install:
   - docker version
@@ -21,7 +21,7 @@ install:
 
 test_script:
   # Run the tests
-  - cmd: cat resources/dockerfiles/test/windows/config.yml
+  - docker ps -a
   - cargo test --tests
 
 cache:
