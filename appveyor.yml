@@ -21,7 +21,7 @@ install:
 
 test_script:
   # Run the tests
-  - cmd: cat resources/test/windows/config.yml
+  - cmd: cat resources/dockerfiles/test/windows/config.yml
   - cargo test --tests
 
 cache:
