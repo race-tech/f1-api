@@ -18,4 +18,5 @@ middlewares:
       type: sliding_window
   - cache:
       enabled: true
-      ttl: 10
+      # Time to live in seconds
+      ttl: 3600
