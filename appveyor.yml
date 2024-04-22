@@ -21,8 +21,6 @@ install:
 
 test_script:
   # Run the tests
-  - ps: Write-Host "$env:PURPLE_SECTOR_CONFIG"
-  - cmd: cat "$env:PURPLE_SECTOR_CONFIG"
   - cmd: cat resources/test/windows/config.yml
   - cargo test --tests
 
