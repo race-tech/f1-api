@@ -37,7 +37,7 @@ FROM planner AS builder
 
 COPY --from=planner /usr/purple-sector/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
-RUN cargo chef cook --recipe-path recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
 
 RUN rm -rf src bin/* crates/*
 
