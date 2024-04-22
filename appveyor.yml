@@ -5,7 +5,7 @@ environment:
   DB_NAME: "f1db"
   DB_USER: "user"
   DB_PASSWORD: "password"
-  PURPLE_SECTOR_CONFIG: "resources/test/windows/config.yml"
+  PURPLE_SECTOR_CONFIG: "resources/dockerfiles/test/windows/config.yml"
 
 install:
   - docker version
