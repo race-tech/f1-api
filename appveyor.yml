@@ -3,10 +3,11 @@
 
 environment:
   global:
+    DB_IP_OR_HOSTNAME: mysql
     DB_NAME: f1db
     DB_USER: user
     DB_PASSWORD: password
-    PURPLE_SECTOR_CONFIG: resources/dockerfiles/test/windows/config.yml
+    REDIS_IP_OR_HOSTNAME: dragonfly
 
 install:
   - docker version
@@ -16,13 +17,15 @@ install:
   - SET PATH=%PATH%;C:\MinGW\bin
   - rustc -V
   - cargo -V
+  - docker build -f resources/dockerfiles/test/Dockerfile -t purple-sector .
+  - docker network create purple-sector
+  - docker run -e MYSQL_DATABASE=${DB_NAME} -e MYSQL_USER=${DB_USER} -e MYSQL_PASSWORD=${DB_PASSWORD} --network purple-sector -h ${DB_IP_OR_HOSTNAME} -d --rm thibaultcne/purple-sector:db-test --default-authentication-plugin=mysql_native_password
+  - docker run -d --network purple-sector -h ${REDIS_IP_OR_HOSTNAME} --rm docker.dragonflydb.io/dragonflydb/dragonfly:v1.16.1
+  - sleep 4
 
 test_script:
-  - docker run -e MYSQL_DATABASE=${DB_NAME} -e MYSQL_USER=${DB_USER} -e MYSQL_PASSWORD=${DB_PASSWORD} -p 3306:3306 -d --rm thibaultcne/purple-sector:db-test --default-authentication-plugin=mysql_native_password
-  - docker run -d -p 6379:6379 --rm docker.dragonflydb.io/dragonflydb/dragonfly:v1.16.1
-  - sleep 4
-  - echo $PURPLE_SECTOR_CONFIG
-  - cargo test --verbose --tests
+  # Run the tests
+  - docker run --rm --network purple-sector purple-sector cargo test --tests
 
 cache:
   - C:\Users\appveyor\.cargo\registry
