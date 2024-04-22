@@ -1,6 +1,5 @@
 [![build & test](https://github.com/thibault-cne/purple-sector/actions/workflows/rust.yml/badge.svg)](https://github.com/thibault-cne/purple-sector/actions/workflows/rust.yml)
 [![circleci](https://img.shields.io/circleci/build/gh/thibault-cne/purple-sector?logo=circleci&logoColor=white&label=circleci)](https://circleci.com/gh/thibault-cne/purple-sector)
-[![appveyor](https://img.shields.io/appveyor/build/thibault-cne/purple-sector?logo=appveyor&logoColor=white&label=appveyor)](https://ci.appveyor.com/project/thibault-cne/purple-sector)
 [![license](https://img.shields.io/github/license/thibault-cne/purple-sector)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 [![rust report card](https://rust-reportcard.xuri.me/badge/github.com/thibault-cne/purple-sector)](https://rust-reportcard.xuri.me/report/github.com/thibault-cne/purple-sector)
 

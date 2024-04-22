@@ -58,7 +58,7 @@ where
 }
 
 pub fn setup() -> Router {
-    let config = infrastructure::config::Config::try_new().expect("valid config file");
+    let config = dbg!(infrastructure::config::Config::try_new().expect("valid config file"));
 
     router(&config).expect("valid configuration")
 }
