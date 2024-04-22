@@ -4,7 +4,7 @@
 environment:
   global:
     DB_NAME: f1db
-    export DB_USER: user
+    DB_USER: user
     DB_PASSWORD: password
     PURPLE_SECTOR_CONFIG: resources/dockerfiles/test/windows/config.yml
 
@@ -17,26 +17,12 @@ install:
   - rustc -V
   - cargo -V
 
-build_script:
-  - ver
-  - ps: systeminfo /fo csv | ConvertFrom-Csv | select OS*, System*, Hotfix* | Format-List
-  - ps: Get-VMNetworkAdapter -VMName *
-  - ps: Get-VMNetworkAdapter -All
-  - ps: Get-NetAdapter
-  - ps: |
-      $ipv4 = (Test-Connection -ComputerName $env:ComputerName -Count 1).IPV4Address.IPAddressToString
-      Set-Item -path env:HOST_IP -value $ipv4
-  - ipconfig
-  - echo %HOST_IP%
+test_script:
+  - ps: Set-Item -path env:RUST_BACKTRACE -value 1
+  - ps: Set-Item -path env:RUST_LOG -value "hyper=trace"
   - docker run -e MYSQL_DATABASE=${DB_NAME} -e MYSQL_USER=${DB_USER} -e MYSQL_PASSWORD=${DB_PASSWORD} --network purple-sector -p 3306:3306 -d --rm thibaultcne/purple-sector:db-test --default-authentication-plugin=mysql_native_password
   - docker run -d --network purple-sector -p 6379:6379 --rm docker.dragonflydb.io/dragonflydb/dragonfly:v1.16.1
   - sleep 4
-  - cargo build --verbose
-
-test_script:
-  - ps: Set-Item -path env:RUST_BACKTRACE -value 1
-  - ps: Set-Item -path env:RUST_LOG -value "hyper=trace,bollard=debug"
-  - ps: Set-Item -path env:REGISTRY_HTTP_ADDR -value localhost:5000
   - cargo test --verbose --tests -- --nocapture --test-threads 1
 
 cache:
