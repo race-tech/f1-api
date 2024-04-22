@@ -21,7 +21,7 @@ install:
 
 test_script:
   # Run the tests
-  - cmd: echo ${PURPLE_SECTOR_CONFIG}
+  - ps: Write-Host "$PURPLE_SECTOR_CONFIG"
   - cargo test --tests
 
 cache:
