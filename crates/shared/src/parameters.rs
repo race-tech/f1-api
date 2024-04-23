@@ -31,9 +31,7 @@ macros::query_parameters! {
 
 impl Year {
     pub fn get_current_year() -> Self {
-        use chrono::Datelike;
-
-        let now = chrono::Utc::now();
+        let now = time::OffsetDateTime::now_utc();
         Self(now.year() as u32)
     }
 }

@@ -58,27 +58,21 @@ where
 }
 
 pub fn setup() -> Router {
-    let config = dbg!(infrastructure::config::Config::try_new().expect("valid config file"));
+    let config = infrastructure::config::Config::try_new().expect("valid config file");
 
     router(&config).expect("valid configuration")
 }
 
 pub async fn get(mut router: Router, uri: &str) -> Result<axum::http::Response<Body>, Infallible> {
     router
-        .call(
-            Request::builder()
-                .uri(uri)
-                .header("x-real-ip", "127.0.0.1")
-                .body(Body::empty())
-                .unwrap(),
-        )
+        .call(Request::builder().uri(uri).body(Body::empty()).unwrap())
         .await
 }
 
-pub fn parse_date(date: &str) -> chrono::NaiveDate {
-    chrono::NaiveDate::parse_from_str(date, "%Y-%m-%d").unwrap()
+pub fn parse_date(date: &str) -> time::Date {
+    time::Date::parse(date, &shared::DATE_FORMAT).unwrap()
 }
 
-pub fn parse_time(time: &str) -> chrono::NaiveTime {
-    chrono::NaiveTime::parse_from_str(time, "%H:%M:%S").unwrap()
+pub fn parse_time(time: &str) -> time::Time {
+    time::Time::parse(time, &shared::TIME_FORMAT).unwrap()
 }

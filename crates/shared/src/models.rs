@@ -25,7 +25,7 @@ pub struct Driver {
     pub code: Option<String>,
     pub forename: String,
     pub surname: String,
-    pub dob: Option<chrono::NaiveDate>,
+    pub dob: Option<time::Date>,
     pub nationality: Option<String>,
     pub url: String,
 }
@@ -69,7 +69,7 @@ pub struct DriverStanding {
     pub code: Option<String>,
     pub forename: String,
     pub surname: String,
-    pub dob: Option<chrono::NaiveDate>,
+    pub dob: Option<time::Date>,
     pub nationality: Option<String>,
     pub url: String,
     pub points: f32,
@@ -86,9 +86,9 @@ pub struct Lap {
     #[mysql(rename = "raceName")]
     pub race_name: String,
     #[mysql(rename = "raceDate")]
-    pub race_date: chrono::NaiveDate,
+    pub race_date: time::Date,
     #[mysql(rename = "raceTime")]
-    pub race_time: Option<chrono::NaiveTime>,
+    pub race_time: Option<time::Time>,
     #[mysql(rename = "raceUrl")]
     pub race_url: Option<String>,
     #[mysql(rename = "circuitRef")]
@@ -119,9 +119,9 @@ pub struct PitStop {
     #[mysql(rename = "raceName")]
     pub race_name: String,
     #[mysql(rename = "raceDate")]
-    pub race_date: chrono::NaiveDate,
+    pub race_date: time::Date,
     #[mysql(rename = "raceTime")]
-    pub race_time: Option<chrono::NaiveTime>,
+    pub race_time: Option<time::Time>,
     #[mysql(rename = "raceUrl")]
     pub race_url: Option<String>,
     #[mysql(rename = "circuitRef")]
@@ -144,7 +144,7 @@ pub struct PitStop {
     pub driver_ref: String,
     pub stop: i32,
     pub lap: i32,
-    pub time: chrono::NaiveTime,
+    pub time: time::Time,
     pub duration: Option<String>,
 }
 
@@ -155,21 +155,21 @@ pub struct Race {
     #[mysql(rename = "raceName")]
     pub race_name: String,
     #[mysql(rename = "date")]
-    pub race_date: chrono::NaiveDate,
+    pub race_date: time::Date,
     #[mysql(rename = "time")]
-    pub race_time: Option<chrono::NaiveTime>,
+    pub race_time: Option<time::Time>,
     #[mysql(rename = "raceUrl")]
     pub race_url: Option<String>,
-    pub fp1_date: Option<chrono::NaiveDate>,
-    pub fp1_time: Option<chrono::NaiveTime>,
-    pub fp2_date: Option<chrono::NaiveDate>,
-    pub fp2_time: Option<chrono::NaiveTime>,
-    pub fp3_date: Option<chrono::NaiveDate>,
-    pub fp3_time: Option<chrono::NaiveTime>,
-    pub quali_date: Option<chrono::NaiveDate>,
-    pub quali_time: Option<chrono::NaiveTime>,
-    pub sprint_date: Option<chrono::NaiveDate>,
-    pub sprint_time: Option<chrono::NaiveTime>,
+    pub fp1_date: Option<time::Date>,
+    pub fp1_time: Option<time::Time>,
+    pub fp2_date: Option<time::Date>,
+    pub fp2_time: Option<time::Time>,
+    pub fp3_date: Option<time::Date>,
+    pub fp3_time: Option<time::Time>,
+    pub quali_date: Option<time::Date>,
+    pub quali_time: Option<time::Time>,
+    pub sprint_date: Option<time::Date>,
+    pub sprint_time: Option<time::Time>,
 
     #[mysql(rename = "circuitRef")]
     pub circuit_ref: String,
