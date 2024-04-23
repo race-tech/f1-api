@@ -1,6 +1,6 @@
 use shared::prelude::*;
 
-use super::{parse_date, parse_duration, parse_time};
+use super::{parse_date, parse_duration, parse_short_duration, parse_time};
 
 #[derive(Debug)]
 pub struct StaticCircuit<'a> {
@@ -220,7 +220,7 @@ impl PartialEq<PitStop> for StaticPitStop<'_> {
             && self.lap == other.lap
             && self.stop == other.stop
             && time == other.time
-            && self.duration.map(parse_duration) == other.duration
+            && self.duration.map(parse_short_duration) == other.duration
     }
 }
 

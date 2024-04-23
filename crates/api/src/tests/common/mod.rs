@@ -84,5 +84,29 @@ pub fn parse_time(time: &str) -> time::Time {
 }
 
 pub fn parse_duration(duration: &str) -> time::Time {
-    time::Time::parse(duration, &shared::DURATION_FORMAT).unwrap()
+    let mut parsed = time::parsing::Parsed::new();
+    parsed
+        .parse_items(duration.as_bytes(), shared::DURATION_FORMAT)
+        .unwrap();
+    time::Time::from_hms_nano(
+        0,
+        parsed.minute().unwrap_or_default(),
+        parsed.second().unwrap_or_default(),
+        parsed.subsecond().unwrap_or_default(),
+    )
+    .unwrap()
+}
+
+pub fn parse_short_duration(duration: &str) -> time::Time {
+    let mut parsed = time::parsing::Parsed::new();
+    parsed
+        .parse_items(duration.as_bytes(), shared::SHORT_DURATION_FORMAT)
+        .unwrap();
+    time::Time::from_hms_nano(
+        0,
+        parsed.minute().unwrap_or_default(),
+        parsed.second().unwrap_or_default(),
+        parsed.subsecond().unwrap_or_default(),
+    )
+    .unwrap()
 }
