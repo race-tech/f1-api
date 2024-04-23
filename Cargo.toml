@@ -9,12 +9,12 @@ serde_json = "1.0.64"
 proc-macro2 = "1.0.78"
 quote = "1.0.35"
 syn = { version = "2.0.48", features = ["parsing"] }
-sea-query = { version = "0.30.7", features = ["backend-mysql"] }
+sea-query = { version = "0.30.7", default-features = false, features = ["derive", "backend-mysql"] }
 r2d2 = "0.8.10"
 mysql = { version = "25.0.0", default-features = false, features = ["minimal"] }
 mysql_common = { version = "0.32.2", default-features = false, features = ["time", "derive", "bigdecimal"] }
-redis = "0.25.3"
+redis = { version = "0.25.3", default-features = false }
 log = { version = "0.4.21", features = ["std"] }
-axum = { version = "0.7.5", features = ["json", "tokio"] }
-tokio = { version = "1", features = ["rt", "net", "macros", "rt-multi-thread"] }
+axum = { version = "0.7.5", default-features = false, features = ["json", "tokio", "query", "http1"] }
+tokio = { version = "1", default-features=false, features = ["rt", "net", "macros", "rt-multi-thread"] }
 figment = { version = "0.10.18", default-feature = false, features = ["yaml"] }
