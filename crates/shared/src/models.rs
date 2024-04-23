@@ -25,7 +25,7 @@ pub struct Driver {
     pub code: Option<String>,
     pub forename: String,
     pub surname: String,
-    pub dob: Option<chrono::NaiveDate>,
+    pub dob: Option<time::Date>,
     pub nationality: Option<String>,
     pub url: String,
 }
@@ -69,7 +69,7 @@ pub struct DriverStanding {
     pub code: Option<String>,
     pub forename: String,
     pub surname: String,
-    pub dob: Option<chrono::NaiveDate>,
+    pub dob: Option<time::Date>,
     pub nationality: Option<String>,
     pub url: String,
     pub points: f32,
@@ -86,9 +86,9 @@ pub struct Lap {
     #[mysql(rename = "raceName")]
     pub race_name: String,
     #[mysql(rename = "raceDate")]
-    pub race_date: chrono::NaiveDate,
+    pub race_date: time::Date,
     #[mysql(rename = "raceTime")]
-    pub race_time: Option<chrono::NaiveTime>,
+    pub race_time: Option<time::Time>,
     #[mysql(rename = "raceUrl")]
     pub race_url: Option<String>,
     #[mysql(rename = "circuitRef")]
@@ -111,7 +111,8 @@ pub struct Lap {
     pub driver_ref: String,
     pub lap: i32,
     pub position: Option<i32>,
-    pub time: Option<String>,
+    #[mysql(with = "try_as_duration")]
+    pub time: Option<time::Time>,
 }
 
 #[derive(FromRow, Debug)]
@@ -119,9 +120,9 @@ pub struct PitStop {
     #[mysql(rename = "raceName")]
     pub race_name: String,
     #[mysql(rename = "raceDate")]
-    pub race_date: chrono::NaiveDate,
+    pub race_date: time::Date,
     #[mysql(rename = "raceTime")]
-    pub race_time: Option<chrono::NaiveTime>,
+    pub race_time: Option<time::Time>,
     #[mysql(rename = "raceUrl")]
     pub race_url: Option<String>,
     #[mysql(rename = "circuitRef")]
@@ -144,8 +145,9 @@ pub struct PitStop {
     pub driver_ref: String,
     pub stop: i32,
     pub lap: i32,
-    pub time: chrono::NaiveTime,
-    pub duration: Option<String>,
+    pub time: time::Time,
+    #[mysql(with = "try_as_short_duration")]
+    pub duration: Option<time::Time>,
 }
 
 #[derive(FromRow, Debug)]
@@ -155,21 +157,21 @@ pub struct Race {
     #[mysql(rename = "raceName")]
     pub race_name: String,
     #[mysql(rename = "date")]
-    pub race_date: chrono::NaiveDate,
+    pub race_date: time::Date,
     #[mysql(rename = "time")]
-    pub race_time: Option<chrono::NaiveTime>,
+    pub race_time: Option<time::Time>,
     #[mysql(rename = "raceUrl")]
     pub race_url: Option<String>,
-    pub fp1_date: Option<chrono::NaiveDate>,
-    pub fp1_time: Option<chrono::NaiveTime>,
-    pub fp2_date: Option<chrono::NaiveDate>,
-    pub fp2_time: Option<chrono::NaiveTime>,
-    pub fp3_date: Option<chrono::NaiveDate>,
-    pub fp3_time: Option<chrono::NaiveTime>,
-    pub quali_date: Option<chrono::NaiveDate>,
-    pub quali_time: Option<chrono::NaiveTime>,
-    pub sprint_date: Option<chrono::NaiveDate>,
-    pub sprint_time: Option<chrono::NaiveTime>,
+    pub fp1_date: Option<time::Date>,
+    pub fp1_time: Option<time::Time>,
+    pub fp2_date: Option<time::Date>,
+    pub fp2_time: Option<time::Time>,
+    pub fp3_date: Option<time::Date>,
+    pub fp3_time: Option<time::Time>,
+    pub quali_date: Option<time::Date>,
+    pub quali_time: Option<time::Time>,
+    pub sprint_date: Option<time::Date>,
+    pub sprint_time: Option<time::Time>,
 
     #[mysql(rename = "circuitRef")]
     pub circuit_ref: String,
@@ -194,4 +196,58 @@ pub struct Status {
     pub status_id: i32,
     pub status: String,
     pub count: i32,
+}
+
+fn try_as_duration(
+    value: mysql_common::Value,
+) -> Result<Option<time::Time>, mysql_common::FromValueError> {
+    use mysql_common::Value::*;
+
+    match value {
+        Bytes(bytes) => {
+            // SAFETY: values are stored this way in the database so it should
+            // never panic
+            let mut parsed = time::parsing::Parsed::new();
+            parsed.parse_items(&bytes, super::DURATION_FORMAT).unwrap();
+            Ok(Some(
+                time::Time::from_hms_nano(
+                    0,
+                    parsed.minute().unwrap_or_default(),
+                    parsed.second().unwrap_or_default(),
+                    parsed.subsecond().unwrap_or_default(),
+                )
+                .unwrap(),
+            ))
+        }
+        NULL => Ok(None),
+        _ => Err(mysql_common::FromValueError(value)),
+    }
+}
+
+fn try_as_short_duration(
+    value: mysql_common::Value,
+) -> Result<Option<time::Time>, mysql_common::FromValueError> {
+    use mysql_common::Value::*;
+
+    match value {
+        Bytes(bytes) => {
+            // SAFETY: values are stored this way in the database so it should
+            // never panic
+            let mut parsed = time::parsing::Parsed::new();
+            parsed
+                .parse_items(&bytes, super::SHORT_DURATION_FORMAT)
+                .unwrap();
+            Ok(Some(
+                time::Time::from_hms_nano(
+                    0,
+                    parsed.minute().unwrap_or_default(),
+                    parsed.second().unwrap_or_default(),
+                    parsed.subsecond().unwrap_or_default(),
+                )
+                .unwrap(),
+            ))
+        }
+        NULL => Ok(None),
+        _ => Err(mysql_common::FromValueError(value)),
+    }
 }

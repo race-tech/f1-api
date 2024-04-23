@@ -75,10 +75,14 @@ pub async fn get(mut router: Router, uri: &str) -> Result<axum::http::Response<B
         .await
 }
 
-pub fn parse_date(date: &str) -> chrono::NaiveDate {
-    chrono::NaiveDate::parse_from_str(date, "%Y-%m-%d").unwrap()
+pub fn parse_date(date: &str) -> time::Date {
+    time::Date::parse(date, &shared::DATE_FORMAT).unwrap()
 }
 
-pub fn parse_time(time: &str) -> chrono::NaiveTime {
-    chrono::NaiveTime::parse_from_str(time, "%H:%M:%S").unwrap()
+pub fn parse_time(time: &str) -> time::Time {
+    time::Time::parse(time, &shared::TIME_FORMAT).unwrap()
+}
+
+pub fn parse_duration(duration: &str) -> time::Time {
+    time::Time::parse(duration, &shared::DURATION_FORMAT).unwrap()
 }

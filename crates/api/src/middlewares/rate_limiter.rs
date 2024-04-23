@@ -2,8 +2,8 @@ use std::net::SocketAddr;
 
 use axum::Extension;
 use axum::{body::Body, extract::State, http::Request, middleware::Next, response::Response};
-use chrono::{DateTime, Duration, Utc};
 use redis::Commands;
+use time::{Duration, OffsetDateTime};
 
 use infrastructure::ConnectionPool;
 use shared::error;
@@ -38,15 +38,14 @@ pub async fn mw_rate_limiter(
     let conn = &mut conn.cache.get()?;
 
     let key = format!("{}{}", RATE_LIMITER_KEY_PREFIX, ip_addr);
-    let now = Utc::now();
+    let now = OffsetDateTime::now_utc();
     let timestamps: String = match conn.get(&key) {
         Ok(res) => res,
         Err(_) => {
-            let timestamps =
-                match serde_json::to_string(&[(now.timestamp(), now.timestamp_subsec_nanos())]) {
-                    Ok(s) => s,
-                    Err(e) => return Err(error!(InternalServer => e)),
-                };
+            let timestamps = match serde_json::to_string(&[now.unix_timestamp()]) {
+                Ok(s) => s,
+                Err(e) => return Err(error!(InternalServer => e)),
+            };
 
             match conn.set(key, timestamps) {
                 Ok(()) => return Ok(next.run(req).await),
@@ -59,13 +58,13 @@ pub async fn mw_rate_limiter(
     let mut timestamps = rate_limiter.cleanup(serde_json::from_str(&timestamps).unwrap(), now);
 
     if !rate_limiter.is_allowed(&timestamps) {
-        let time_to_wait = rate_limiter.time_to_wait(&timestamps, now).num_seconds();
+        let time_to_wait = rate_limiter.time_to_wait(&timestamps, now).whole_seconds();
         return Err(
             error!(RateLimitReached => "you reached the rate limit, please wait `{}s` before your next request", time_to_wait),
         );
     }
 
-    timestamps.push((now.timestamp(), now.timestamp_subsec_nanos()));
+    timestamps.push(now.unix_timestamp());
     let timestamps = match serde_json::to_string(&timestamps) {
         Ok(s) => s,
         Err(e) => return Err(error!(InternalServer => e)),
@@ -84,22 +83,22 @@ impl RateLimiter {
         }
     }
 
-    fn cleanup(&self, timestamps: Vec<(i64, u32)>, now: DateTime<Utc>) -> Vec<(i64, u32)> {
+    fn cleanup(&self, timestamps: Vec<i64>, now: OffsetDateTime) -> Vec<i64> {
         cleanup(timestamps, |date| now - date > self.duration)
     }
 
-    fn is_allowed(&self, timestamps: &[(i64, u32)]) -> bool {
+    fn is_allowed(&self, timestamps: &[i64]) -> bool {
         timestamps.len() < self.request_num
     }
 
-    fn time_to_wait(&self, timestamps: &[(i64, u32)], now: DateTime<Utc>) -> Duration {
+    fn time_to_wait(&self, timestamps: &[i64], now: OffsetDateTime) -> Duration {
         match self.kind {
             RateLimiterKind::SlidingWindow => {
                 // SAFETY: timestamps is not empty and secs and nsecs
                 // are from DateTime::timestamp and DateTime::timestamp_subsec_nanos
                 let first = timestamps
                     .first()
-                    .map(|&(secs, nsecs)| DateTime::from_timestamp(secs, nsecs).unwrap())
+                    .map(|&t| OffsetDateTime::from_unix_timestamp(t).unwrap())
                     .unwrap();
                 self.duration - (now - first)
             }
@@ -107,16 +106,16 @@ impl RateLimiter {
     }
 }
 
-fn cleanup<F>(timestamps: Vec<(i64, u32)>, mut f: F) -> Vec<(i64, u32)>
+fn cleanup<F>(timestamps: Vec<i64>, mut f: F) -> Vec<i64>
 where
-    F: FnMut(DateTime<Utc>) -> bool,
+    F: FnMut(OffsetDateTime) -> bool,
 {
     timestamps
         .into_iter()
-        .skip_while(|&(secs, nsecs)| {
+        .skip_while(|&t| {
             // SAFETY: secs and nsecs are from DateTime::timestamp
             // and DateTime::timestamp_subsec_nanos
-            let date = DateTime::from_timestamp(secs, nsecs).unwrap();
+            let date = OffsetDateTime::from_unix_timestamp(t).unwrap();
             f(date)
         })
         .collect()

@@ -1,8 +1,15 @@
-use serde::{Deserialize, Serialize};
+use ::serde::{Deserialize, Serialize};
+use time::serde;
 
 use crate::error;
 use crate::error::Result;
 use crate::parameters::Series;
+use crate::{DATE_FORMAT, DURATION_FORMAT, SHORT_DURATION_FORMAT, TIME_FORMAT};
+
+serde::format_description!(date_format, Date, DATE_FORMAT);
+serde::format_description!(time_format, Time, TIME_FORMAT);
+serde::format_description!(duration_format, Time, DURATION_FORMAT);
+serde::format_description!(short_duration_format, Time, SHORT_DURATION_FORMAT);
 
 #[derive(Debug, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct Pagination {
@@ -109,9 +116,10 @@ pub enum Standings {
 pub struct LapsResponse {
     pub url: Option<String>,
     pub race_name: String,
-    pub date: chrono::NaiveDate,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub time: Option<chrono::NaiveTime>,
+    #[serde(with = "date_format")]
+    pub date: time::Date,
+    #[serde(with = "time_format::option")]
+    pub time: Option<time::Time>,
 
     pub circuit: Circuit,
 
@@ -122,9 +130,10 @@ pub struct LapsResponse {
 pub struct PitStopsResponse {
     pub url: Option<String>,
     pub race_name: String,
-    pub date: chrono::NaiveDate,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub time: Option<chrono::NaiveTime>,
+    #[serde(with = "date_format")]
+    pub date: time::Date,
+    #[serde(with = "time_format::option")]
+    pub time: Option<time::Time>,
 
     pub circuit: Circuit,
 
@@ -136,20 +145,15 @@ pub struct Race {
     pub season: i32,
     pub round: i32,
     pub name: String,
-    pub date: chrono::NaiveDate,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub time: Option<chrono::NaiveTime>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(with = "date_format")]
+    pub date: time::Date,
+    #[serde(with = "time_format::option")]
+    pub time: Option<time::Time>,
     pub url: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub fp1: Option<DateAndTime>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub fp2: Option<DateAndTime>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub fp3: Option<DateAndTime>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub quali: Option<DateAndTime>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub sprint: Option<DateAndTime>,
 }
 
@@ -157,15 +161,10 @@ pub struct Race {
 pub struct Circuit {
     pub circuit_ref: String,
     pub name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub location: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub lat: Option<f32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub lng: Option<f32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub alt: Option<i32>,
     pub url: String,
 }
@@ -173,15 +172,12 @@ pub struct Circuit {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Driver {
     pub driver_ref: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub number: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
     pub forename: String,
     pub surname: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub dob: Option<chrono::NaiveDate>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(with = "date_format::option")]
+    pub dob: Option<time::Date>,
     pub nationality: Option<String>,
     pub url: String,
 }
@@ -190,7 +186,6 @@ pub struct Driver {
 pub struct Constructor {
     pub constructor_ref: String,
     pub name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub nationality: Option<String>,
     pub url: String,
 }
@@ -199,15 +194,16 @@ pub struct Constructor {
 pub struct Standing {
     pub points: f32,
     pub position: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub position_text: Option<String>,
     pub wins: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DateAndTime {
-    pub date: chrono::NaiveDate,
-    pub time: chrono::NaiveTime,
+    #[serde(with = "date_format")]
+    pub date: time::Date,
+    #[serde(with = "time_format")]
+    pub time: time::Time,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -219,10 +215,9 @@ pub struct Lap {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LapTiming {
     pub driver_ref: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub position: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub time: Option<String>,
+    #[serde(with = "duration_format::option")]
+    pub time: Option<time::Time>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -230,8 +225,10 @@ pub struct PitStop {
     pub driver_ref: String,
     pub lap: i32,
     pub stop: i32,
-    pub time: chrono::NaiveTime,
-    pub duration: Option<String>,
+    #[serde(with = "time_format")]
+    pub time: time::Time,
+    #[serde(with = "short_duration_format::option")]
+    pub duration: Option<time::Time>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -393,7 +390,7 @@ impl TryFrom<Vec<crate::models::Lap>> for LapsResponse {
             laps.last_mut().unwrap().timings.push(LapTiming {
                 driver_ref: lap.driver_ref.clone(),
                 position: lap.position,
-                time: lap.time.clone(),
+                time: lap.time,
             });
         }
 

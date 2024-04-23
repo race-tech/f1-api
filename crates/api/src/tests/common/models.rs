@@ -1,5 +1,7 @@
 use shared::prelude::*;
 
+use super::{parse_date, parse_duration, parse_time};
+
 #[derive(Debug)]
 pub struct StaticCircuit<'a> {
     pub circuit_ref: &'a str,
@@ -175,8 +177,8 @@ impl PartialEq<RaceResponse> for StaticRace<'_> {
         self.season == other.season
             && self.round == other.round
             && self.name == other.name
-            && super::parse_date(self.date) == other.date
-            && self.time.map(super::parse_time) == other.time
+            && parse_date(self.date) == other.date
+            && self.time.map(parse_time) == other.time
             && self.url == other.url.as_deref()
             && compare(self.fp1.as_ref(), other.fp1.as_ref())
             && compare(self.fp2.as_ref(), other.fp2.as_ref())
@@ -189,8 +191,8 @@ impl PartialEq<RaceResponse> for StaticRace<'_> {
 
 impl PartialEq<DateAndTime> for StaticDateAndTime<'_> {
     fn eq(&self, other: &DateAndTime) -> bool {
-        let date = super::parse_date(self.date);
-        let time = super::parse_time(self.time);
+        let date = parse_date(self.date);
+        let time = parse_time(self.time);
 
         date == other.date && time == other.time
     }
@@ -198,10 +200,8 @@ impl PartialEq<DateAndTime> for StaticDateAndTime<'_> {
 
 impl PartialEq<PitStopsResponse> for StaticPitStops<'_> {
     fn eq(&self, other: &PitStopsResponse) -> bool {
-        let date = chrono::NaiveDate::parse_from_str(self.date, "%Y-%m-%d").unwrap();
-        let time = self
-            .time
-            .map(|t| chrono::NaiveTime::parse_from_str(t, "%H:%M:%S").unwrap());
+        let date = parse_date(self.date);
+        let time = self.time.map(parse_time);
 
         self.url == other.url.as_deref()
             && self.race_name == other.race_name
@@ -214,22 +214,20 @@ impl PartialEq<PitStopsResponse> for StaticPitStops<'_> {
 
 impl PartialEq<PitStop> for StaticPitStop<'_> {
     fn eq(&self, other: &PitStop) -> bool {
-        let time = chrono::NaiveTime::parse_from_str(self.time, "%H:%M:%S").unwrap();
+        let time = parse_time(self.time);
 
         self.driver_ref == other.driver_ref
             && self.lap == other.lap
             && self.stop == other.stop
             && time == other.time
-            && self.duration == other.duration.as_deref()
+            && self.duration.map(parse_duration) == other.duration
     }
 }
 
 impl PartialEq<LapsResponse> for StaticLaps<'_> {
     fn eq(&self, other: &LapsResponse) -> bool {
-        let date = chrono::NaiveDate::parse_from_str(self.date, "%Y-%m-%d").unwrap();
-        let time = self
-            .time
-            .map(|t| chrono::NaiveTime::parse_from_str(t, "%H:%M:%S").unwrap());
+        let date = parse_date(self.date);
+        let time = self.time.map(parse_time);
 
         self.url == other.url.as_deref()
             && self.race_name == other.race_name
@@ -250,7 +248,7 @@ impl PartialEq<LapTiming> for StaticTiming<'_> {
     fn eq(&self, other: &LapTiming) -> bool {
         self.driver_ref == other.driver_ref
             && self.position == other.position
-            && self.time == other.time.as_deref()
+            && self.time.map(parse_duration) == other.time
     }
 }
 
@@ -261,10 +259,7 @@ impl PartialEq<Driver> for StaticDriver<'_> {
             && self.code.eq(&other.code.as_deref())
             && self.forename.eq(&other.forename)
             && self.surname.eq(&other.surname)
-            && self
-                .dob
-                .map(|d| chrono::NaiveDate::parse_from_str(d, "%Y-%m-%d").expect("invalid date"))
-                .eq(&other.dob)
+            && self.dob.map(parse_date).eq(&other.dob)
             && self.nationality.eq(&other.nationality.as_deref())
             && self.url.eq(&other.url)
     }
