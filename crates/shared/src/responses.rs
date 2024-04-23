@@ -4,12 +4,10 @@ use time::serde;
 use crate::error;
 use crate::error::Result;
 use crate::parameters::Series;
-use crate::{DATE_FORMAT, DURATION_FORMAT, SHORT_DURATION_FORMAT, TIME_FORMAT};
+use crate::{DATE_FORMAT, TIME_FORMAT};
 
 serde::format_description!(date_format, Date, DATE_FORMAT);
 serde::format_description!(time_format, Time, TIME_FORMAT);
-serde::format_description!(duration_format, Time, DURATION_FORMAT);
-serde::format_description!(short_duration_format, Time, SHORT_DURATION_FORMAT);
 
 #[derive(Debug, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct Pagination {
@@ -24,7 +22,7 @@ pub struct Response<T> {
     pub data: T,
 
     #[serde(flatten)]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub pagination: Option<Pagination>,
     pub series: Series,
 }
@@ -114,10 +112,12 @@ pub enum Standings {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LapsResponse {
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub url: Option<String>,
     pub race_name: String,
     #[serde(with = "date_format")]
     pub date: time::Date,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     #[serde(with = "time_format::option")]
     pub time: Option<time::Time>,
 
@@ -128,10 +128,12 @@ pub struct LapsResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PitStopsResponse {
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub url: Option<String>,
     pub race_name: String,
     #[serde(with = "date_format")]
     pub date: time::Date,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     #[serde(with = "time_format::option")]
     pub time: Option<time::Time>,
 
@@ -147,13 +149,23 @@ pub struct Race {
     pub name: String,
     #[serde(with = "date_format")]
     pub date: time::Date,
-    #[serde(with = "time_format::option")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        with = "time_format::option",
+        default
+    )]
     pub time: Option<time::Time>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub fp1: Option<DateAndTime>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub fp2: Option<DateAndTime>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub fp3: Option<DateAndTime>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub quali: Option<DateAndTime>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub sprint: Option<DateAndTime>,
 }
 
@@ -161,10 +173,15 @@ pub struct Race {
 pub struct Circuit {
     pub circuit_ref: String,
     pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub location: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub country: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub lat: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub lng: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub alt: Option<i32>,
     pub url: String,
 }
@@ -172,12 +189,19 @@ pub struct Circuit {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Driver {
     pub driver_ref: String,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub number: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub code: Option<String>,
     pub forename: String,
     pub surname: String,
-    #[serde(with = "date_format::option")]
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        with = "date_format::option",
+        default
+    )]
     pub dob: Option<time::Date>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub nationality: Option<String>,
     pub url: String,
 }
@@ -186,6 +210,7 @@ pub struct Driver {
 pub struct Constructor {
     pub constructor_ref: String,
     pub name: String,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub nationality: Option<String>,
     pub url: String,
 }
@@ -193,7 +218,9 @@ pub struct Constructor {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Standing {
     pub points: f32,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub position: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub position_text: Option<String>,
     pub wins: i32,
 }
@@ -215,9 +242,10 @@ pub struct Lap {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct LapTiming {
     pub driver_ref: String,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
     pub position: Option<i32>,
-    #[serde(with = "duration_format::option")]
-    pub time: Option<time::Time>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub time: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -227,8 +255,8 @@ pub struct PitStop {
     pub stop: i32,
     #[serde(with = "time_format")]
     pub time: time::Time,
-    #[serde(with = "short_duration_format::option")]
-    pub duration: Option<time::Time>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub duration: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

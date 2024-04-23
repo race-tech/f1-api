@@ -111,8 +111,7 @@ pub struct Lap {
     pub driver_ref: String,
     pub lap: i32,
     pub position: Option<i32>,
-    #[mysql(with = "try_as_duration")]
-    pub time: Option<time::Time>,
+    pub time: Option<String>,
 }
 
 #[derive(FromRow, Debug)]
@@ -146,8 +145,7 @@ pub struct PitStop {
     pub stop: i32,
     pub lap: i32,
     pub time: time::Time,
-    #[mysql(with = "try_as_short_duration")]
-    pub duration: Option<time::Time>,
+    pub duration: Option<String>,
 }
 
 #[derive(FromRow, Debug)]
@@ -196,58 +194,4 @@ pub struct Status {
     pub status_id: i32,
     pub status: String,
     pub count: i32,
-}
-
-fn try_as_duration(
-    value: mysql_common::Value,
-) -> Result<Option<time::Time>, mysql_common::FromValueError> {
-    use mysql_common::Value::*;
-
-    match value {
-        Bytes(bytes) => {
-            // SAFETY: values are stored this way in the database so it should
-            // never panic
-            let mut parsed = time::parsing::Parsed::new();
-            parsed.parse_items(&bytes, super::DURATION_FORMAT).unwrap();
-            Ok(Some(
-                time::Time::from_hms_nano(
-                    0,
-                    parsed.minute().unwrap_or_default(),
-                    parsed.second().unwrap_or_default(),
-                    parsed.subsecond().unwrap_or_default(),
-                )
-                .unwrap(),
-            ))
-        }
-        NULL => Ok(None),
-        _ => Err(mysql_common::FromValueError(value)),
-    }
-}
-
-fn try_as_short_duration(
-    value: mysql_common::Value,
-) -> Result<Option<time::Time>, mysql_common::FromValueError> {
-    use mysql_common::Value::*;
-
-    match value {
-        Bytes(bytes) => {
-            // SAFETY: values are stored this way in the database so it should
-            // never panic
-            let mut parsed = time::parsing::Parsed::new();
-            parsed
-                .parse_items(&bytes, super::SHORT_DURATION_FORMAT)
-                .unwrap();
-            Ok(Some(
-                time::Time::from_hms_nano(
-                    0,
-                    parsed.minute().unwrap_or_default(),
-                    parsed.second().unwrap_or_default(),
-                    parsed.subsecond().unwrap_or_default(),
-                )
-                .unwrap(),
-            ))
-        }
-        NULL => Ok(None),
-        _ => Err(mysql_common::FromValueError(value)),
-    }
 }

@@ -58,20 +58,14 @@ where
 }
 
 pub fn setup() -> Router {
-    let config = dbg!(infrastructure::config::Config::try_new().expect("valid config file"));
+    let config = infrastructure::config::Config::try_new().expect("valid config file");
 
     router(&config).expect("valid configuration")
 }
 
 pub async fn get(mut router: Router, uri: &str) -> Result<axum::http::Response<Body>, Infallible> {
     router
-        .call(
-            Request::builder()
-                .uri(uri)
-                .header("x-real-ip", "127.0.0.1")
-                .body(Body::empty())
-                .unwrap(),
-        )
+        .call(Request::builder().uri(uri).body(Body::empty()).unwrap())
         .await
 }
 
@@ -81,32 +75,4 @@ pub fn parse_date(date: &str) -> time::Date {
 
 pub fn parse_time(time: &str) -> time::Time {
     time::Time::parse(time, &shared::TIME_FORMAT).unwrap()
-}
-
-pub fn parse_duration(duration: &str) -> time::Time {
-    let mut parsed = time::parsing::Parsed::new();
-    parsed
-        .parse_items(duration.as_bytes(), shared::DURATION_FORMAT)
-        .unwrap();
-    time::Time::from_hms_nano(
-        0,
-        parsed.minute().unwrap_or_default(),
-        parsed.second().unwrap_or_default(),
-        parsed.subsecond().unwrap_or_default(),
-    )
-    .unwrap()
-}
-
-pub fn parse_short_duration(duration: &str) -> time::Time {
-    let mut parsed = time::parsing::Parsed::new();
-    parsed
-        .parse_items(duration.as_bytes(), shared::SHORT_DURATION_FORMAT)
-        .unwrap();
-    time::Time::from_hms_nano(
-        0,
-        parsed.minute().unwrap_or_default(),
-        parsed.second().unwrap_or_default(),
-        parsed.subsecond().unwrap_or_default(),
-    )
-    .unwrap()
 }
