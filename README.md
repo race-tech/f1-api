@@ -1,7 +1,7 @@
-[![build & test](https://github.com/thibault-cne/purple-sector/actions/workflows/rust.yml/badge.svg)](https://github.com/thibault-cne/purple-sector/actions/workflows/rust.yml)
-[![circleci](https://img.shields.io/circleci/build/gh/thibault-cne/purple-sector?logo=circleci&logoColor=white&label=circleci)](https://circleci.com/gh/thibault-cne/purple-sector)
-[![license](https://img.shields.io/github/license/thibault-cne/purple-sector)](https://www.gnu.org/licenses/gpl-3.0.en.html)
-[![rust report card](https://rust-reportcard.xuri.me/badge/github.com/thibault-cne/purple-sector)](https://rust-reportcard.xuri.me/report/github.com/thibault-cne/purple-sector)
+[![build & test](https://github.com/purpl-sectr/api/blob/master/.github/workflows/rust.yml/badge.svg)](https://github.com/purpl-sectr/api/blob/master/.github/workflows/rust.yml)
+[![circleci](https://img.shields.io/circleci/build/gh/purpl-sectr/api?logo=circleci&logoColor=white&label=circleci)](https://circleci.com/gh/purpl-sectr/api)
+[![license](https://img.shields.io/github/license/purpl-sectr/api)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![rust report card](https://rust-reportcard.xuri.me/badge/github.com/purpl-sectr/api)](https://rust-reportcard.xuri.me/report/github.com/purpl-sectr/api)
 
 # PurpleSector
 
