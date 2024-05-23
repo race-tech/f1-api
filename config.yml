@@ -12,11 +12,11 @@ cache:
 
 middlewares:
   - rate_limiter:
-      enabled: true
+      enabled: false
       requests: 100
       seconds: 60
       type: sliding_window
   - cache:
-      enabled: true
+      enabled: false
       # Time to live in seconds
       ttl: 3600

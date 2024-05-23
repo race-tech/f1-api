@@ -1,4 +1,11 @@
-use axum::{middleware, Extension, Router};
+use application::graphql::{Query, ServiceSchema};
+use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema};
+use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
+use axum::{
+    middleware,
+    response::{self, IntoResponse},
+    Extension, Router,
+};
 
 use infrastructure::config::{Config, MiddlewareConfig};
 use middlewares::cache::Cache;
@@ -43,10 +50,24 @@ impl TryFrom<Config> for PurpleSector {
     }
 }
 
+async fn graphiql() -> impl IntoResponse {
+    response::Html(GraphiQLSource::build().endpoint("/").finish())
+}
+
+async fn graphql_handler(
+    Extension(schema): Extension<ServiceSchema>, // (2)
+    req: GraphQLRequest,
+) -> GraphQLResponse {
+    schema.execute(req.into_inner()).await.into() // (3)
+}
+
 fn router(config: &Config) -> Result<Router> {
     use axum::routing::get;
 
     let pool = infrastructure::ConnectionPool::try_from(config)?;
+    let schema = Schema::build(Query, EmptyMutation, EmptySubscription)
+        .data(pool.clone())
+        .finish();
 
     let api_routes = Router::new()
         .route("/circuits", get(handlers::circuits::circuits))
@@ -71,9 +92,12 @@ fn router(config: &Config) -> Result<Router> {
         router: api_routes,
     };
 
-    let api_routes = builder.middlewares()?.route_layer(Extension(pool));
+    let api_routes = builder.middlewares()?;
 
-    let router = Router::new().nest("/api/:series", api_routes);
+    let router = Router::new()
+        .route("/", get(graphiql).post(graphql_handler))
+        .layer(Extension(schema))
+        .layer(Extension(pool));
 
     Ok(router)
 }

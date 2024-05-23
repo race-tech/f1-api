@@ -11,5 +11,6 @@ r2d2.workspace = true
 redis.workspace = true
 figment.workspace = true
 serde.workspace = true
+async-graphql.workspace = true
 
 shared = { path = "../shared" }
