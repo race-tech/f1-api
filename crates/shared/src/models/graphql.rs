@@ -6,6 +6,45 @@ pub struct DateAndTime {
     pub time: String,
 }
 
+#[derive(InputObject)]
+pub struct Pagination {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+}
+
+#[derive(InputObject, Default)]
+pub struct GetRacesOpts {
+    pub circuit_ref: Option<String>,
+    pub driver_ref: Option<String>,
+    pub constructor_ref: Option<String>,
+    pub status: Option<u32>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
+#[derive(InputObject, Default)]
+pub struct GetCircuitsOpts {
+    pub driver_ref: Option<String>,
+    pub constructor_ref: Option<String>,
+    pub status: Option<u32>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
+#[derive(Debug, InputObject)]
+pub struct GetConstructorStandingsOpts {
+    pub constructor_ref: Option<String>,
+    pub position: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
 #[derive(Debug, SimpleObject)]
 pub struct Race {
     pub season: i32,
@@ -19,6 +58,72 @@ pub struct Race {
     pub fp3: Option<DateAndTime>,
     pub quali: Option<DateAndTime>,
     pub sprint: Option<DateAndTime>,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct Circuit {
+    pub circuit_ref: String,
+    pub name: String,
+    pub location: Option<String>,
+    pub country: Option<String>,
+    pub lat: Option<f32>,
+    pub lng: Option<f32>,
+    pub alt: Option<i32>,
+    pub url: String,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct Standing {
+    pub points: f32,
+    pub position: Option<i32>,
+    pub position_text: Option<String>,
+    pub wins: i32,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct Constructor {
+    pub constructor_ref: String,
+    pub name: String,
+    pub nationality: Option<String>,
+    pub url: String,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct InnerConstructorStanding {
+    #[graphql(flatten)]
+    pub standing: Standing,
+    pub constructor: Constructor,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct ConstructorStanding {
+    pub season: i32,
+    pub round: i32,
+    pub standings: Vec<InnerConstructorStanding>,
+}
+
+#[derive(Debug, InputObject)]
+pub struct GetConstructorsOpts {
+    pub circuit_ref: Option<String>,
+    pub driver_ref: Option<String>,
+    pub constructor_standing: Option<u32>,
+    pub status: Option<u32>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
+pub struct Wrapper<T>(pub Vec<T>);
+
+impl Default for Pagination {
+    fn default() -> Self {
+        Self {
+            limit: Some(30),
+            page: Some(1),
+        }
+    }
 }
 
 impl From<super::Race> for Race {
@@ -50,6 +155,84 @@ impl From<super::Race> for Race {
                 date,
                 time: format!("{}", v.sprint_time.unwrap()),
             }),
+        }
+    }
+}
+
+impl From<super::Circuit> for Circuit {
+    fn from(value: super::Circuit) -> Self {
+        Self {
+            circuit_ref: value.circuit_ref,
+            name: value.name,
+            location: value.location,
+            country: value.country,
+            lat: value.lat,
+            lng: value.lng,
+            alt: value.alt,
+            url: value.url,
+        }
+    }
+}
+
+impl From<&crate::models::ConstructorStanding> for Standing {
+    fn from(value: &crate::models::ConstructorStanding) -> Self {
+        Self {
+            points: value.points,
+            position: value.position,
+            position_text: value.position_text.clone(),
+            wins: value.wins,
+        }
+    }
+}
+
+impl From<&crate::models::ConstructorStanding> for Constructor {
+    fn from(value: &crate::models::ConstructorStanding) -> Self {
+        Self {
+            constructor_ref: value.constructor_ref.clone(),
+            name: value.name.clone(),
+            nationality: value.nationality.clone(),
+            url: value.url.clone(),
+        }
+    }
+}
+
+impl From<&crate::models::ConstructorStanding> for InnerConstructorStanding {
+    fn from(value: &crate::models::ConstructorStanding) -> Self {
+        Self {
+            standing: value.into(),
+            constructor: value.into(),
+        }
+    }
+}
+
+impl From<Vec<super::ConstructorStanding>> for Wrapper<ConstructorStanding> {
+    fn from(value: Vec<crate::models::ConstructorStanding>) -> Self {
+        let mut map = std::collections::BTreeMap::new();
+
+        value.into_iter().for_each(|v| {
+            let key = format!("{}-{}", v.year, v.round);
+            let standing: InnerConstructorStanding = (&v).into();
+
+            let entry = map.entry(key).or_insert(ConstructorStanding {
+                season: v.year,
+                round: v.round,
+                standings: Vec::new(),
+            });
+
+            entry.standings.push(standing);
+        });
+
+        Self(map.into_values().collect())
+    }
+}
+
+impl From<super::Constructor> for Constructor {
+    fn from(value: super::Constructor) -> Self {
+        Self {
+            constructor_ref: value.constructor_ref,
+            name: value.name,
+            nationality: value.nationality,
+            url: value.url,
         }
     }
 }

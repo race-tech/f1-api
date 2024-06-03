@@ -1,7 +1,6 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
-use shared::models::Race as RaceModel;
-use shared::parameters::GetRacesParameters;
+use shared::{models::Race as RaceModel, parameters::GetRacesParameters};
 
 use crate::{
     iden::*,
@@ -87,8 +86,8 @@ impl RacesQueryBuilder {
     }
 
     fn build(self) -> Paginated<RaceModel> {
-        let page: u64 = self.params.page.unwrap_or_default().0;
-        let limit: u64 = self.params.limit.unwrap_or_default().0;
+        let page: u64 = self.params.page.unwrap_or_default();
+        let limit: u64 = self.params.limit.unwrap_or_default();
 
         self.from(
             |s| {
@@ -108,12 +107,12 @@ impl RacesQueryBuilder {
         .and_where(|s| {
             s.params
                 .year
-                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(*y)))
+                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(y)))
         })
         .and_where(|s| {
             s.params
                 .round
-                .map(|r| Expr::col((Races::Table, Races::Round)).eq(Expr::val(*r)))
+                .map(|r| Expr::col((Races::Table, Races::Round)).eq(Expr::val(r)))
         })
         .and_where(|s| {
             s.params
@@ -157,22 +156,22 @@ impl RacesQueryBuilder {
         .and_where(|s| {
             s.params
                 .status
-                .map(|s| Expr::col((Results::Table, Results::StatusId)).eq(Expr::value(*s)))
+                .map(|s| Expr::col((Results::Table, Results::StatusId)).eq(Expr::value(s)))
         })
         .and_where(|s| {
             s.params
                 .grid
-                .map(|g| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(*g)))
+                .map(|g| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(g)))
         })
         .and_where(|s| {
             s.params
                 .fastest
-                .map(|f| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(*f)))
+                .map(|f| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(f)))
         })
         .and_where(|s| {
             s.params
                 .result
-                .map(|r| Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(*r)))
+                .map(|r| Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(r)))
         })
         .stmt
         .paginate(page)

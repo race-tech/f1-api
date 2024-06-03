@@ -4,14 +4,14 @@ use sea_query::{Expr, MysqlQueryBuilder, Query, SelectStatement};
 use shared::error;
 use shared::error::Result;
 use shared::models::Circuit as CircuitModel;
-use shared::parameters::{CircuitRef, GetCircuitsParameter};
+use shared::parameters::{CircuitRef, GetCircuitsParameters};
 
 use crate::pagination::Paginated;
 use crate::{iden::*, one_of, pagination::Paginate, sql::*};
 
 pub struct CircuitsQueryBuilder {
     stmt: SelectStatement,
-    params: GetCircuitsParameter,
+    params: GetCircuitsParameters,
 }
 
 impl CircuitsQueryBuilder {
@@ -46,9 +46,9 @@ impl CircuitsQueryBuilder {
             .ok_or(error!(EntityNotFound => "circuit with reference `{}` not found", circuit_ref.0))
     }
 
-    pub fn params(params: GetCircuitsParameter) -> Paginated<CircuitModel> {
-        let page = params.page.unwrap_or_default().0;
-        let per_page = params.limit.unwrap_or_default().0;
+    pub fn params(params: GetCircuitsParameters) -> Paginated<CircuitModel> {
+        let page = params.page.unwrap_or_default();
+        let per_page = params.limit.unwrap_or_default();
 
         let stmt = Query::select()
             .distinct()
@@ -159,32 +159,32 @@ impl CircuitsQueryBuilder {
         .and_where(|s| {
             s.params
                 .status
-                .map(|s| Expr::col((Results::Table, Results::StatusId)).eq(Expr::value(*s)))
+                .map(|s| Expr::col((Results::Table, Results::StatusId)).eq(Expr::value(s)))
         })
         .and_where(|s| {
             s.params
                 .grid
-                .map(|g| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(*g)))
+                .map(|g| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(g)))
         })
         .and_where(|s| {
             s.params
                 .fastest
-                .map(|f| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(*f)))
+                .map(|f| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(f)))
         })
         .and_where(|s| {
             s.params
                 .result
-                .map(|r| Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(*r)))
+                .map(|r| Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(r)))
         })
         .and_where(|s| {
             s.params
                 .round
-                .map(|r| Expr::col((Races::Table, Races::Round)).eq(Expr::value(*r)))
+                .map(|r| Expr::col((Races::Table, Races::Round)).eq(Expr::value(r)))
         })
         .and_where(|s| {
             s.params
                 .year
-                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::value(*y)))
+                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::value(y)))
         })
     }
 }

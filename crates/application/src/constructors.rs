@@ -4,7 +4,7 @@ use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 use shared::error;
 use shared::error::Result;
 use shared::models::Constructor as ConstructorModel;
-use shared::parameters::{ConstructorRef, GetConstructorsParameter};
+use shared::parameters::GetConstructorsParameters;
 
 use crate::{
     iden::*,
@@ -14,13 +14,13 @@ use crate::{
 };
 
 pub struct ConstructorsQueryBuilder {
-    params: GetConstructorsParameter,
+    params: GetConstructorsParameters,
     stmt: SelectStatement,
 }
 
 impl ConstructorsQueryBuilder {
     pub fn get(
-        constructor_ref: ConstructorRef,
+        constructor_ref: String,
         conn: &mut infrastructure::Connection,
     ) -> Result<ConstructorModel> {
         let query = Query::select()
@@ -43,10 +43,12 @@ impl ConstructorsQueryBuilder {
             )
             .to_string(MysqlQueryBuilder);
 
-        conn.query_first(query)?.ok_or(error!(EntityNotFound => "constructor with reference `{}` not found", constructor_ref.0))
+        conn.query_first(query)?.ok_or(
+            error!(EntityNotFound => "constructor with reference `{}` not found", constructor_ref),
+        )
     }
 
-    pub fn params(params: GetConstructorsParameter) -> Paginated<ConstructorModel> {
+    pub fn params(params: GetConstructorsParameters) -> Paginated<ConstructorModel> {
         let stmt = Query::select()
             .distinct()
             .columns(
@@ -67,8 +69,8 @@ impl ConstructorsQueryBuilder {
     }
 
     fn build(self) -> Paginated<ConstructorModel> {
-        let page: u64 = self.params.page.unwrap_or_default().0;
-        let limit: u64 = self.params.limit.unwrap_or_default().0;
+        let page: u64 = self.params.page.unwrap_or_default();
+        let limit: u64 = self.params.limit.unwrap_or_default();
 
         self.from(
             |s| {
@@ -108,22 +110,22 @@ impl ConstructorsQueryBuilder {
         .and_where(|s| {
             s.params
                 .status
-                .map(|status| Expr::col((Results::Table, Results::StatusId)).eq(*status))
+                .map(|status| Expr::col((Results::Table, Results::StatusId)).eq(status))
         })
         .and_where(|s| {
             s.params
                 .grid
-                .map(|grid| Expr::col((Results::Table, Results::Grid)).eq(*grid))
+                .map(|grid| Expr::col((Results::Table, Results::Grid)).eq(grid))
         })
         .and_where(|s| {
             s.params
                 .fastest
-                .map(|fastest| Expr::col((Results::Table, Results::Rank)).eq(*fastest))
+                .map(|fastest| Expr::col((Results::Table, Results::Rank)).eq(fastest))
         })
         .and_where(|s| {
             s.params
                 .result
-                .map(|result| Expr::col((Results::Table, Results::PositionText)).eq(*result))
+                .map(|result| Expr::col((Results::Table, Results::PositionText)).eq(result))
         })
         .and_where(|s| {
             s.params.constructor_standing.map(|standing| {
@@ -131,7 +133,7 @@ impl ConstructorsQueryBuilder {
                     ConstructorStandings::Table,
                     ConstructorStandings::PositionText,
                 ))
-                .eq(*standing)
+                .eq(standing)
                 .and(
                     Expr::col((
                         ConstructorStandings::Table,
@@ -148,7 +150,7 @@ impl ConstructorsQueryBuilder {
         .and_where(|s| {
             s.params
                 .year
-                .map(|year| Expr::col((Races::Table, Races::Year)).eq(*year))
+                .map(|year| Expr::col((Races::Table, Races::Year)).eq(year))
         })
         .and_clause()
         .stmt
@@ -160,7 +162,7 @@ impl ConstructorsQueryBuilder {
     fn and_clause(self) -> Self {
         if let Some(round) = self.params.round {
             return self.and_where(|_| {
-                Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(*round)))
+                Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(round)))
             });
         }
 
@@ -186,7 +188,7 @@ impl ConstructorsQueryBuilder {
                         Query::select()
                             .from(Races::Table)
                             .expr(Func::max(Expr::col(Races::Round)))
-                            .and_where(Expr::col((Races::Table, Races::Year)).eq(*year))
+                            .and_where(Expr::col((Races::Table, Races::Year)).eq(year))
                             .to_owned(),
                     )
                 },

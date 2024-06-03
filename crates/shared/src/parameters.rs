@@ -2,6 +2,10 @@ use serde::{Deserialize, Serialize};
 
 use derives::FilterValidation;
 
+use crate::models::graphql::{
+    GetCircuitsOpts, GetConstructorStandingsOpts, GetConstructorsOpts, GetRacesOpts, Pagination,
+};
+
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
 pub enum Series {
     #[default]
@@ -9,6 +13,140 @@ pub enum Series {
     F1,
     #[serde(rename = "f2")]
     F2,
+}
+
+#[derive(Debug, Default, Deserialize)]
+pub struct GetRacesParameters {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub circuit_ref: Option<String>,
+    pub driver_ref: Option<String>,
+    pub constructor_ref: Option<String>,
+    pub status: Option<u32>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+pub struct GetCircuitsParameters {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub circuit_ref: Option<String>,
+    pub driver_ref: Option<String>,
+    pub constructor_ref: Option<String>,
+    pub status: Option<u32>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+pub struct GetConstructorStandingsParameters {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub constructor_ref: Option<String>,
+    pub position: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+pub struct GetConstructorsParameters {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub circuit_ref: Option<String>,
+    pub driver_ref: Option<String>,
+    pub constructor_standing: Option<u32>,
+    pub status: Option<u32>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
+impl From<(GetRacesOpts, Pagination)> for GetRacesParameters {
+    fn from(value: (GetRacesOpts, Pagination)) -> Self {
+        let opts = value.0;
+        let p = value.1;
+
+        Self {
+            limit: p.limit,
+            page: p.page,
+            circuit_ref: opts.circuit_ref,
+            driver_ref: opts.driver_ref,
+            constructor_ref: opts.constructor_ref,
+            status: opts.status,
+            grid: opts.grid,
+            fastest: opts.fastest,
+            result: opts.result,
+            year: opts.year,
+            round: opts.round,
+        }
+    }
+}
+
+impl From<(GetCircuitsOpts, Pagination)> for GetCircuitsParameters {
+    fn from(value: (GetCircuitsOpts, Pagination)) -> Self {
+        let opts = value.0;
+        let p = value.1;
+
+        Self {
+            limit: p.limit,
+            page: p.page,
+            circuit_ref: None,
+            driver_ref: opts.driver_ref,
+            constructor_ref: opts.constructor_ref,
+            status: opts.status,
+            grid: opts.grid,
+            fastest: opts.fastest,
+            result: opts.result,
+            year: opts.year,
+            round: opts.round,
+        }
+    }
+}
+
+impl From<(GetConstructorStandingsOpts, Pagination)> for GetConstructorStandingsParameters {
+    fn from(value: (GetConstructorStandingsOpts, Pagination)) -> Self {
+        let opts = value.0;
+        let p = value.1;
+
+        Self {
+            limit: p.limit,
+            page: p.page,
+            constructor_ref: opts.constructor_ref,
+            position: opts.position,
+            year: opts.year,
+            round: opts.round,
+        }
+    }
+}
+
+impl From<(GetConstructorsOpts, Pagination)> for GetConstructorsParameters {
+    fn from(value: (GetConstructorsOpts, Pagination)) -> Self {
+        let opts = value.0;
+        let p = value.1;
+
+        Self {
+            limit: p.limit,
+            page: p.page,
+            circuit_ref: opts.circuit_ref,
+            driver_ref: opts.driver_ref,
+            constructor_standing: opts.constructor_standing,
+            status: opts.status,
+            grid: opts.grid,
+            fastest: opts.fastest,
+            result: opts.result,
+            year: opts.year,
+            round: opts.round,
+        }
+    }
 }
 
 macros::query_parameters! {
@@ -41,23 +179,6 @@ pub trait FilterValidation {
 }
 
 #[derive(Debug, Default, FilterValidation, Deserialize)]
-pub struct GetCircuitsParameter {
-    #[validation(skip)]
-    pub limit: Option<Limit>,
-    #[validation(skip)]
-    pub page: Option<Page>,
-    pub circuit_ref: Option<CircuitRef>,
-    pub driver_ref: Option<DriverRef>,
-    pub constructor_ref: Option<ConstructorRef>,
-    pub status: Option<StatusId>,
-    pub grid: Option<Grid>,
-    pub fastest: Option<Fastest>,
-    pub result: Option<RaceResult>,
-    pub year: Option<Year>,
-    pub round: Option<Round>,
-}
-
-#[derive(Debug, Default, FilterValidation, Deserialize)]
 pub struct GetDriversParameter {
     #[validation(skip)]
     pub limit: Option<Limit>,
@@ -71,36 +192,6 @@ pub struct GetDriversParameter {
     pub grid: Option<Grid>,
     pub fastest: Option<Fastest>,
     pub result: Option<RaceResult>,
-    pub year: Option<Year>,
-    pub round: Option<Round>,
-}
-
-#[derive(Debug, Default, FilterValidation, Deserialize)]
-pub struct GetConstructorsParameter {
-    #[validation(skip)]
-    pub limit: Option<Limit>,
-    #[validation(skip)]
-    pub page: Option<Page>,
-    pub constructor_ref: Option<ConstructorRef>,
-    pub circuit_ref: Option<CircuitRef>,
-    pub driver_ref: Option<DriverRef>,
-    pub constructor_standing: Option<ConstructorStanding>,
-    pub status: Option<StatusId>,
-    pub grid: Option<Grid>,
-    pub fastest: Option<Fastest>,
-    pub result: Option<RaceResult>,
-    pub year: Option<Year>,
-    pub round: Option<Round>,
-}
-
-#[derive(Debug, Default, FilterValidation, Deserialize)]
-pub struct GetConstructorStandingsParameter {
-    #[validation(skip)]
-    pub limit: Option<Limit>,
-    #[validation(skip)]
-    pub page: Option<Page>,
-    pub constructor_ref: Option<ConstructorRef>,
-    pub position: Option<ConstructorStanding>,
     pub year: Option<Year>,
     pub round: Option<Round>,
 }
@@ -142,23 +233,6 @@ pub struct GetPitStopsParameter {
     pub round: Round,
     pub lap_number: Option<LapNumber>,
     pub pit_stop_number: Option<PitStopNumber>,
-}
-
-#[derive(Debug, Default, FilterValidation, Deserialize)]
-pub struct GetRacesParameters {
-    #[validation(skip)]
-    pub limit: Option<Limit>,
-    #[validation(skip)]
-    pub page: Option<Page>,
-    pub circuit_ref: Option<CircuitRef>,
-    pub driver_ref: Option<DriverRef>,
-    pub constructor_ref: Option<ConstructorRef>,
-    pub status: Option<StatusId>,
-    pub grid: Option<Grid>,
-    pub fastest: Option<Fastest>,
-    pub result: Option<RaceResult>,
-    pub year: Option<Year>,
-    pub round: Option<Round>,
 }
 
 #[derive(Debug, Default, FilterValidation, Deserialize)]
