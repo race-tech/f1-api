@@ -4,7 +4,8 @@ use derives::FilterValidation;
 
 use crate::models::graphql::{
     GetCircuitsOpts, GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts,
-    GetDriversOpts, GetLapsOpts, GetPitStopsOpts, GetRacesOpts, GetSeasonsOpts, Pagination,
+    GetDriversOpts, GetLapsOpts, GetPitStopsOpts, GetRacesOpts, GetSeasonsOpts, GetStatusOpts,
+    Pagination,
 };
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
@@ -130,6 +131,20 @@ pub struct GetSeasonsParameters {
     pub result: Option<u32>,
     pub driver_standing: Option<u32>,
     pub constructor_standing: Option<u32>,
+}
+
+#[derive(Debug, Default)]
+pub struct GetStatusParameters {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub circuit_ref: Option<String>,
+    pub driver_ref: Option<String>,
+    pub constructor_ref: Option<String>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
 }
 
 impl From<(GetRacesOpts, Pagination)> for GetRacesParameters {
@@ -302,6 +317,26 @@ impl From<(GetSeasonsOpts, Pagination)> for GetSeasonsParameters {
     }
 }
 
+impl From<(GetStatusOpts, Pagination)> for GetStatusParameters {
+    fn from(value: (GetStatusOpts, Pagination)) -> Self {
+        let opts = value.0;
+        let p = value.1;
+
+        Self {
+            limit: p.limit,
+            page: p.page,
+            driver_ref: opts.driver_ref,
+            circuit_ref: opts.circuit_ref,
+            constructor_ref: opts.constructor_ref,
+            grid: opts.grid,
+            fastest: opts.fastest,
+            result: opts.result,
+            year: opts.year,
+            round: opts.round,
+        }
+    }
+}
+
 macros::query_parameters! {
     #[Copy] Page(u64);
     #[Copy] Limit(u64);
@@ -342,22 +377,6 @@ pub struct GetPitStopsParameter {
     pub round: Round,
     pub lap_number: Option<LapNumber>,
     pub pit_stop_number: Option<PitStopNumber>,
-}
-
-#[derive(Debug, Default, FilterValidation, Deserialize)]
-pub struct GetStatusParameters {
-    #[validation(skip)]
-    pub limit: Option<Limit>,
-    #[validation(skip)]
-    pub page: Option<Page>,
-    pub circuit_ref: Option<CircuitRef>,
-    pub driver_ref: Option<DriverRef>,
-    pub constructor_ref: Option<ConstructorRef>,
-    pub grid: Option<Grid>,
-    pub fastest: Option<Fastest>,
-    pub result: Option<RaceResult>,
-    pub year: Option<Year>,
-    pub round: Option<Round>,
 }
 
 impl Default for Page {

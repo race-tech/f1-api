@@ -13,7 +13,6 @@ use shared::error::Result;
 
 use crate::middlewares::rate_limiter::RateLimiter;
 
-mod handlers;
 mod middlewares;
 #[cfg(test)]
 mod tests;
@@ -69,7 +68,7 @@ fn router(config: &Config) -> Result<Router> {
         .data(pool.clone())
         .finish();
 
-    let api_routes = Router::new().route("/status", get(handlers::status::status));
+    let api_routes = Router::new();
 
     let builder = ServiceBuilder {
         config,

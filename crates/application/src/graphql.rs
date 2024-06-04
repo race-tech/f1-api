@@ -5,8 +5,8 @@ use shared::{
     models::graphql::{
         Circuit, Constructor, ConstructorStanding, Driver, DriverStanding, GetCircuitsOpts,
         GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts, GetDriversOpts,
-        GetLapsOpts, GetPitStopsOpts, GetRacesOpts, GetSeasonsOpts, Laps, Pagination, PitStops,
-        Race, Season, Wrapper,
+        GetLapsOpts, GetPitStopsOpts, GetRacesOpts, GetSeasonsOpts, GetStatusOpts, Laps,
+        Pagination, PitStops, Race, Season, Status, Wrapper,
     },
     parameters::Series,
 };
@@ -230,6 +230,24 @@ impl Query {
         let conn = &mut pool.from_series(Series::F1).get().unwrap();
 
         let res = crate::seasons::SeasonsQueryBuilder::params(
+            (options, pagination.unwrap_or_default()).into(),
+        )
+        .query_and_count(conn)
+        .unwrap();
+
+        res.0.into_iter().map(Into::into).collect()
+    }
+
+    async fn status<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        options: GetStatusOpts,
+        pagination: Option<Pagination>,
+    ) -> Vec<Status> {
+        let pool = ctx.data::<ConnectionPool>().unwrap();
+        let conn = &mut pool.from_series(Series::F1).get().unwrap();
+
+        let res = crate::status::StatusQueryBuilder::params(
             (options, pagination.unwrap_or_default()).into(),
         )
         .query_and_count(conn)

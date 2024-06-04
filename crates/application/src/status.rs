@@ -35,8 +35,8 @@ impl StatusQueryBuilder {
     }
 
     fn build(self) -> Paginated<StatusModel> {
-        let page: u64 = self.params.page.unwrap_or_default().0;
-        let limit: u64 = self.params.limit.unwrap_or_default().0;
+        let page: u64 = self.params.page.unwrap_or_default();
+        let limit: u64 = self.params.limit.unwrap_or_default();
 
         self.from(
             |s| one_of!(s.params.year, s.params.round, s.params.circuit_ref),
@@ -77,27 +77,27 @@ impl StatusQueryBuilder {
         .and_where(|s| {
             s.params
                 .grid
-                .map(|g| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(*g)))
+                .map(|g| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(g)))
         })
         .and_where(|s| {
             s.params
                 .result
-                .map(|r| Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(*r)))
+                .map(|r| Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(r)))
         })
         .and_where(|s| {
             s.params
                 .fastest
-                .map(|f| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(*f)))
+                .map(|f| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(f)))
         })
         .and_where(|s| {
             s.params
                 .year
-                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(*y)))
+                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(y)))
         })
         .and_where(|s| {
             s.params
                 .round
-                .map(|r| Expr::col((Races::Table, Races::Round)).eq(Expr::val(*r)))
+                .map(|r| Expr::col((Races::Table, Races::Round)).eq(Expr::val(r)))
         })
         .stmt
         .paginate(page)

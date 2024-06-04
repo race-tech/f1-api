@@ -251,6 +251,25 @@ pub struct Season {
     pub url: String,
 }
 
+#[derive(Debug, InputObject)]
+pub struct GetStatusOpts {
+    pub circuit_ref: Option<String>,
+    pub driver_ref: Option<String>,
+    pub constructor_ref: Option<String>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct Status {
+    pub status_id: i32,
+    pub status: String,
+    pub count: i32,
+}
+
 pub struct Wrapper<T>(pub Vec<T>);
 
 impl Default for Pagination {
@@ -577,6 +596,16 @@ impl From<super::Season> for Season {
         Self {
             year: value.year,
             url: value.url,
+        }
+    }
+}
+
+impl From<super::Status> for Status {
+    fn from(value: super::Status) -> Self {
+        Self {
+            status_id: value.status_id,
+            status: value.status,
+            count: value.count,
         }
     }
 }
