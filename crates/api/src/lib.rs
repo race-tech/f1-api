@@ -69,9 +69,7 @@ fn router(config: &Config) -> Result<Router> {
         .data(pool.clone())
         .finish();
 
-    let api_routes = Router::new()
-        .route("/seasons", get(handlers::seasons::seasons))
-        .route("/status", get(handlers::status::status));
+    let api_routes = Router::new().route("/status", get(handlers::status::status));
 
     let builder = ServiceBuilder {
         config,

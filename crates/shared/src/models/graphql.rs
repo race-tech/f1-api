@@ -232,6 +232,25 @@ pub struct PitStops {
     pub pit_stops: Vec<PitStop>,
 }
 
+#[derive(Debug, InputObject)]
+pub struct GetSeasonsOpts {
+    pub circuit_ref: Option<String>,
+    pub driver_ref: Option<String>,
+    pub constructor_ref: Option<String>,
+    pub status: Option<u32>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
+    pub driver_standing: Option<u32>,
+    pub constructor_standing: Option<u32>,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct Season {
+    pub year: i32,
+    pub url: String,
+}
+
 pub struct Wrapper<T>(pub Vec<T>);
 
 impl Default for Pagination {
@@ -550,5 +569,14 @@ impl TryFrom<Vec<super::PitStop>> for PitStops {
             time,
             pit_stops,
         })
+    }
+}
+
+impl From<super::Season> for Season {
+    fn from(value: super::Season) -> Self {
+        Self {
+            year: value.year,
+            url: value.url,
+        }
     }
 }

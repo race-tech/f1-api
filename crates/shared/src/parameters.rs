@@ -4,7 +4,7 @@ use derives::FilterValidation;
 
 use crate::models::graphql::{
     GetCircuitsOpts, GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts,
-    GetDriversOpts, GetLapsOpts, GetPitStopsOpts, GetRacesOpts, Pagination,
+    GetDriversOpts, GetLapsOpts, GetPitStopsOpts, GetRacesOpts, GetSeasonsOpts, Pagination,
 };
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
@@ -115,6 +115,21 @@ pub struct GetPitStopsParameters {
     pub round: u32,
     pub lap_number: Option<u32>,
     pub pit_stop_number: Option<u32>,
+}
+
+#[derive(Debug, Default)]
+pub struct GetSeasonsParameters {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub circuit_ref: Option<String>,
+    pub driver_ref: Option<String>,
+    pub constructor_ref: Option<String>,
+    pub status: Option<u32>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
+    pub driver_standing: Option<u32>,
+    pub constructor_standing: Option<u32>,
 }
 
 impl From<(GetRacesOpts, Pagination)> for GetRacesParameters {
@@ -266,6 +281,27 @@ impl From<(GetPitStopsOpts, Pagination)> for GetPitStopsParameters {
     }
 }
 
+impl From<(GetSeasonsOpts, Pagination)> for GetSeasonsParameters {
+    fn from(value: (GetSeasonsOpts, Pagination)) -> Self {
+        let opts = value.0;
+        let p = value.1;
+
+        Self {
+            limit: p.limit,
+            page: p.page,
+            driver_ref: opts.driver_ref,
+            driver_standing: opts.driver_standing,
+            circuit_ref: opts.circuit_ref,
+            constructor_ref: opts.constructor_ref,
+            constructor_standing: opts.constructor_standing,
+            status: opts.status,
+            grid: opts.grid,
+            fastest: opts.fastest,
+            result: opts.result,
+        }
+    }
+}
+
 macros::query_parameters! {
     #[Copy] Page(u64);
     #[Copy] Limit(u64);
@@ -306,24 +342,6 @@ pub struct GetPitStopsParameter {
     pub round: Round,
     pub lap_number: Option<LapNumber>,
     pub pit_stop_number: Option<PitStopNumber>,
-}
-
-#[derive(Debug, Default, FilterValidation, Deserialize)]
-pub struct GetSeasonsParameters {
-    #[validation(skip)]
-    pub limit: Option<Limit>,
-    #[validation(skip)]
-    pub page: Option<Page>,
-    pub season: Option<Year>,
-    pub circuit_ref: Option<CircuitRef>,
-    pub driver_ref: Option<DriverRef>,
-    pub constructor_ref: Option<ConstructorRef>,
-    pub status: Option<StatusId>,
-    pub grid: Option<Grid>,
-    pub fastest: Option<Fastest>,
-    pub result: Option<RaceResult>,
-    pub driver_standing: Option<DriverStanding>,
-    pub constructor_standing: Option<ConstructorStanding>,
 }
 
 #[derive(Debug, Default, FilterValidation, Deserialize)]

@@ -5,7 +5,8 @@ use shared::{
     models::graphql::{
         Circuit, Constructor, ConstructorStanding, Driver, DriverStanding, GetCircuitsOpts,
         GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts, GetDriversOpts,
-        GetLapsOpts, GetPitStopsOpts, GetRacesOpts, Laps, Pagination, PitStops, Race, Wrapper,
+        GetLapsOpts, GetPitStopsOpts, GetRacesOpts, GetSeasonsOpts, Laps, Pagination, PitStops,
+        Race, Season, Wrapper,
     },
     parameters::Series,
 };
@@ -208,5 +209,32 @@ impl Query {
         .unwrap();
 
         res.0.try_into().unwrap()
+    }
+
+    async fn season<'ctx>(&self, ctx: &Context<'ctx>, year: u32) -> Season {
+        let pool = ctx.data::<ConnectionPool>().unwrap();
+        let conn = &mut pool.from_series(Series::F1).get().unwrap();
+
+        let res = crate::seasons::SeasonsQueryBuilder::get(year, conn).unwrap();
+
+        res.into()
+    }
+
+    async fn seasons<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        options: GetSeasonsOpts,
+        pagination: Option<Pagination>,
+    ) -> Vec<Season> {
+        let pool = ctx.data::<ConnectionPool>().unwrap();
+        let conn = &mut pool.from_series(Series::F1).get().unwrap();
+
+        let res = crate::seasons::SeasonsQueryBuilder::params(
+            (options, pagination.unwrap_or_default()).into(),
+        )
+        .query_and_count(conn)
+        .unwrap();
+
+        res.0.into_iter().map(Into::into).collect()
     }
 }
