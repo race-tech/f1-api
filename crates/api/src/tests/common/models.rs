@@ -214,12 +214,10 @@ impl PartialEq<PitStopsResponse> for StaticPitStops<'_> {
 
 impl PartialEq<PitStop> for StaticPitStop<'_> {
     fn eq(&self, other: &PitStop) -> bool {
-        let time = parse_time(self.time);
-
         self.driver_ref == other.driver_ref
             && self.lap == other.lap
             && self.stop == other.stop
-            && time == other.time
+            && self.time == other.time
             && self.duration == other.duration.as_deref()
     }
 }

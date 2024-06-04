@@ -170,8 +170,8 @@ pub struct GetLapsOpts {
     pub limit: Option<u64>,
     pub page: Option<u64>,
     pub driver_ref: Option<String>,
-    pub year: Option<u32>,
-    pub round: Option<u32>,
+    pub year: u32,
+    pub round: u32,
     pub lap_number: Option<u32>,
 }
 
@@ -198,6 +198,38 @@ pub struct Laps {
     pub circuit: Circuit,
 
     pub laps: Vec<Lap>,
+}
+
+#[derive(Debug, InputObject)]
+pub struct GetPitStopsOpts {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub driver_ref: Option<String>,
+    pub year: u32,
+    pub round: u32,
+    pub lap_number: Option<u32>,
+    pub pit_stop_number: Option<u32>,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct PitStop {
+    pub driver_ref: String,
+    pub lap: i32,
+    pub stop: i32,
+    pub time: String,
+    pub duration: Option<String>,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct PitStops {
+    pub url: Option<String>,
+    pub race_name: String,
+    pub date: time::Date,
+    pub time: Option<String>,
+
+    pub circuit: Circuit,
+
+    pub pit_stops: Vec<PitStop>,
 }
 
 pub struct Wrapper<T>(pub Vec<T>);
@@ -457,6 +489,66 @@ impl TryFrom<Vec<super::Lap>> for Laps {
             time,
             circuit,
             laps,
+        })
+    }
+}
+
+impl From<super::PitStop> for PitStop {
+    fn from(value: super::PitStop) -> Self {
+        Self {
+            driver_ref: value.driver_ref,
+            lap: value.lap,
+            stop: value.stop,
+            time: value.time,
+            duration: value.duration,
+        }
+    }
+}
+
+impl From<&super::PitStop> for Circuit {
+    fn from(value: &super::PitStop) -> Self {
+        Self {
+            circuit_ref: value.circuit_ref.clone(),
+            name: value.circuit_name.clone(),
+            location: value.circuit_location.clone(),
+            country: value.circuit_country.clone(),
+            lat: value.circuit_lat,
+            lng: value.circuit_lng,
+            alt: value.circuit_alt,
+            url: value.circuit_url.clone(),
+        }
+    }
+}
+
+impl TryFrom<Vec<super::PitStop>> for PitStops {
+    type Error = crate::error::Error;
+
+    fn try_from(value: Vec<super::PitStop>) -> Result<Self> {
+        let first = match value.first() {
+            Some(first) => first,
+            None => {
+                return Err(
+                    error!(EntityNotFound => "cannot find any pit stop matching the given parameters"),
+                )
+            }
+        };
+
+        let circuit: Circuit = first.into();
+        let url = first.race_url.clone();
+        let race_name = first.race_name.clone();
+        let date = first.race_date;
+        let time = first
+            .race_time
+            .map(|t| t.format(&crate::TIME_FORMAT).unwrap());
+        let pit_stops = value.into_iter().map(Into::into).collect();
+
+        Ok(PitStops {
+            circuit,
+            url,
+            race_name,
+            date,
+            time,
+            pit_stops,
         })
     }
 }

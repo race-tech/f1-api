@@ -4,7 +4,7 @@ use derives::FilterValidation;
 
 use crate::models::graphql::{
     GetCircuitsOpts, GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts,
-    GetDriversOpts, GetLapsOpts, GetRacesOpts, Pagination,
+    GetDriversOpts, GetLapsOpts, GetPitStopsOpts, GetRacesOpts, Pagination,
 };
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
@@ -101,9 +101,20 @@ pub struct GetLapsParameters {
     pub limit: Option<u64>,
     pub page: Option<u64>,
     pub driver_ref: Option<String>,
-    pub year: Option<u32>,
-    pub round: Option<u32>,
+    pub year: u32,
+    pub round: u32,
     pub lap_number: Option<u32>,
+}
+
+#[derive(Debug, Default)]
+pub struct GetPitStopsParameters {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub driver_ref: Option<String>,
+    pub year: u32,
+    pub round: u32,
+    pub lap_number: Option<u32>,
+    pub pit_stop_number: Option<u32>,
 }
 
 impl From<(GetRacesOpts, Pagination)> for GetRacesParameters {
@@ -238,6 +249,23 @@ impl From<(GetLapsOpts, Pagination)> for GetLapsParameters {
     }
 }
 
+impl From<(GetPitStopsOpts, Pagination)> for GetPitStopsParameters {
+    fn from(value: (GetPitStopsOpts, Pagination)) -> Self {
+        let opts = value.0;
+        let p = value.1;
+
+        Self {
+            limit: p.limit,
+            page: p.page,
+            driver_ref: opts.driver_ref,
+            lap_number: opts.lap_number,
+            pit_stop_number: opts.pit_stop_number,
+            year: opts.year,
+            round: opts.round,
+        }
+    }
+}
+
 macros::query_parameters! {
     #[Copy] Page(u64);
     #[Copy] Limit(u64);
@@ -265,20 +293,6 @@ impl Year {
 
 pub trait FilterValidation {
     fn validate(&self) -> Result<(), crate::error::Error>;
-}
-
-#[derive(Debug, Default, FilterValidation, Deserialize)]
-pub struct GetLapsParameter {
-    #[validation(skip)]
-    pub limit: Option<Limit>,
-    #[validation(skip)]
-    pub page: Option<Page>,
-    pub driver_ref: Option<DriverRef>,
-    #[validation(skip)]
-    pub year: Year,
-    #[validation(skip)]
-    pub round: Round,
-    pub lap_number: Option<LapNumber>,
 }
 
 #[derive(Debug, Default, FilterValidation, Deserialize)]

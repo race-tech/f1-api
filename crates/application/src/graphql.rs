@@ -5,7 +5,7 @@ use shared::{
     models::graphql::{
         Circuit, Constructor, ConstructorStanding, Driver, DriverStanding, GetCircuitsOpts,
         GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts, GetDriversOpts,
-        GetLapsOpts, GetRacesOpts, Laps, Pagination, Race, Wrapper,
+        GetLapsOpts, GetPitStopsOpts, GetRacesOpts, Laps, Pagination, PitStops, Race, Wrapper,
     },
     parameters::Series,
 };
@@ -188,6 +188,24 @@ impl Query {
             crate::laps::LapsQueryBuilder::params((options, pagination.unwrap_or_default()).into())
                 .query_and_count(conn)
                 .unwrap();
+
+        res.0.try_into().unwrap()
+    }
+
+    async fn pit_stops<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        options: GetPitStopsOpts,
+        pagination: Option<Pagination>,
+    ) -> PitStops {
+        let pool = ctx.data::<ConnectionPool>().unwrap();
+        let conn = &mut pool.from_series(Series::F1).get().unwrap();
+
+        let res = crate::pit_stops::PitStopsQueryBuilder::params(
+            (options, pagination.unwrap_or_default()).into(),
+        )
+        .query_and_count(conn)
+        .unwrap();
 
         res.0.try_into().unwrap()
     }

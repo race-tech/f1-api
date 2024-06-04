@@ -253,8 +253,7 @@ pub struct PitStop {
     pub driver_ref: String,
     pub lap: i32,
     pub stop: i32,
-    #[serde(with = "time_format")]
-    pub time: time::Time,
+    pub time: String,
     #[serde(skip_serializing_if = "Option::is_none", default)]
     pub duration: Option<String>,
 }

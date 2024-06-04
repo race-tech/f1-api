@@ -1,7 +1,7 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
 use shared::models::PitStop as PitStopModel;
-use shared::parameters::GetPitStopsParameter;
+use shared::parameters::GetPitStopsParameters;
 
 use crate::{
     iden::*,
@@ -11,11 +11,11 @@ use crate::{
 
 pub struct PitStopsQueryBuilder {
     stmt: SelectStatement,
-    params: GetPitStopsParameter,
+    params: GetPitStopsParameters,
 }
 
 impl PitStopsQueryBuilder {
-    pub fn params(params: GetPitStopsParameter) -> Paginated<PitStopModel> {
+    pub fn params(params: GetPitStopsParameters) -> Paginated<PitStopModel> {
         let stmt = Query::select()
             .distinct()
             .expr_as(
@@ -90,8 +90,8 @@ impl PitStopsQueryBuilder {
                 Expr::col((PitStops::Table, PitStops::RaceId))
                     .equals((Races::Table, Races::RaceId)),
             )
-            .and_where(Expr::col((Races::Table, Races::Year)).eq(Expr::val(*params.year)))
-            .and_where(Expr::col((Races::Table, Races::Round)).eq(Expr::val(*params.round)))
+            .and_where(Expr::col((Races::Table, Races::Year)).eq(Expr::val(params.year)))
+            .and_where(Expr::col((Races::Table, Races::Round)).eq(Expr::val(params.round)))
             .order_by(PitStops::Time, sea_query::Order::Asc)
             .to_owned();
 
@@ -99,24 +99,24 @@ impl PitStopsQueryBuilder {
     }
 
     fn build(self) -> Paginated<PitStopModel> {
-        let page: u64 = self.params.page.unwrap_or_default().0;
-        let limit: u64 = self.params.limit.unwrap_or_default().0;
+        let page: u64 = self.params.page.unwrap_or_default();
+        let limit: u64 = self.params.limit.unwrap_or_default();
 
         self.and_where(|s| {
             s.params
                 .driver_ref
                 .as_ref()
-                .map(|d| Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(&**d)))
+                .map(|d| Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(d)))
         })
         .and_where(|s| {
             s.params
                 .lap_number
-                .map(|n| Expr::col((PitStops::Table, PitStops::Lap)).eq(Expr::value(*n)))
+                .map(|n| Expr::col((PitStops::Table, PitStops::Lap)).eq(Expr::value(n)))
         })
         .and_where(|s| {
             s.params
                 .pit_stop_number
-                .map(|n| Expr::col((PitStops::Table, PitStops::Stop)).eq(Expr::value(*n)))
+                .map(|n| Expr::col((PitStops::Table, PitStops::Stop)).eq(Expr::value(n)))
         })
         .stmt
         .paginate(page)
