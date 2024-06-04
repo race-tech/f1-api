@@ -149,6 +149,19 @@ pub struct DriverStanding {
     pub standings: Vec<InnerDriverStanding>,
 }
 
+#[derive(Debug, InputObject)]
+pub struct GetDriversOpts {
+    pub circuit_ref: Option<String>,
+    pub constructor_ref: Option<String>,
+    pub driver_standing: Option<u32>,
+    pub status: Option<u32>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
 pub struct Wrapper<T>(pub Vec<T>);
 
 impl Default for Pagination {
@@ -324,5 +337,20 @@ impl From<Vec<super::DriverStanding>> for Wrapper<DriverStanding> {
         });
 
         Self(map.into_values().collect())
+    }
+}
+
+impl From<super::Driver> for Driver {
+    fn from(value: super::Driver) -> Self {
+        Self {
+            driver_ref: value.driver_ref,
+            number: value.number,
+            code: value.code,
+            forename: value.forename,
+            surname: value.surname,
+            dob: value.dob,
+            nationality: value.nationality,
+            url: value.url,
+        }
     }
 }

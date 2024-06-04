@@ -4,7 +4,7 @@ use derives::FilterValidation;
 
 use crate::models::graphql::{
     GetCircuitsOpts, GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts,
-    GetRacesOpts, Pagination,
+    GetDriversOpts, GetRacesOpts, Pagination,
 };
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
@@ -77,6 +77,21 @@ pub struct GetDriverStandingsParameters {
     pub page: Option<u64>,
     pub driver_ref: Option<String>,
     pub position: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
+#[derive(Debug, Default)]
+pub struct GetDriversParameters {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub circuit_ref: Option<String>,
+    pub constructor_ref: Option<String>,
+    pub driver_standing: Option<u32>,
+    pub status: Option<u32>,
+    pub grid: Option<u32>,
+    pub fastest: Option<u32>,
+    pub result: Option<u32>,
     pub year: Option<u32>,
     pub round: Option<u32>,
 }
@@ -176,6 +191,27 @@ impl From<(GetDriverStandingsOpts, Pagination)> for GetDriverStandingsParameters
     }
 }
 
+impl From<(GetDriversOpts, Pagination)> for GetDriversParameters {
+    fn from(value: (GetDriversOpts, Pagination)) -> Self {
+        let opts = value.0;
+        let p = value.1;
+
+        Self {
+            limit: p.limit,
+            page: p.page,
+            circuit_ref: opts.circuit_ref,
+            constructor_ref: opts.constructor_ref,
+            driver_standing: opts.driver_standing,
+            status: opts.status,
+            grid: opts.grid,
+            fastest: opts.fastest,
+            result: opts.result,
+            year: opts.year,
+            round: opts.round,
+        }
+    }
+}
+
 macros::query_parameters! {
     #[Copy] Page(u64);
     #[Copy] Limit(u64);
@@ -203,24 +239,6 @@ impl Year {
 
 pub trait FilterValidation {
     fn validate(&self) -> Result<(), crate::error::Error>;
-}
-
-#[derive(Debug, Default, FilterValidation, Deserialize)]
-pub struct GetDriversParameter {
-    #[validation(skip)]
-    pub limit: Option<Limit>,
-    #[validation(skip)]
-    pub page: Option<Page>,
-    pub circuit_ref: Option<CircuitRef>,
-    pub constructor_ref: Option<ConstructorRef>,
-    pub driver_ref: Option<DriverRef>,
-    pub driver_standing: Option<DriverStanding>,
-    pub status: Option<StatusId>,
-    pub grid: Option<Grid>,
-    pub fastest: Option<Fastest>,
-    pub result: Option<RaceResult>,
-    pub year: Option<Year>,
-    pub round: Option<Round>,
 }
 
 #[derive(Debug, Default, FilterValidation, Deserialize)]
