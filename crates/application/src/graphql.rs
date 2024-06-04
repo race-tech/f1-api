@@ -3,8 +3,9 @@ use async_graphql::{Context, EmptyMutation, EmptySubscription, Object, Schema};
 use infrastructure::ConnectionPool;
 use shared::{
     models::graphql::{
-        Circuit, Constructor, ConstructorStanding, GetCircuitsOpts, GetConstructorStandingsOpts,
-        GetConstructorsOpts, GetRacesOpts, Pagination, Race, Wrapper,
+        Circuit, Constructor, ConstructorStanding, DriverStanding, GetCircuitsOpts,
+        GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts, GetRacesOpts,
+        Pagination, Race, Wrapper,
     },
     parameters::Series,
 };
@@ -126,5 +127,24 @@ impl Query {
         .unwrap();
 
         res.0.into_iter().map(Into::into).collect()
+    }
+
+    async fn drivers_standings<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        options: GetDriverStandingsOpts,
+        pagination: Option<Pagination>,
+    ) -> Vec<DriverStanding> {
+        let pool = ctx.data::<ConnectionPool>().unwrap();
+        let conn = &mut pool.from_series(Series::F1).get().unwrap();
+
+        let res = crate::driver_standings::DriverStandingsQueryBuilder::params(
+            (options, pagination.unwrap_or_default()).into(),
+        )
+        .query_and_count(conn)
+        .unwrap();
+
+        let wrapper: Wrapper<DriverStanding> = res.0.into();
+        wrapper.0
     }
 }

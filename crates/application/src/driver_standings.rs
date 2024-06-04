@@ -1,7 +1,7 @@
 use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement};
 
 use shared::models::DriverStanding as DriverStandingModel;
-use shared::parameters::GetDriverStandingsParameter;
+use shared::parameters::GetDriverStandingsParameters;
 
 use crate::{
     iden::*,
@@ -10,12 +10,12 @@ use crate::{
 };
 
 pub struct DriverStandingsQueryBuilder {
-    params: GetDriverStandingsParameter,
+    params: GetDriverStandingsParameters,
     stmt: SelectStatement,
 }
 
 impl DriverStandingsQueryBuilder {
-    pub fn params(params: GetDriverStandingsParameter) -> Paginated<DriverStandingModel> {
+    pub fn params(params: GetDriverStandingsParameters) -> Paginated<DriverStandingModel> {
         let stmt = Query::select()
             .distinct()
             .columns(
@@ -70,13 +70,13 @@ impl DriverStandingsQueryBuilder {
     }
 
     fn build(self) -> Paginated<DriverStandingModel> {
-        let page: u64 = self.params.page.unwrap_or_default().0;
-        let limit: u64 = self.params.limit.unwrap_or_default().0;
+        let page: u64 = self.params.page.unwrap_or_default();
+        let limit: u64 = self.params.limit.unwrap_or_default();
 
         self.and_where(|s| {
             s.params.position.map(|p| {
                 Expr::col((DriverStandings::Table, DriverStandings::PositionText))
-                    .eq(Expr::value(*p))
+                    .eq(Expr::value(p))
             })
         })
         .and_where(|s| {
@@ -88,7 +88,7 @@ impl DriverStandingsQueryBuilder {
         .and_where(|s| {
             s.params
                 .year
-                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(*y)))
+                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(y)))
         })
         .and_clause()
         .stmt
@@ -99,7 +99,7 @@ impl DriverStandingsQueryBuilder {
     fn and_clause(self) -> Self {
         if let Some(round) = self.params.round {
             return self.and_where(|_| {
-                Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(*round)))
+                Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(round)))
             });
         }
 
@@ -129,7 +129,7 @@ impl DriverStandingsQueryBuilder {
                             Expr::col((DriverStandings::Table, DriverStandings::RaceId))
                                 .equals((Races::Table, Races::RaceId)),
                         )
-                        .and_where(Expr::col((Races::Table, Races::Year)).eq(*year))
+                        .and_where(Expr::col((Races::Table, Races::Year)).eq(year))
                         .to_owned(),
                 )
             },

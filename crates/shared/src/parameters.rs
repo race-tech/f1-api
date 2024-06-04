@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 use derives::FilterValidation;
 
 use crate::models::graphql::{
-    GetCircuitsOpts, GetConstructorStandingsOpts, GetConstructorsOpts, GetRacesOpts, Pagination,
+    GetCircuitsOpts, GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts,
+    GetRacesOpts, Pagination,
 };
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
@@ -15,7 +16,7 @@ pub enum Series {
     F2,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default)]
 pub struct GetRacesParameters {
     pub limit: Option<u64>,
     pub page: Option<u64>,
@@ -30,7 +31,7 @@ pub struct GetRacesParameters {
     pub round: Option<u32>,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default)]
 pub struct GetCircuitsParameters {
     pub limit: Option<u64>,
     pub page: Option<u64>,
@@ -45,7 +46,7 @@ pub struct GetCircuitsParameters {
     pub round: Option<u32>,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default)]
 pub struct GetConstructorStandingsParameters {
     pub limit: Option<u64>,
     pub page: Option<u64>,
@@ -55,7 +56,7 @@ pub struct GetConstructorStandingsParameters {
     pub round: Option<u32>,
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default)]
 pub struct GetConstructorsParameters {
     pub limit: Option<u64>,
     pub page: Option<u64>,
@@ -66,6 +67,16 @@ pub struct GetConstructorsParameters {
     pub grid: Option<u32>,
     pub fastest: Option<u32>,
     pub result: Option<u32>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+}
+
+#[derive(Debug, Default)]
+pub struct GetDriverStandingsParameters {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub driver_ref: Option<String>,
+    pub position: Option<u32>,
     pub year: Option<u32>,
     pub round: Option<u32>,
 }
@@ -149,6 +160,22 @@ impl From<(GetConstructorsOpts, Pagination)> for GetConstructorsParameters {
     }
 }
 
+impl From<(GetDriverStandingsOpts, Pagination)> for GetDriverStandingsParameters {
+    fn from(value: (GetDriverStandingsOpts, Pagination)) -> Self {
+        let opts = value.0;
+        let p = value.1;
+
+        Self {
+            limit: p.limit,
+            page: p.page,
+            driver_ref: opts.driver_ref,
+            position: opts.position,
+            year: opts.year,
+            round: opts.round,
+        }
+    }
+}
+
 macros::query_parameters! {
     #[Copy] Page(u64);
     #[Copy] Limit(u64);
@@ -192,18 +219,6 @@ pub struct GetDriversParameter {
     pub grid: Option<Grid>,
     pub fastest: Option<Fastest>,
     pub result: Option<RaceResult>,
-    pub year: Option<Year>,
-    pub round: Option<Round>,
-}
-
-#[derive(Debug, Default, FilterValidation, Deserialize)]
-pub struct GetDriverStandingsParameter {
-    #[validation(skip)]
-    pub limit: Option<Limit>,
-    #[validation(skip)]
-    pub page: Option<Page>,
-    pub driver_ref: Option<DriverRef>,
-    pub position: Option<ConstructorStanding>,
     pub year: Option<Year>,
     pub round: Option<Round>,
 }
