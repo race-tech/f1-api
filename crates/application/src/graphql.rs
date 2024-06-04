@@ -5,7 +5,7 @@ use shared::{
     models::graphql::{
         Circuit, Constructor, ConstructorStanding, Driver, DriverStanding, GetCircuitsOpts,
         GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts, GetDriversOpts,
-        GetRacesOpts, Pagination, Race, Wrapper,
+        GetLapsOpts, GetRacesOpts, Laps, Pagination, Race, Wrapper,
     },
     parameters::Series,
 };
@@ -173,5 +173,22 @@ impl Query {
         .unwrap();
 
         res.0.into_iter().map(Into::into).collect()
+    }
+
+    async fn laps<'ctx>(
+        &self,
+        ctx: &Context<'ctx>,
+        options: GetLapsOpts,
+        pagination: Option<Pagination>,
+    ) -> Laps {
+        let pool = ctx.data::<ConnectionPool>().unwrap();
+        let conn = &mut pool.from_series(Series::F1).get().unwrap();
+
+        let res =
+            crate::laps::LapsQueryBuilder::params((options, pagination.unwrap_or_default()).into())
+                .query_and_count(conn)
+                .unwrap();
+
+        res.0.try_into().unwrap()
     }
 }

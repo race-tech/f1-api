@@ -4,7 +4,7 @@ use derives::FilterValidation;
 
 use crate::models::graphql::{
     GetCircuitsOpts, GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts,
-    GetDriversOpts, GetRacesOpts, Pagination,
+    GetDriversOpts, GetLapsOpts, GetRacesOpts, Pagination,
 };
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
@@ -94,6 +94,16 @@ pub struct GetDriversParameters {
     pub result: Option<u32>,
     pub year: Option<u32>,
     pub round: Option<u32>,
+}
+
+#[derive(Debug, Default)]
+pub struct GetLapsParameters {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub driver_ref: Option<String>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+    pub lap_number: Option<u32>,
 }
 
 impl From<(GetRacesOpts, Pagination)> for GetRacesParameters {
@@ -206,6 +216,22 @@ impl From<(GetDriversOpts, Pagination)> for GetDriversParameters {
             grid: opts.grid,
             fastest: opts.fastest,
             result: opts.result,
+            year: opts.year,
+            round: opts.round,
+        }
+    }
+}
+
+impl From<(GetLapsOpts, Pagination)> for GetLapsParameters {
+    fn from(value: (GetLapsOpts, Pagination)) -> Self {
+        let opts = value.0;
+        let p = value.1;
+
+        Self {
+            limit: p.limit,
+            page: p.page,
+            driver_ref: opts.driver_ref,
+            lap_number: opts.lap_number,
             year: opts.year,
             round: opts.round,
         }

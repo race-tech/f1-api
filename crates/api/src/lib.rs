@@ -70,7 +70,6 @@ fn router(config: &Config) -> Result<Router> {
         .finish();
 
     let api_routes = Router::new()
-        .route("/laps", get(handlers::laps::laps))
         .route("/pit-stops", get(handlers::pit_stops::pit_stops))
         .route("/seasons", get(handlers::seasons::seasons))
         .route("/status", get(handlers::status::status));

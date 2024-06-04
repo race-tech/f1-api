@@ -1,5 +1,8 @@
 use async_graphql::*;
 
+use crate::error;
+use crate::error::Result;
+
 #[derive(Debug, SimpleObject)]
 pub struct DateAndTime {
     pub date: time::Date,
@@ -160,6 +163,41 @@ pub struct GetDriversOpts {
     pub result: Option<u32>,
     pub year: Option<u32>,
     pub round: Option<u32>,
+}
+
+#[derive(Debug, InputObject)]
+pub struct GetLapsOpts {
+    pub limit: Option<u64>,
+    pub page: Option<u64>,
+    pub driver_ref: Option<String>,
+    pub year: Option<u32>,
+    pub round: Option<u32>,
+    pub lap_number: Option<u32>,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct LapTiming {
+    pub driver_ref: String,
+    pub position: Option<i32>,
+    pub time: Option<String>,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct Lap {
+    pub number: i32,
+    pub timings: Vec<LapTiming>,
+}
+
+#[derive(Debug, SimpleObject)]
+pub struct Laps {
+    pub url: Option<String>,
+    pub race_name: String,
+    pub date: time::Date,
+    pub time: Option<String>,
+
+    pub circuit: Circuit,
+
+    pub laps: Vec<Lap>,
 }
 
 pub struct Wrapper<T>(pub Vec<T>);
@@ -352,5 +390,73 @@ impl From<super::Driver> for Driver {
             nationality: value.nationality,
             url: value.url,
         }
+    }
+}
+
+impl From<&super::Lap> for Circuit {
+    fn from(value: &super::Lap) -> Self {
+        Self {
+            circuit_ref: value.circuit_ref.clone(),
+            name: value.circuit_name.clone(),
+            location: value.circuit_location.clone(),
+            country: value.circuit_country.clone(),
+            lat: value.circuit_lat,
+            lng: value.circuit_lng,
+            alt: value.circuit_alt,
+            url: value.circuit_url.clone(),
+        }
+    }
+}
+
+impl TryFrom<Vec<super::Lap>> for Laps {
+    type Error = crate::error::Error;
+
+    fn try_from(value: Vec<super::Lap>) -> Result<Self> {
+        let first = match value.first() {
+            Some(first) => first,
+            None => {
+                return Err(
+                    error!(EntityNotFound => "cannot find any laps matching the given parameters"),
+                )
+            }
+        };
+
+        let circuit: Circuit = first.into();
+        let url = first.race_url.clone();
+        let race_name = first.race_name.clone();
+        let date = first.race_date;
+        let time = first
+            .race_time
+            .map(|t| t.format(&crate::TIME_FORMAT).unwrap_or_default());
+
+        let mut curr_lap_number = -1;
+        let mut laps = Vec::new();
+
+        for lap in value {
+            if lap.lap != curr_lap_number {
+                curr_lap_number = lap.lap;
+                laps.push(Lap {
+                    number: lap.lap,
+                    timings: Vec::new(),
+                });
+            }
+
+            // SAFETY: laps contains at least one entry because
+            // `curr_lap_number` starts at -1 and `laps.number` are unsigned integers
+            laps.last_mut().unwrap().timings.push(LapTiming {
+                driver_ref: lap.driver_ref.clone(),
+                position: lap.position,
+                time: lap.time,
+            });
+        }
+
+        Ok(Self {
+            url,
+            race_name,
+            date,
+            time,
+            circuit,
+            laps,
+        })
     }
 }
