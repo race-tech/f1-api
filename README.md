@@ -20,5 +20,5 @@ To build and run the API, you need to have the following tools installed on your
 
 To run the API locally, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/thibault-cne/purple-sector.git`
+1. Clone the repository: `git clone https://github.com/f1-tech/api.git`
 2. Run the project using the docker compose file: `docker-compose up -d --build`
