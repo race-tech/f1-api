@@ -2,9 +2,7 @@ FROM rust:1.76.0-buster AS chef
 
 RUN cargo install cargo-chef
 
-WORKDIR /usr
-RUN cargo new --bin purple-sector
-WORKDIR /usr/purple-sector
+WORKDIR /usr/f1-tech
 COPY Cargo.toml Cargo.lock ./
 
 # Create the all architecture tree
@@ -33,7 +31,7 @@ RUN cargo chef prepare  --recipe-path recipe.json
 
 FROM planner AS buidler
 
-COPY --from=planner /usr/purple-sector/recipe.json recipe.json
+COPY --from=planner /usr/f1-tech/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
 RUN cargo chef cook --recipe-path recipe.json
 

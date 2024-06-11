@@ -4,9 +4,7 @@ RUN apk add --no-cache musl-dev
 
 RUN cargo install cargo-chef
 
-WORKDIR /usr
-RUN cargo new --bin purple-sector
-WORKDIR /usr/purple-sector
+WORKDIR /usr/f1-tech
 COPY Cargo.toml Cargo.lock ./
 
 # Create the all architecture tree
@@ -35,7 +33,7 @@ RUN cargo chef prepare  --recipe-path recipe.json
 
 FROM planner AS builder
 
-COPY --from=planner /usr/purple-sector/recipe.json recipe.json
+COPY --from=planner /usr/f1-tech/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
 RUN cargo chef cook --release --recipe-path recipe.json
 

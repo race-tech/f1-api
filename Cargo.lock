@@ -718,6 +718,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "f1-api"
+version = "0.1.0"
+dependencies = [
+ "api-lib",
+ "infrastructure",
+ "log",
+ "logger",
+ "shared",
+ "tokio",
+]
+
+[[package]]
 name = "fast_chemail"
 version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1578,18 +1590,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b33eb56c327dec362a9e55b3ad14f9d2f0904fb5a5b03b513ab5465399e9f43"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "purple-sector"
-version = "0.1.0"
-dependencies = [
- "api-lib",
- "infrastructure",
- "log",
- "logger",
- "shared",
- "tokio",
 ]
 
 [[package]]
