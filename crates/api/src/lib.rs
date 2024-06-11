@@ -63,10 +63,7 @@ async fn graphql_handler(
 fn router(config: &Config) -> Result<Router> {
     use axum::routing::get;
 
-    let pool = infrastructure::ConnectionPool::try_from(config)?;
-    let schema = Schema::build(Query, EmptyMutation, EmptySubscription)
-        .data(pool.clone())
-        .finish();
+    let schema = schema(config)?;
 
     let api_routes = Router::new();
 
@@ -79,10 +76,16 @@ fn router(config: &Config) -> Result<Router> {
 
     let router = Router::new()
         .route("/", get(graphiql).post(graphql_handler))
-        .layer(Extension(schema))
-        .layer(Extension(pool));
+        .layer(Extension(schema));
 
     Ok(router)
+}
+
+fn schema(config: &Config) -> Result<Schema<Query, EmptyMutation, EmptySubscription>> {
+    let pool = infrastructure::ConnectionPool::try_from(config)?;
+    Ok(Schema::build(Query, EmptyMutation, EmptySubscription)
+        .data(pool)
+        .finish())
 }
 
 struct ServiceBuilder<'c> {

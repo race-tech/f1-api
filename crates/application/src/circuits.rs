@@ -4,7 +4,7 @@ use sea_query::{Expr, MysqlQueryBuilder, Query, SelectStatement};
 use shared::error;
 use shared::error::Result;
 use shared::models::Circuit as CircuitModel;
-use shared::parameters::{CircuitRef, GetCircuitsParameters};
+use shared::parameters::GetCircuitsParameters;
 
 use crate::pagination::Paginated;
 use crate::{iden::*, one_of, pagination::Paginate, sql::*};
@@ -15,10 +15,7 @@ pub struct CircuitsQueryBuilder {
 }
 
 impl CircuitsQueryBuilder {
-    pub fn get(
-        circuit_ref: CircuitRef,
-        conn: &mut infrastructure::Connection,
-    ) -> Result<CircuitModel> {
+    pub fn get(circuit_ref: String, conn: &mut infrastructure::Connection) -> Result<CircuitModel> {
         let query = Query::select()
             .distinct()
             .from(Circuits::Table)
@@ -43,7 +40,7 @@ impl CircuitsQueryBuilder {
             .to_string(MysqlQueryBuilder);
 
         conn.query_first(query)?
-            .ok_or(error!(EntityNotFound => "circuit with reference `{}` not found", circuit_ref.0))
+            .ok_or(error!(EntityNotFound => "circuit with reference `{}` not found", circuit_ref))
     }
 
     pub fn params(params: GetCircuitsParameters) -> Paginated<CircuitModel> {

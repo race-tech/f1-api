@@ -23,5 +23,5 @@ async-graphql-axum = "7.0.5"
 
 [dev-dependencies]
 serde.workspace = true
-
+axum-test = "14.10.0"
 tower = "0.4.13"

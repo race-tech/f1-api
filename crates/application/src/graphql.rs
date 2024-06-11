@@ -22,6 +22,8 @@ impl Query {
         let params = shared::parameters::GetRacesParameters {
             year: Some(year),
             round: Some(round),
+            limit: Some(1),
+            page: Some(1),
             ..Default::default()
         };
 
@@ -35,14 +37,14 @@ impl Query {
     async fn races<'ctx>(
         &self,
         ctx: &Context<'ctx>,
-        options: GetRacesOpts,
+        options: Option<GetRacesOpts>,
         pagination: Option<Pagination>,
     ) -> Vec<Race> {
         let pool = ctx.data::<ConnectionPool>().unwrap();
         let conn = &mut pool.from_series(Series::F1).get().unwrap();
 
         let res = crate::races::RacesQueryBuilder::params(
-            (options, pagination.unwrap_or_default()).into(),
+            (options.unwrap_or_default(), pagination.unwrap_or_default()).into(),
         )
         .query_and_count(conn)
         .unwrap();
@@ -50,32 +52,25 @@ impl Query {
         res.0.into_iter().map(Into::into).collect()
     }
 
-    async fn circuit<'ctx>(&self, ctx: &Context<'ctx>, circuit_ref: String) -> Option<Circuit> {
+    async fn circuit<'ctx>(&self, ctx: &Context<'ctx>, circuit_ref: String) -> Circuit {
         let pool = ctx.data::<ConnectionPool>().unwrap();
         let conn = &mut pool.from_series(Series::F1).get().unwrap();
-        let params = shared::parameters::GetCircuitsParameters {
-            circuit_ref: Some(circuit_ref),
-            ..Default::default()
-        };
 
-        let res = crate::circuits::CircuitsQueryBuilder::params(params)
-            .query_and_count(conn)
-            .unwrap();
-
-        res.0.into_iter().map(Into::into).next()
+        let res = crate::circuits::CircuitsQueryBuilder::get(circuit_ref, conn).unwrap();
+        res.into()
     }
 
     async fn circuits<'ctx>(
         &self,
         ctx: &Context<'ctx>,
-        options: GetCircuitsOpts,
+        options: Option<GetCircuitsOpts>,
         pagination: Option<Pagination>,
     ) -> Vec<Circuit> {
         let pool = ctx.data::<ConnectionPool>().unwrap();
         let conn = &mut pool.from_series(Series::F1).get().unwrap();
 
         let res = crate::circuits::CircuitsQueryBuilder::params(
-            (options, pagination.unwrap_or_default()).into(),
+            (options.unwrap_or_default(), pagination.unwrap_or_default()).into(),
         )
         .query_and_count(conn)
         .unwrap();
@@ -86,14 +81,14 @@ impl Query {
     async fn constructors_standings<'ctx>(
         &self,
         ctx: &Context<'ctx>,
-        options: GetConstructorStandingsOpts,
+        options: Option<GetConstructorStandingsOpts>,
         pagination: Option<Pagination>,
     ) -> Vec<ConstructorStanding> {
         let pool = ctx.data::<ConnectionPool>().unwrap();
         let conn = &mut pool.from_series(Series::F1).get().unwrap();
 
         let res = crate::constructor_standings::ConstructorStandingsQueryBuilder::params(
-            (options, pagination.unwrap_or_default()).into(),
+            (options.unwrap_or_default(), pagination.unwrap_or_default()).into(),
         )
         .query_and_count(conn)
         .unwrap();
@@ -115,14 +110,14 @@ impl Query {
     async fn constructors<'ctx>(
         &self,
         ctx: &Context<'ctx>,
-        options: GetConstructorsOpts,
+        options: Option<GetConstructorsOpts>,
         pagination: Option<Pagination>,
     ) -> Vec<Constructor> {
         let pool = ctx.data::<ConnectionPool>().unwrap();
         let conn = &mut pool.from_series(Series::F1).get().unwrap();
 
         let res = crate::constructors::ConstructorsQueryBuilder::params(
-            (options, pagination.unwrap_or_default()).into(),
+            (options.unwrap_or_default(), pagination.unwrap_or_default()).into(),
         )
         .query_and_count(conn)
         .unwrap();
@@ -133,14 +128,14 @@ impl Query {
     async fn drivers_standings<'ctx>(
         &self,
         ctx: &Context<'ctx>,
-        options: GetDriverStandingsOpts,
+        options: Option<GetDriverStandingsOpts>,
         pagination: Option<Pagination>,
     ) -> Vec<DriverStanding> {
         let pool = ctx.data::<ConnectionPool>().unwrap();
         let conn = &mut pool.from_series(Series::F1).get().unwrap();
 
         let res = crate::driver_standings::DriverStandingsQueryBuilder::params(
-            (options, pagination.unwrap_or_default()).into(),
+            (options.unwrap_or_default(), pagination.unwrap_or_default()).into(),
         )
         .query_and_count(conn)
         .unwrap();
@@ -161,14 +156,14 @@ impl Query {
     async fn drivers<'ctx>(
         &self,
         ctx: &Context<'ctx>,
-        options: GetDriversOpts,
+        options: Option<GetDriversOpts>,
         pagination: Option<Pagination>,
     ) -> Vec<Driver> {
         let pool = ctx.data::<ConnectionPool>().unwrap();
         let conn = &mut pool.from_series(Series::F1).get().unwrap();
 
         let res = crate::drivers::DriversQueryBuilder::params(
-            (options, pagination.unwrap_or_default()).into(),
+            (options.unwrap_or_default(), pagination.unwrap_or_default()).into(),
         )
         .query_and_count(conn)
         .unwrap();
@@ -223,14 +218,14 @@ impl Query {
     async fn seasons<'ctx>(
         &self,
         ctx: &Context<'ctx>,
-        options: GetSeasonsOpts,
+        options: Option<GetSeasonsOpts>,
         pagination: Option<Pagination>,
     ) -> Vec<Season> {
         let pool = ctx.data::<ConnectionPool>().unwrap();
         let conn = &mut pool.from_series(Series::F1).get().unwrap();
 
         let res = crate::seasons::SeasonsQueryBuilder::params(
-            (options, pagination.unwrap_or_default()).into(),
+            (options.unwrap_or_default(), pagination.unwrap_or_default()).into(),
         )
         .query_and_count(conn)
         .unwrap();
@@ -241,14 +236,14 @@ impl Query {
     async fn status<'ctx>(
         &self,
         ctx: &Context<'ctx>,
-        options: GetStatusOpts,
+        options: Option<GetStatusOpts>,
         pagination: Option<Pagination>,
     ) -> Vec<Status> {
         let pool = ctx.data::<ConnectionPool>().unwrap();
         let conn = &mut pool.from_series(Series::F1).get().unwrap();
 
         let res = crate::status::StatusQueryBuilder::params(
-            (options, pagination.unwrap_or_default()).into(),
+            (options.unwrap_or_default(), pagination.unwrap_or_default()).into(),
         )
         .query_and_count(conn)
         .unwrap();

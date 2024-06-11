@@ -40,7 +40,7 @@ pub struct GetCircuitsOpts {
     pub round: Option<u32>,
 }
 
-#[derive(Debug, InputObject)]
+#[derive(Debug, InputObject, Default)]
 pub struct GetConstructorStandingsOpts {
     pub constructor_ref: Option<String>,
     pub position: Option<u32>,
@@ -105,7 +105,7 @@ pub struct ConstructorStanding {
     pub standings: Vec<InnerConstructorStanding>,
 }
 
-#[derive(Debug, InputObject)]
+#[derive(Debug, InputObject, Default)]
 pub struct GetConstructorsOpts {
     pub circuit_ref: Option<String>,
     pub driver_ref: Option<String>,
@@ -118,7 +118,7 @@ pub struct GetConstructorsOpts {
     pub round: Option<u32>,
 }
 
-#[derive(Debug, InputObject)]
+#[derive(Debug, InputObject, Default)]
 pub struct GetDriverStandingsOpts {
     pub driver_ref: Option<String>,
     pub position: Option<u32>,
@@ -152,7 +152,7 @@ pub struct DriverStanding {
     pub standings: Vec<InnerDriverStanding>,
 }
 
-#[derive(Debug, InputObject)]
+#[derive(Debug, InputObject, Default)]
 pub struct GetDriversOpts {
     pub circuit_ref: Option<String>,
     pub constructor_ref: Option<String>,
@@ -165,7 +165,7 @@ pub struct GetDriversOpts {
     pub round: Option<u32>,
 }
 
-#[derive(Debug, InputObject)]
+#[derive(Debug, InputObject, Default)]
 pub struct GetLapsOpts {
     pub limit: Option<u64>,
     pub page: Option<u64>,
@@ -200,7 +200,7 @@ pub struct Laps {
     pub laps: Vec<Lap>,
 }
 
-#[derive(Debug, InputObject)]
+#[derive(Debug, InputObject, Default)]
 pub struct GetPitStopsOpts {
     pub limit: Option<u64>,
     pub page: Option<u64>,
@@ -232,7 +232,7 @@ pub struct PitStops {
     pub pit_stops: Vec<PitStop>,
 }
 
-#[derive(Debug, InputObject)]
+#[derive(Debug, InputObject, Default)]
 pub struct GetSeasonsOpts {
     pub circuit_ref: Option<String>,
     pub driver_ref: Option<String>,
@@ -251,7 +251,7 @@ pub struct Season {
     pub url: String,
 }
 
-#[derive(Debug, InputObject)]
+#[derive(Debug, InputObject, Default)]
 pub struct GetStatusOpts {
     pub circuit_ref: Option<String>,
     pub driver_ref: Option<String>,

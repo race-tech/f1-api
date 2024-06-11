@@ -1,78 +1,31 @@
-use std::convert::Infallible;
-use std::marker::PhantomData;
+use application::graphql::Query;
+use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 
-use axum::body::Body;
-use axum::extract::Request;
-use axum::http::StatusCode;
-use axum::Router;
-use http_body_util::BodyExt;
-use tower::Service; // for `collect`
+use crate::schema;
 
-use shared::prelude::{Pagination, Response, Series};
-
-use crate::router;
-
-pub mod macros;
-pub mod models;
-
-pub struct Test<'a, T, U> {
-    uri: &'a str,
-    series: Series,
-    pagination: Option<Pagination>,
-    expected: T,
-    target: PhantomData<U>,
+pub struct Test<'a> {
+    queri: &'a str,
+    expected: serde_json::Value,
 }
 
-impl<'a, T, U> Test<'a, T, U>
-where
-    U: serde::de::DeserializeOwned + std::fmt::Debug,
-    T: PartialEq<U> + std::fmt::Debug,
-{
-    pub fn new(uri: &'a str, series: Series, expected: T) -> Self {
-        Self {
-            uri,
-            series,
-            pagination: None,
-            expected,
-            target: PhantomData,
-        }
-    }
-
-    pub fn pagination(mut self, pagination: Option<Pagination>) -> Self {
-        self.pagination = pagination;
-        self
+impl<'a> Test<'a> {
+    pub fn new(queri: &'a str, expected: serde_json::Value) -> Self {
+        Self { queri, expected }
     }
 
     pub async fn test_ok(self) {
-        let router = setup();
+        let schema = setup();
 
-        let resp = get(router, self.uri).await.unwrap();
-        assert_eq!(resp.status(), StatusCode::OK);
-        let body = resp.into_body().collect().await.unwrap().to_bytes();
-        let json: Response<U> = serde_json::from_slice(&body).unwrap();
+        let resp = schema.execute(self.queri).await;
+        assert!(resp.is_ok());
 
-        assert_eq!(json.series, self.series);
-        assert_eq!(json.pagination, self.pagination);
-        assert_eq!(self.expected, json.data);
+        let data = resp.data.into_json().expect("invalid json data");
+
+        assert_eq!(data, self.expected);
     }
 }
 
-pub fn setup() -> Router {
+pub fn setup() -> Schema<Query, EmptyMutation, EmptySubscription> {
     let config = infrastructure::config::Config::try_new().expect("valid config file");
-
-    router(&config).expect("valid configuration")
-}
-
-pub async fn get(mut router: Router, uri: &str) -> Result<axum::http::Response<Body>, Infallible> {
-    router
-        .call(Request::builder().uri(uri).body(Body::empty()).unwrap())
-        .await
-}
-
-pub fn parse_date(date: &str) -> time::Date {
-    time::Date::parse(date, &shared::DATE_FORMAT).unwrap()
-}
-
-pub fn parse_time(time: &str) -> time::Time {
-    time::Time::parse(time, &shared::TIME_FORMAT).unwrap()
+    schema(&config).expect("couldn't load schema")
 }
