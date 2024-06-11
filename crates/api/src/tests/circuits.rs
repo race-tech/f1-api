@@ -141,7 +141,7 @@ async fn test_get_circuits_by_constructor_ref_and_page() {
         }"#,
         ferrari_circuits_page_2(),
     )
-    .specify_field("ciruits")
+    .specify_field("circuits")
     .test_ok()
     .await
 }

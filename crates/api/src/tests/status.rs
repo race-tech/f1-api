@@ -171,7 +171,7 @@ async fn test_get_status() {
         }"#,
         value,
     )
-    .specify_field("data")
+    .specify_field("status")
     .test_ok()
     .await
 }
