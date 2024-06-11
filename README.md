@@ -1,7 +1,7 @@
 [![build & test](https://github.com/f1-tech/api/blob/master/.github/workflows/rust.yml/badge.svg)](https://github.com/f1-tech/api/blob/master/.github/workflows/rust.yml)
 [![circleci](https://img.shields.io/circleci/build/gh/f1-tech/api?logo=circleci&logoColor=white&label=circleci)](https://circleci.com/gh/f1-tech/api)
 [![license](https://img.shields.io/github/license/f1-tech/api)](https://www.gnu.org/licenses/gpl-3.0.en.html)
-[![rust report card](https://rust-reportcard.xuri.me/badge/github.com/f1-tech/api)](https://rust-reportcard.xuri.me/report/github.com/purpl-sectr/api)
+[![rust report card](https://rust-reportcard.xuri.me/badge/github.com/f1-tech/api)](https://rust-reportcard.xuri.me/report/github.com/f1-tech/api)
 
 # F1 API
 
