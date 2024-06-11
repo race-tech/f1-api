@@ -28,18 +28,21 @@ async fn test_get_circuits_by_driver_ref() {
     Test::new(
         r#"{
             circuits(options: { driverRef: "leclerc" }) {
-                circuitRef
-                name
-                location
-                country
-                lat
-                lng
-                alt
-                url
+                data {
+                    circuitRef
+                    name
+                    location
+                    country
+                    lat
+                    lng
+                    alt
+                    url
+                }
             }
         }"#,
         leclerc_circuits(),
     )
+    .specify_field("circuits")
     .test_ok()
     .await
 }
@@ -49,18 +52,21 @@ async fn test_get_circuits_by_driver_ref_and_win() {
     Test::new(
         r#"{
             circuits(options: { driverRef: "leclerc", result: 1 }) {
-                circuitRef
-                name
-                location
-                country
-                lat
-                lng
-                alt
-                url
+                data {
+                    circuitRef
+                    name
+                    location
+                    country
+                    lat
+                    lng
+                    alt
+                    url
+                }
             }
         }"#,
         leclerc_circuits_win(),
     )
+    .specify_field("circuits")
     .test_ok()
     .await
 }
@@ -70,18 +76,21 @@ async fn test_get_circuits_by_driver_ref_and_win_and_pole() {
     Test::new(
         r#"{
             circuits(options: { driverRef: "leclerc", result: 1, grid: 1 }) {
-                circuitRef
-                name
-                location
-                country
-                lat
-                lng
-                alt
-                url
+                data {
+                    circuitRef
+                    name
+                    location
+                    country
+                    lat
+                    lng
+                    alt
+                    url
+                }
             }
         }"#,
         leclerc_circuits_win_and_pole(),
     )
+    .specify_field("circuits")
     .test_ok()
     .await
 }
@@ -91,18 +100,21 @@ async fn test_get_circuits_by_constructor_ref() {
     Test::new(
         r#"{
             circuits(options: { constructorRef: "ferrari" }) {
-                circuitRef
-                name
-                location
-                country
-                lat
-                lng
-                alt
-                url
+                data {
+                    circuitRef
+                    name
+                    location
+                    country
+                    lat
+                    lng
+                    alt
+                    url
+                }
             }
         }"#,
         ferrari_circuits(),
     )
+    .specify_field("circuits")
     .test_ok()
     .await
 }
@@ -115,18 +127,21 @@ async fn test_get_circuits_by_constructor_ref_and_page() {
                 options: { constructorRef: "ferrari" }
                 pagination: { page: 2, limit: 30 }
             ) {
-                circuitRef
-                name
-                location
-                country
-                lat
-                lng
-                alt
-                url
+                data {
+                    circuitRef
+                    name
+                    location
+                    country
+                    lat
+                    lng
+                    alt
+                    url
+                }
             }
         }"#,
         ferrari_circuits_page_2(),
     )
+    .specify_field("ciruits")
     .test_ok()
     .await
 }
@@ -136,18 +151,21 @@ async fn test_get_circuits_by_year_and_round() {
     Test::new(
         r#"{
             circuits(options: { year: 2023, round: 22 }) {
-                circuitRef
-                name
-                location
-                country
-                lat
-                lng
-                alt
-                url
+                data {
+                    circuitRef
+                    name
+                    location
+                    country
+                    lat
+                    lng
+                    alt
+                    url
+                }
             }
         }"#,
         yas_marina(),
     )
+    .specify_field("circuits")
     .test_ok()
     .await
 }
@@ -169,7 +187,7 @@ fn spa() -> serde_json::Value {
 
 fn leclerc_circuits() -> serde_json::Value {
     json!({
-        "circuits": [
+        "data": [
                     {
                         "circuitRef": "albert_park",
                         "name": "Albert Park Grand Prix Circuit",
@@ -476,7 +494,7 @@ fn leclerc_circuits() -> serde_json::Value {
 
 fn leclerc_circuits_win() -> serde_json::Value {
     json!({
-        "circuits": [
+        "data": [
                     {
                         "circuitRef": "albert_park",
                         "name": "Albert Park Grand Prix Circuit",
@@ -533,7 +551,7 @@ fn leclerc_circuits_win() -> serde_json::Value {
 
 fn leclerc_circuits_win_and_pole() -> serde_json::Value {
     json!({
-        "circuits": [
+        "data": [
                     {
                         "circuitRef": "albert_park",
                         "name": "Albert Park Grand Prix Circuit",
@@ -580,7 +598,7 @@ fn leclerc_circuits_win_and_pole() -> serde_json::Value {
 
 fn ferrari_circuits() -> serde_json::Value {
     json!({
-        "circuits": [
+        "data": [
                     {
                         "circuitRef": "adelaide",
                         "name": "Adelaide Street Circuit",
@@ -887,7 +905,7 @@ fn ferrari_circuits() -> serde_json::Value {
 
 fn ferrari_circuits_page_2() -> serde_json::Value {
     json!({
-        "circuits": [
+        "data": [
                     {
                         "circuitRef": "jacarepagua",
                         "name": "Autódromo Internacional Nelson Piquet",
@@ -1194,7 +1212,7 @@ fn ferrari_circuits_page_2() -> serde_json::Value {
 
 fn yas_marina() -> serde_json::Value {
     json!({
-        "circuits": [
+        "data": [
                     {
                         "circuitRef": "yas_marina",
                         "name": "Yas Marina Circuit",

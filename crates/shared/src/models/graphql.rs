@@ -9,23 +9,6 @@ pub struct DateAndTime {
     pub time: String,
 }
 
-#[derive(SimpleObject)]
-pub struct Response<T>
-where
-    T: async_graphql::OutputType,
-{
-    pub data: T,
-    pub pagination: Pagination,
-}
-
-#[derive(SimpleObject)]
-pub struct Pagination {
-    pub limit: u64,
-    pub page: u64,
-    pub max_page: u64,
-    pub total: u64,
-}
-
 #[derive(InputObject)]
 pub struct PaginationOpts {
     pub limit: Option<u64>,
@@ -294,18 +277,6 @@ impl Default for PaginationOpts {
         Self {
             limit: Some(30),
             page: Some(1),
-        }
-    }
-}
-
-impl<T> From<(T, Pagination)> for Response<T>
-where
-    T: async_graphql::OutputType,
-{
-    fn from(value: (T, Pagination)) -> Self {
-        Self {
-            data: value.0,
-            pagination: value.1,
         }
     }
 }

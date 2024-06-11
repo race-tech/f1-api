@@ -5,7 +5,7 @@ use sea_query::{
 };
 
 use infrastructure::Connection;
-use shared::models::graphql::Pagination;
+use shared::models::response::Pagination;
 use shared::prelude::Result;
 
 const DEFAULT_PER_PAGE: u64 = 20;

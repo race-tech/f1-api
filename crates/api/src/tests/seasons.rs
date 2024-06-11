@@ -5,7 +5,7 @@ use super::common::Test;
 #[tokio::test]
 async fn test_get_seasons() {
     let value = json!({
-        "seasons": [
+        "data": [
                     {
                         "year": 1950,
                         "url": "http://en.wikipedia.org/wiki/1950_Formula_One_season"
@@ -132,13 +132,16 @@ async fn test_get_seasons() {
     Test::new(
         r#"{
             seasons {
-                year
-                url
+                data {
+                    year
+                    url
+                }
             }
         }
         "#,
         value,
     )
+    .specify_field("seasons")
     .test_ok()
     .await
 }

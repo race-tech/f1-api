@@ -20,6 +20,8 @@ docker network create f1-tech
 docker run -e MYSQL_DATABASE=${DB_NAME} -e MYSQL_USER=${DB_USER} -e MYSQL_PASSWORD=${DB_PASSWORD} --network f1-tech -h ${DB_IP_OR_HOSTNAME} -d --rm thibaultcne/purple-sector:db-test --default-authentication-plugin=mysql_native_password
 docker run -d --network f1-tech -h ${REDIS_IP_OR_HOSTNAME} --rm docker.dragonflydb.io/dragonflydb/dragonfly:v1.16.1
 
+sleep 5
+
 # Run the tests
 docker run --rm --network f1-tech f1-tech cargo test $@
 TEST_RES=$?

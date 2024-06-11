@@ -7,8 +7,9 @@ use shared::{
         Circuit, Constructor, ConstructorStanding, Driver, DriverStanding, GetCircuitsOpts,
         GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts, GetDriversOpts,
         GetLapsOpts, GetPitStopsOpts, GetRacesOpts, GetSeasonsOpts, GetStatusOpts, Laps,
-        PaginationOpts, PitStops, Race, Response, Season, Status, Wrapper,
+        PaginationOpts, PitStops, Race, Season, Status, Wrapper,
     },
+    models::response::Response,
     parameters::Series,
 };
 

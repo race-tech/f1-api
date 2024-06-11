@@ -5,7 +5,7 @@ use super::common::Test;
 #[tokio::test]
 async fn test_get_driver_standings() {
     let all_standings: serde_json::Value = json!({
-        "driversStandings": [
+        "data": [
                     {
                         "round": 7,
                         "season": 1950,
@@ -198,18 +198,21 @@ async fn test_get_driver_standings() {
     Test::new(
         r#"{
             driversStandings(pagination: { limit: 30, page: 1 }) {
-                round
-                season
-                standings {
-                    points
-                    position
-                    positionText
-                    wins
+                data {
+                    round
+                    season
+                    standings {
+                        points
+                        position
+                        positionText
+                        wins
+                    }
                 }
             }
         }"#,
         all_standings,
     )
+    .specify_field("driversStandings")
     .test_ok()
     .await
 }
@@ -217,7 +220,7 @@ async fn test_get_driver_standings() {
 #[tokio::test]
 async fn test_get_driver_standings_by_year() {
     let value: serde_json::Value = json!({
-        "driversStandings": [
+        "data": [
                     {
                         "round": 22,
                         "season": 2023,
@@ -362,18 +365,21 @@ async fn test_get_driver_standings_by_year() {
     Test::new(
         r#"{
             driversStandings(pagination: { limit: 30, page: 1 }, options: { year: 2023 }) {
-                round
-                season
-                standings {
-                    points
-                    position
-                    positionText
-                    wins
+                data {
+                    round
+                    season
+                    standings {
+                        points
+                        position
+                        positionText
+                        wins
+                    }
                 }
             }
         }"#,
         value,
     )
+    .specify_field("driversStandings")
     .test_ok()
     .await
 }

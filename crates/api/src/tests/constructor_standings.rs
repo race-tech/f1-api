@@ -5,7 +5,7 @@ use super::common::Test;
 #[tokio::test]
 async fn test_get_constructor_standings() {
     let value = json!({
-        "constructorsStandings": [
+        "data": [
                     {
                         "round": 11,
                         "season": 1958,
@@ -210,18 +210,21 @@ async fn test_get_constructor_standings() {
     Test::new(
         r#"{
             constructorsStandings(options: null, pagination: { limit: 30, page: 1 }) {
-                round
-                season
-                standings {
-                    points
-                    position
-                    positionText
-                    wins
+                data {
+                    round
+                    season
+                    standings {
+                        points
+                        position
+                        positionText
+                        wins
+                    }
                 }
             }
         }"#,
         value,
     )
+    .specify_field("constructorsStandings")
     .test_ok()
     .await
 }
@@ -229,7 +232,7 @@ async fn test_get_constructor_standings() {
 #[tokio::test]
 async fn test_get_constructor_standings_by_ref() {
     let value: serde_json::Value = json!({
-        "constructorsStandings": [
+        "data": [
                     {
                         "round": 11,
                         "season": 1958,
@@ -599,18 +602,21 @@ async fn test_get_constructor_standings_by_ref() {
                 options: { constructorRef: "ferrari" }
                 pagination: { limit: 30, page: 1 }
             ) {
-                round
-                season
-                standings {
-                    points
-                    position
-                    positionText
-                    wins
+                data {
+                    round
+                    season
+                    standings {
+                        points
+                        position
+                        positionText
+                        wins
+                    }
                 }
             }
         }"#,
         value,
     )
+    .specify_field("constructorsStandings")
     .test_ok()
     .await
 }
@@ -618,7 +624,7 @@ async fn test_get_constructor_standings_by_ref() {
 #[tokio::test]
 async fn test_get_constructor_standings_by_ref_and_result() {
     let value: serde_json::Value = json!({
-        "constructorsStandings": [
+        "data": [
                     {
                         "round": 8,
                         "season": 1961,
@@ -820,18 +826,21 @@ async fn test_get_constructor_standings_by_ref_and_result() {
                 options: { constructorRef: "ferrari", position: 1 }
                 pagination: { limit: 30, page: 1 }
             ) {
-                round
-                season
-                standings {
-                    points
-                    position
-                    positionText
-                    wins
+                data {
+                    round
+                    season
+                    standings {
+                        points
+                        position
+                        positionText
+                        wins
+                    }
                 }
             }
         }"#,
         value,
     )
+    .specify_field("constructorsStandings")
     .test_ok()
     .await
 }

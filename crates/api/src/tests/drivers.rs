@@ -39,7 +39,7 @@ async fn test_get_driver() {
 #[tokio::test]
 async fn test_get_drivers_by_circuit_ref() {
     let value: serde_json::Value = json!({
-        "drivers": [
+        "data": [
                     {
                         "driverRef": "massa",
                         "number": 19,
@@ -346,18 +346,21 @@ async fn test_get_drivers_by_circuit_ref() {
     Test::new(
         r#"{
             drivers(options: { circuitRef: "spa" }, pagination: { limit: 30, page: 1 }) {
-                driverRef
-                number
-                code
-                forename
-                surname
-                dob
-                nationality
-                url
+                data {
+                    driverRef
+                    number
+                    code
+                    forename
+                    surname
+                    dob
+                    nationality
+                    url
+                }
             }
         }"#,
         value,
     )
+    .specify_field("drivers")
     .test_ok()
     .await
 }
@@ -365,7 +368,7 @@ async fn test_get_drivers_by_circuit_ref() {
 #[tokio::test]
 async fn test_get_drivers_by_circuit_ref_and_result() {
     let value: serde_json::Value = json!({
-        "drivers": [
+        "data": [
                     {
                         "driverRef": "massa",
                         "number": 19,
@@ -655,18 +658,21 @@ async fn test_get_drivers_by_circuit_ref_and_result() {
                 options: { circuitRef: "spa", result: 1 }
                 pagination: { limit: 30, page: 1 }
             ) {
-                driverRef
-                number
-                code
-                forename
-                surname
-                dob
-                nationality
-                url
+                data {
+                    driverRef
+                    number
+                    code
+                    forename
+                    surname
+                    dob
+                    nationality
+                    url
+                }
             }
         }"#,
         value,
     )
+    .specify_field("drivers")
     .test_ok()
     .await
 }
@@ -674,7 +680,7 @@ async fn test_get_drivers_by_circuit_ref_and_result() {
 #[tokio::test]
 async fn test_get_drivers_by_driver_standing() {
     let value: serde_json::Value = json!({
-        "drivers": [
+        "data": [
                     {
                         "driverRef": "hamilton",
                         "number": 44,
@@ -981,18 +987,21 @@ async fn test_get_drivers_by_driver_standing() {
     Test::new(
         r#"{
             drivers(options: { driverStanding: 1 }, pagination: { limit: 30, page: 1 }) {
-                driverRef
-                number
-                code
-                forename
-                surname
-                dob
-                nationality
-                url
+                data {
+                    driverRef
+                    number
+                    code
+                    forename
+                    surname
+                    dob
+                    nationality
+                    url
+                }
             }
         }"#,
         value,
     )
+    .specify_field("drivers")
     .test_ok()
     .await
 }

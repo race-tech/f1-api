@@ -29,7 +29,7 @@ async fn test_get_constructors_by_ref() {
 #[tokio::test]
 async fn test_get_constructors() {
     let value: serde_json::Value = json!({
-        "constructors": [
+        "data": [
                     {
                         "constructorRef": "mclaren",
                         "name": "McLaren",
@@ -216,14 +216,17 @@ async fn test_get_constructors() {
     Test::new(
         r#"{
             constructors(pagination: { limit: 30, page: 1 }) {
-                constructorRef
-                name
-                nationality
-                url
+                data {
+                    constructorRef
+                    name
+                    nationality
+                    url
+                }
             }
         }"#,
         value,
     )
+    .specify_field("constructors")
     .test_ok()
     .await
 }
@@ -231,7 +234,7 @@ async fn test_get_constructors() {
 #[tokio::test]
 async fn test_get_constructors_by_driver_ref() {
     let value: serde_json::Value = json!({
-        "constructors": [
+        "data": [
                     {
                         "constructorRef": "sauber",
                         "name": "Sauber",
@@ -253,14 +256,17 @@ async fn test_get_constructors_by_driver_ref() {
                 pagination: { limit: 30, page: 1 }
                 options: { driverRef: "leclerc" }
             ) {
-                constructorRef
-                name
-                nationality
-                url
+                data {
+                    constructorRef
+                    name
+                    nationality
+                    url
+                }
             }
         }"#,
         value,
     )
+    .specify_field("constructors")
     .test_ok()
     .await
 }
@@ -268,7 +274,7 @@ async fn test_get_constructors_by_driver_ref() {
 #[tokio::test]
 async fn test_get_value() {
     let value: serde_json::Value = json!({
-        "constructors": [
+        "data": [
                     {
                         "constructorRef": "ferrari",
                         "name": "Ferrari",
@@ -380,14 +386,17 @@ async fn test_get_value() {
                 pagination: { limit: 30, page: 1 }
                 options: { constructorStanding: 1 }
             ) {
-                constructorRef
-                name
-                nationality
-                url
+                data {
+                    constructorRef
+                    name
+                    nationality
+                    url
+                }
             }
         }"#,
         value,
     )
+    .specify_field("constructors")
     .test_ok()
     .await
 }

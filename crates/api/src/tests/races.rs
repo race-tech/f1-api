@@ -5,7 +5,7 @@ use super::common::Test;
 #[tokio::test]
 async fn test_get_races_by_year() {
     let value: serde_json::Value = json!({
-        "races": [
+        "data": [
                     {
                         "season": 2024,
                         "round": 1,
@@ -611,37 +611,40 @@ async fn test_get_races_by_year() {
 
     Test::new(
         r#"{
-            races(options: { year: 2024 }, pagination: { limit: 30, page: 1 }) {
-                season
-                round
-                name
-                date
-                time
-                url
-                fp1 {
+        races(options: { year: 2024 }) {
+                data {
+                    season
+                    round
+                    name
                     date
                     time
-                }
-                fp2 {
-                    date
-                    time
-                }
-                fp3 {
-                    date
-                    time
-                }
-                quali {
-                    date
-                    time
-                }
-                sprint {
-                    date
-                    time
+                    url
+                    fp1 {
+                        date
+                        time
+                    }
+                    fp2 {
+                        date
+                        time
+                    }
+                    fp3 {
+                        date
+                        time
+                    }
+                    quali {
+                        date
+                        time
+                    }
+                    sprint {
+                        date
+                        time
+                    }
                 }
             }
         }"#,
         value,
     )
+    .specify_field("races")
     .test_ok()
     .await
 }
@@ -677,7 +680,7 @@ async fn test_get_races_by_year_and_round() {
 #[tokio::test]
 async fn test_get_races_by_driver_ref() {
     let value: serde_json::Value = json!({
-        "races": [
+        "data": [
                     {
                         "season": 2018,
                         "round": 1,
@@ -1073,37 +1076,40 @@ async fn test_get_races_by_driver_ref() {
 
     Test::new(
         r#"{
-            races(options: { driverRef: "leclerc" }) {
-                season
-                round
-                name
-                date
-                time
-                url
-                fp1 {
+        races(options: { driverRef: "leclerc" }) {
+                data {
+                    season
+                    round
+                    name
                     date
                     time
-                }
-                fp2 {
-                    date
-                    time
-                }
-                fp3 {
-                    date
-                    time
-                }
-                quali {
-                    date
-                    time
-                }
-                sprint {
-                    date
-                    time
+                    url
+                    fp1 {
+                        date
+                        time
+                    }
+                    fp2 {
+                        date
+                        time
+                    }
+                    fp3 {
+                        date
+                        time
+                    }
+                    quali {
+                        date
+                        time
+                    }
+                    sprint {
+                        date
+                        time
+                    }
                 }
             }
         }"#,
         value,
     )
+    .specify_field("races")
     .test_ok()
     .await
 }
@@ -1111,7 +1117,7 @@ async fn test_get_races_by_driver_ref() {
 #[tokio::test]
 async fn test_get_races_by_constructor_ref() {
     let value: serde_json::Value = json!({
-        "races": [
+        "data": [
                     {
                         "season": 1950,
                         "round": 2,
@@ -1507,37 +1513,40 @@ async fn test_get_races_by_constructor_ref() {
 
     Test::new(
         r#"{
-            races(options: { constructorRef: "ferrari" }) {
-                season
-                round
-                name
-                date
-                time
-                url
-                fp1 {
+        races(options: { constructorRef: "ferrari" }) {
+                data {
+                    season
+                    round
+                    name
                     date
                     time
-                }
-                fp2 {
-                    date
-                    time
-                }
-                fp3 {
-                    date
-                    time
-                }
-                quali {
-                    date
-                    time
-                }
-                sprint {
-                    date
-                    time
+                    url
+                    fp1 {
+                        date
+                        time
+                    }
+                    fp2 {
+                        date
+                        time
+                    }
+                    fp3 {
+                        date
+                        time
+                    }
+                    quali {
+                        date
+                        time
+                    }
+                    sprint {
+                        date
+                        time
+                    }
                 }
             }
         }"#,
         value,
     )
+    .specify_field("races")
     .test_ok()
     .await
 }
@@ -1545,7 +1554,7 @@ async fn test_get_races_by_constructor_ref() {
 #[tokio::test]
 async fn test_get_races_by_driver_ref_and_page() {
     let value: serde_json::Value = json!({
-        "races": [
+        "data": [
                     {
                         "season": 2022,
                         "round": 10,
@@ -2301,37 +2310,40 @@ async fn test_get_races_by_driver_ref_and_page() {
 
     Test::new(
         r#"{
-            races(options: { driverRef: "leclerc" }, pagination: { page: 4, limit: 30 }) {
-                season
-                round
-                name
-                date
-                time
-                url
-                fp1 {
+        races(options: { driverRef: "leclerc" }, pagination: { limit: 30, page: 4 }) {
+                data {
+                    season
+                    round
+                    name
                     date
                     time
-                }
-                fp2 {
-                    date
-                    time
-                }
-                fp3 {
-                    date
-                    time
-                }
-                quali {
-                    date
-                    time
-                }
-                sprint {
-                    date
-                    time
+                    url
+                    fp1 {
+                        date
+                        time
+                    }
+                    fp2 {
+                        date
+                        time
+                    }
+                    fp3 {
+                        date
+                        time
+                    }
+                    quali {
+                        date
+                        time
+                    }
+                    sprint {
+                        date
+                        time
+                    }
                 }
             }
         }"#,
         value,
     )
+    .specify_field("races")
     .test_ok()
     .await
 }
@@ -2339,7 +2351,7 @@ async fn test_get_races_by_driver_ref_and_page() {
 #[tokio::test]
 async fn test_get_races_by_constructor_ref_and_page() {
     let value: serde_json::Value = json!({
-        "races": [
+        "data": [
                     {
                         "season": 2022,
                         "round": 19,
@@ -3095,40 +3107,40 @@ async fn test_get_races_by_constructor_ref_and_page() {
 
     Test::new(
         r#"{
-            races(
-                options: { constructorRef: "ferrari" }
-                pagination: { page: 36, limit: 30 }
-            ) {
-                season
-                round
-                name
-                date
-                time
-                url
-                fp1 {
+        races(options: { constructorRef: "ferrari" }, pagination: { limit: 30, page: 36 }) {
+                data {
+                    season
+                    round
+                    name
                     date
                     time
-                }
-                fp2 {
-                    date
-                    time
-                }
-                fp3 {
-                    date
-                    time
-                }
-                quali {
-                    date
-                    time
-                }
-                sprint {
-                    date
-                    time
+                    url
+                    fp1 {
+                        date
+                        time
+                    }
+                    fp2 {
+                        date
+                        time
+                    }
+                    fp3 {
+                        date
+                        time
+                    }
+                    quali {
+                        date
+                        time
+                    }
+                    sprint {
+                        date
+                        time
+                    }
                 }
             }
         }"#,
         value,
     )
+    .specify_field("races")
     .test_ok()
     .await
 }

@@ -48,6 +48,6 @@ FROM alpine:3.19 AS runtime
 
 LABEL maintainer="Thibault C. <thibault.chene23@gmail.com>"
 
-COPY --from=builder /usr/purple-sector/target/release/purple-sector /usr/local/bin
+COPY --from=builder /usr/f1-tech/target/release/f1-api /usr/local/bin
 
-CMD ["/usr/local/bin/purple-sector"]
+CMD ["/usr/local/bin/f1-api"]

@@ -5,7 +5,7 @@ use super::common::Test;
 #[tokio::test]
 async fn test_get_status() {
     let value: serde_json::Value = json!({
-        "status": [
+        "data": [
                     {
                         "statusId": 1,
                         "status": "Finished",
@@ -162,13 +162,16 @@ async fn test_get_status() {
     Test::new(
         r#"{
             status(options: null) {
-                statusId
-                status
-                count
+                data {
+                    statusId
+                    status
+                    count
+                }
             }
         }"#,
         value,
     )
+    .specify_field("data")
     .test_ok()
     .await
 }
@@ -176,7 +179,7 @@ async fn test_get_status() {
 #[tokio::test]
 async fn test_get_status_by_driver_ref() {
     let value: serde_json::Value = json!({
-        "status": [
+        "data": [
                     {
                         "statusId": 1,
                         "status": "Finished",
@@ -263,13 +266,16 @@ async fn test_get_status_by_driver_ref() {
     Test::new(
         r#"{
             status(options: { driverRef: "leclerc" }) {
-                statusId
-                status
-                count
+                data {
+                    statusId
+                    status
+                    count
+                }
             }
         }"#,
         value,
     )
+    .specify_field("status")
     .test_ok()
     .await
 }
@@ -277,7 +283,7 @@ async fn test_get_status_by_driver_ref() {
 #[tokio::test]
 async fn test_get_status_by_constructor_ref() {
     let value: serde_json::Value = json!({
-        "status": [
+        "data": [
                     {
                         "statusId": 1,
                         "status": "Finished",
@@ -434,13 +440,16 @@ async fn test_get_status_by_constructor_ref() {
     Test::new(
         r#"{
             status(options: { constructorRef: "ferrari" }) {
-                statusId
-                status
-                count
+                data {
+                    statusId
+                    status
+                    count
+                }
             }
         }"#,
         value,
     )
+    .specify_field("status")
     .test_ok()
     .await
 }
