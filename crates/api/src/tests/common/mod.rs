@@ -21,7 +21,13 @@ impl<'a> Test<'a> {
 
         let data = resp.data.into_json().expect("invalid json data");
 
-        assert_eq!(data, self.expected);
+        if let serde_json::Value::Object(o) = data {
+            let sub_data = o.get("data");
+            assert!(sub_data.is_some(), "no data found inside the object");
+            assert_eq!(sub_data.unwrap(), &self.expected);
+        } else {
+            assert_eq!(data, self.expected);
+        }
     }
 }
 

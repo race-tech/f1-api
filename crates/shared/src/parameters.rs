@@ -5,7 +5,7 @@ use derives::FilterValidation;
 use crate::models::graphql::{
     GetCircuitsOpts, GetConstructorStandingsOpts, GetConstructorsOpts, GetDriverStandingsOpts,
     GetDriversOpts, GetLapsOpts, GetPitStopsOpts, GetRacesOpts, GetSeasonsOpts, GetStatusOpts,
-    Pagination,
+    PaginationOpts,
 };
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
@@ -147,8 +147,8 @@ pub struct GetStatusParameters {
     pub round: Option<u32>,
 }
 
-impl From<(GetRacesOpts, Pagination)> for GetRacesParameters {
-    fn from(value: (GetRacesOpts, Pagination)) -> Self {
+impl From<(GetRacesOpts, PaginationOpts)> for GetRacesParameters {
+    fn from(value: (GetRacesOpts, PaginationOpts)) -> Self {
         let opts = value.0;
         let p = value.1;
 
@@ -168,8 +168,8 @@ impl From<(GetRacesOpts, Pagination)> for GetRacesParameters {
     }
 }
 
-impl From<(GetCircuitsOpts, Pagination)> for GetCircuitsParameters {
-    fn from(value: (GetCircuitsOpts, Pagination)) -> Self {
+impl From<(GetCircuitsOpts, PaginationOpts)> for GetCircuitsParameters {
+    fn from(value: (GetCircuitsOpts, PaginationOpts)) -> Self {
         let opts = value.0;
         let p = value.1;
 
@@ -189,8 +189,8 @@ impl From<(GetCircuitsOpts, Pagination)> for GetCircuitsParameters {
     }
 }
 
-impl From<(GetConstructorStandingsOpts, Pagination)> for GetConstructorStandingsParameters {
-    fn from(value: (GetConstructorStandingsOpts, Pagination)) -> Self {
+impl From<(GetConstructorStandingsOpts, PaginationOpts)> for GetConstructorStandingsParameters {
+    fn from(value: (GetConstructorStandingsOpts, PaginationOpts)) -> Self {
         let opts = value.0;
         let p = value.1;
 
@@ -205,8 +205,8 @@ impl From<(GetConstructorStandingsOpts, Pagination)> for GetConstructorStandings
     }
 }
 
-impl From<(GetConstructorsOpts, Pagination)> for GetConstructorsParameters {
-    fn from(value: (GetConstructorsOpts, Pagination)) -> Self {
+impl From<(GetConstructorsOpts, PaginationOpts)> for GetConstructorsParameters {
+    fn from(value: (GetConstructorsOpts, PaginationOpts)) -> Self {
         let opts = value.0;
         let p = value.1;
 
@@ -226,8 +226,8 @@ impl From<(GetConstructorsOpts, Pagination)> for GetConstructorsParameters {
     }
 }
 
-impl From<(GetDriverStandingsOpts, Pagination)> for GetDriverStandingsParameters {
-    fn from(value: (GetDriverStandingsOpts, Pagination)) -> Self {
+impl From<(GetDriverStandingsOpts, PaginationOpts)> for GetDriverStandingsParameters {
+    fn from(value: (GetDriverStandingsOpts, PaginationOpts)) -> Self {
         let opts = value.0;
         let p = value.1;
 
@@ -242,8 +242,8 @@ impl From<(GetDriverStandingsOpts, Pagination)> for GetDriverStandingsParameters
     }
 }
 
-impl From<(GetDriversOpts, Pagination)> for GetDriversParameters {
-    fn from(value: (GetDriversOpts, Pagination)) -> Self {
+impl From<(GetDriversOpts, PaginationOpts)> for GetDriversParameters {
+    fn from(value: (GetDriversOpts, PaginationOpts)) -> Self {
         let opts = value.0;
         let p = value.1;
 
@@ -263,8 +263,8 @@ impl From<(GetDriversOpts, Pagination)> for GetDriversParameters {
     }
 }
 
-impl From<(GetLapsOpts, Pagination)> for GetLapsParameters {
-    fn from(value: (GetLapsOpts, Pagination)) -> Self {
+impl From<(GetLapsOpts, PaginationOpts)> for GetLapsParameters {
+    fn from(value: (GetLapsOpts, PaginationOpts)) -> Self {
         let opts = value.0;
         let p = value.1;
 
@@ -279,8 +279,8 @@ impl From<(GetLapsOpts, Pagination)> for GetLapsParameters {
     }
 }
 
-impl From<(GetPitStopsOpts, Pagination)> for GetPitStopsParameters {
-    fn from(value: (GetPitStopsOpts, Pagination)) -> Self {
+impl From<(GetPitStopsOpts, PaginationOpts)> for GetPitStopsParameters {
+    fn from(value: (GetPitStopsOpts, PaginationOpts)) -> Self {
         let opts = value.0;
         let p = value.1;
 
@@ -296,8 +296,8 @@ impl From<(GetPitStopsOpts, Pagination)> for GetPitStopsParameters {
     }
 }
 
-impl From<(GetSeasonsOpts, Pagination)> for GetSeasonsParameters {
-    fn from(value: (GetSeasonsOpts, Pagination)) -> Self {
+impl From<(GetSeasonsOpts, PaginationOpts)> for GetSeasonsParameters {
+    fn from(value: (GetSeasonsOpts, PaginationOpts)) -> Self {
         let opts = value.0;
         let p = value.1;
 
@@ -317,8 +317,8 @@ impl From<(GetSeasonsOpts, Pagination)> for GetSeasonsParameters {
     }
 }
 
-impl From<(GetStatusOpts, Pagination)> for GetStatusParameters {
-    fn from(value: (GetStatusOpts, Pagination)) -> Self {
+impl From<(GetStatusOpts, PaginationOpts)> for GetStatusParameters {
+    fn from(value: (GetStatusOpts, PaginationOpts)) -> Self {
         let opts = value.0;
         let p = value.1;
 
