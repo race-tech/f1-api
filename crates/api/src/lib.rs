@@ -17,12 +17,12 @@ mod middlewares;
 #[cfg(test)]
 mod tests;
 
-pub struct PurpleSector {
+pub struct Api {
     port: u16,
     router: Router,
 }
 
-impl PurpleSector {
+impl Api {
     pub async fn serve(self) {
         let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", self.port))
             .await
@@ -38,7 +38,7 @@ impl PurpleSector {
     }
 }
 
-impl TryFrom<Config> for PurpleSector {
+impl TryFrom<Config> for Api {
     type Error = shared::error::Error;
 
     fn try_from(config: Config) -> std::prelude::v1::Result<Self, Self::Error> {

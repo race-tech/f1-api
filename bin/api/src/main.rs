@@ -18,6 +18,6 @@ async fn main() -> shared::error::Result<()> {
         }
     };
 
-    api_lib::PurpleSector::try_from(config)?.serve().await;
+    api_lib::Api::try_from(config)?.serve().await;
     Ok(())
 }
