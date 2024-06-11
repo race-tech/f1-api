@@ -17,7 +17,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: docker build -f resources/dockerfiles/test/Dockerfile -t f1-tech .
-      - run: docker run -ti --rm f1-tech bash -c "rustup component add rustfmt && cargo fmt -p purple-sector -- --check --verbose"
+      - run: docker run -ti --rm f1-tech bash -c "rustup component add rustfmt && cargo fmt -p f1-api -- --check --verbose"
   unix:
     docker:
       - image: docker:25.0.3
