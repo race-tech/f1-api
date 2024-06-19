@@ -1,5 +1,4 @@
 use shared::error;
-use shared::parameters::Series;
 
 pub mod config;
 mod pool;
@@ -10,7 +9,7 @@ pub type Connection = r2d2::PooledConnection<pool::MySqlConnectionManager>;
 
 #[derive(Clone)]
 pub struct ConnectionPool {
-    f1db_pool: Pool,
+    pub pool: Pool,
     pub cache: CachePool,
 }
 
@@ -19,7 +18,7 @@ impl TryFrom<&config::Config> for ConnectionPool {
 
     fn try_from(config: &config::Config) -> Result<Self, Self::Error> {
         let manager = pool::MySqlConnectionManager::try_from(&config.database)?;
-        let f1db_pool = r2d2::Pool::builder()
+        let pool = r2d2::Pool::builder()
             .max_size(20)
             .build(manager)
             .map_err(|_| error!(ConnectionPool => "Failed to create connection pool"))?;
@@ -31,15 +30,6 @@ impl TryFrom<&config::Config> for ConnectionPool {
                 |_| error!(ConnectionPool => "Failed to create rate limiter connection pool"),
             )?;
 
-        Ok(Self { f1db_pool, cache })
-    }
-}
-
-impl ConnectionPool {
-    pub fn from_series(&self, series: Series) -> &Pool {
-        match series {
-            Series::F1 => &self.f1db_pool,
-            Series::F2 => unimplemented!(),
-        }
+        Ok(Self { pool, cache })
     }
 }
