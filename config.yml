@@ -1,4 +1,6 @@
 ---
+port: 8000
+
 database:
   name: f1db
   hostname: database
