@@ -26,7 +26,7 @@ mysql_common = { version = "0.32.2", default-features = false, features = [
     "derive",
     "bigdecimal",
 ] }
-redis = { version = "0.25.3", default-features = false }
+redis = { version = "0.25.4", default-features = false }
 log = { version = "0.4.21", features = ["std"] }
 axum = { version = "0.7.5", default-features = false, features = [
     "json",
