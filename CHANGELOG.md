@@ -1,3 +1,19 @@
+# Version v2.0.0 (Jun 19, 2024)
+
+## Major features
+
+- Rename the project to F1 API
+- Changed the project structure to use a microservice architecture
+- Changed the API to use a GraphQL interface
+- Removed the rate limiter and cache from the API (this will be added in the api gateway)
+
+## Minor features
+
+- Added a configuration guide to the README
+- Added issue and pull request templates
+- Added dependabot to the project
+- Added the port configuration to the configuration file
+
 # Version v0.1.2 (Apr 21, 2024)
 
 This is the first release of the PurpleSector API. This version is not complete but should be stable enough to be used in production.
