@@ -6,7 +6,7 @@ use serde::ser::Serialize;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Error {
     pub kind: ErrorKind,
     pub message: Option<String>,

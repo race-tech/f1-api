@@ -9,6 +9,7 @@ edition = "2021"
 sea-query.workspace = true
 mysql.workspace = true
 serde.workspace = true
+async-graphql.workspace = true
 
 infrastructure = { path = "../infrastructure" }
 shared = { path = "../shared" }

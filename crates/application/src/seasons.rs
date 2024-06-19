@@ -4,7 +4,7 @@ use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 use shared::error;
 use shared::error::Result;
 use shared::models::Season as SeasonModel;
-use shared::parameters::{GetSeasonsParameters, Year};
+use shared::parameters::GetSeasonsParameters;
 
 use crate::{
     iden::*,
@@ -19,17 +19,17 @@ pub struct SeasonsQueryBuilder {
 }
 
 impl SeasonsQueryBuilder {
-    pub fn get(season: Year, conn: &mut infrastructure::Connection) -> Result<SeasonModel> {
+    pub fn get(season: u32, conn: &mut infrastructure::Connection) -> Result<SeasonModel> {
         let query = Query::select()
             .distinct()
             .column((Seasons::Table, Seasons::Year))
             .column((Seasons::Table, Seasons::Url))
             .from(Seasons::Table)
-            .and_where(Expr::col((Seasons::Table, Seasons::Year)).eq(Expr::value(*season)))
+            .and_where(Expr::col((Seasons::Table, Seasons::Year)).eq(Expr::value(season)))
             .to_string(MysqlQueryBuilder);
 
         conn.query_first(query)?
-            .ok_or(error!(EntityNotFound => "season with year `{}` not found", season.0))
+            .ok_or(error!(EntityNotFound => "season with year `{}` not found", season))
     }
 
     pub fn params(params: GetSeasonsParameters) -> Paginated<SeasonModel> {
@@ -45,8 +45,8 @@ impl SeasonsQueryBuilder {
     }
 
     fn build(self) -> Paginated<SeasonModel> {
-        let page: u64 = self.params.page.unwrap_or_default().0;
-        let limit: u64 = self.params.limit.unwrap_or_default().0;
+        let page: u64 = self.params.page.unwrap_or_default();
+        let limit: u64 = self.params.limit.unwrap_or_default();
 
         self.from(|s| s.params.driver_ref.is_some(), Drivers::Table)
             .from(|s| s.params.constructor_ref.is_some(), Constructors::Table)
@@ -154,7 +154,7 @@ impl SeasonsQueryBuilder {
                     ConstructorStandings::Table,
                     ConstructorStandings::PositionText,
                 ))
-                .eq(Expr::value(*c))
+                .eq(Expr::value(c))
             })
         })
         .and_where(|s| {
@@ -173,7 +173,7 @@ impl SeasonsQueryBuilder {
         .and_where(|s| {
             s.params.driver_standing.map(|d| {
                 Expr::col((DriverStandings::Table, DriverStandings::PositionText))
-                    .eq(Expr::value(*d))
+                    .eq(Expr::value(d))
             })
         })
         .and_where(|_| {
@@ -259,22 +259,22 @@ impl SeasonsQueryBuilder {
         .and_where(|s| {
             s.params
                 .status
-                .map(|s| Expr::col((Results::Table, Results::StatusId)).eq(Expr::value(*s)))
+                .map(|s| Expr::col((Results::Table, Results::StatusId)).eq(Expr::value(s)))
         })
         .and_where(|s| {
             s.params
                 .grid
-                .map(|g| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(*g)))
+                .map(|g| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(g)))
         })
         .and_where(|s| {
             s.params
                 .result
-                .map(|r| Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(*r)))
+                .map(|r| Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(r)))
         })
         .and_where(|s| {
             s.params
                 .fastest
-                .map(|f| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(*f)))
+                .map(|f| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(f)))
         })
     }
 }

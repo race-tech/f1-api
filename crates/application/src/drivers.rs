@@ -4,7 +4,7 @@ use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
 use shared::error;
 use shared::error::Result;
 use shared::models::Driver as DriverModel;
-use shared::parameters::{DriverRef, GetDriversParameter};
+use shared::parameters::GetDriversParameters;
 
 use crate::{
     iden::*,
@@ -15,14 +15,11 @@ use crate::{
 
 pub struct DriversQueryBuilder {
     stmt: SelectStatement,
-    params: GetDriversParameter,
+    params: GetDriversParameters,
 }
 
 impl DriversQueryBuilder {
-    pub fn get(
-        driver_ref: DriverRef,
-        conn: &mut infrastructure::Connection,
-    ) -> Result<DriverModel> {
+    pub fn get(driver_ref: String, conn: &mut infrastructure::Connection) -> Result<DriverModel> {
         let query = Query::select()
             .distinct()
             .from(Drivers::Table)
@@ -41,16 +38,14 @@ impl DriversQueryBuilder {
                 .into_iter()
                 .map(|c| (Drivers::Table, c)),
             )
-            .and_where(
-                Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(&*driver_ref)),
-            )
+            .and_where(Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(&driver_ref)))
             .to_string(MysqlQueryBuilder);
 
         conn.query_first(query)?
-            .ok_or(error!(EntityNotFound => "driver with reference `{}` not found", driver_ref.0))
+            .ok_or(error!(EntityNotFound => "driver with reference `{}` not found", driver_ref))
     }
 
-    pub fn params(params: GetDriversParameter) -> Paginated<DriverModel> {
+    pub fn params(params: GetDriversParameters) -> Paginated<DriverModel> {
         let stmt = Query::select()
             .distinct()
             .from(Drivers::Table)
@@ -85,8 +80,8 @@ impl DriversQueryBuilder {
     }
 
     fn build(self) -> Paginated<DriverModel> {
-        let page: u64 = self.params.page.unwrap_or_default().0;
-        let limit: u64 = self.params.limit.unwrap_or_default().0;
+        let page: u64 = self.params.page.unwrap_or_default();
+        let limit: u64 = self.params.limit.unwrap_or_default();
 
         self.from(
             |s| {
@@ -110,7 +105,7 @@ impl DriversQueryBuilder {
         .and_where(|s| {
             s.params
                 .year
-                .map(|year| Expr::col((Races::Table, Races::Year)).eq(Expr::value(*year)))
+                .map(|year| Expr::col((Races::Table, Races::Year)).eq(Expr::value(year)))
         })
         .and_clause_three()
         .stmt
@@ -152,7 +147,7 @@ impl DriversQueryBuilder {
         .and_where(|s| {
             s.params.driver_standing.as_ref().map(|driver_standings| {
                 Expr::col((DriverStandings::Table, DriverStandings::PositionText))
-                    .eq(Expr::value(**driver_standings))
+                    .eq(Expr::value(*driver_standings))
             })
         })
         .and_where(|_| {
@@ -216,35 +211,35 @@ impl DriversQueryBuilder {
         })
         .and_where(|s| {
             s.params.status.map(|status| {
-                Expr::col((Results::Table, Results::StatusId)).eq(Expr::value(*status))
+                Expr::col((Results::Table, Results::StatusId)).eq(Expr::value(status))
             })
         })
         .and_where(|s| {
             s.params
                 .grid
-                .map(|grid| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(*grid)))
+                .map(|grid| Expr::col((Results::Table, Results::Grid)).eq(Expr::value(grid)))
         })
         .and_where(|s| {
             s.params
                 .fastest
-                .map(|fastest| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(*fastest)))
+                .map(|fastest| Expr::col((Results::Table, Results::Rank)).eq(Expr::value(fastest)))
         })
         .and_where(|s| {
             s.params.result.map(|result| {
-                Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(*result))
+                Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(result))
             })
         })
     }
 
     fn and_clause_three(self) -> Self {
-        if let Some(round) = self.params.round.map(|r| *r) {
+        if let Some(round) = self.params.round {
             return self.and_where(|_| {
                 Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(round)))
             });
         }
 
         if self.params.driver_standing.is_some() {
-            if let Some(year) = self.params.year.map(|y| *y) {
+            if let Some(year) = self.params.year {
                 return self.and_where(|_| {
                     Some(
                         Expr::col((Races::Table, Races::Round)).in_subquery(

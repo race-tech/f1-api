@@ -5,7 +5,7 @@
 use mysql::{error::Error as MySqlError, prelude::*, Conn, Opts, OptsBuilder};
 use redis::{Client, ConnectionLike, RedisError};
 
-use crate::config::{CacheConfig, DatabaseConfig};
+use crate::config::{DatabaseConfig, DragonflyDBConfig};
 
 /// An [`r2d2`] connection manager for [`mysql`] connections.
 #[derive(Clone, Debug)]
@@ -56,10 +56,12 @@ impl r2d2::ManageConnection for MySqlConnectionManager {
 
 pub struct RedisClient(Client);
 
-impl TryFrom<&CacheConfig> for RedisClient {
+impl TryFrom<&DragonflyDBConfig> for RedisClient {
     type Error = shared::error::Error;
 
-    fn try_from(CacheConfig { hostname, port }: &CacheConfig) -> Result<Self, Self::Error> {
+    fn try_from(
+        DragonflyDBConfig { hostname, port }: &DragonflyDBConfig,
+    ) -> Result<Self, Self::Error> {
         let url = format!("redis://{}:{}", hostname, port);
         Ok(Self(redis::Client::open(url)?))
     }

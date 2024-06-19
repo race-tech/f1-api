@@ -1,7 +1,7 @@
 use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement};
 
 use shared::models::ConstructorStanding as ConstructorStandingModel;
-use shared::parameters::GetConstructorStandingsParameter;
+use shared::parameters::GetConstructorStandingsParameters;
 
 use crate::{
     iden::*,
@@ -10,12 +10,14 @@ use crate::{
 };
 
 pub struct ConstructorStandingsQueryBuilder {
-    params: GetConstructorStandingsParameter,
+    params: GetConstructorStandingsParameters,
     stmt: SelectStatement,
 }
 
 impl ConstructorStandingsQueryBuilder {
-    pub fn params(params: GetConstructorStandingsParameter) -> Paginated<ConstructorStandingModel> {
+    pub fn params(
+        params: GetConstructorStandingsParameters,
+    ) -> Paginated<ConstructorStandingModel> {
         let stmt = Query::select()
             .distinct()
             .columns(
@@ -69,8 +71,8 @@ impl ConstructorStandingsQueryBuilder {
     }
 
     fn build(self) -> Paginated<ConstructorStandingModel> {
-        let page: u64 = self.params.page.unwrap_or_default().0;
-        let limit: u64 = self.params.limit.unwrap_or_default().0;
+        let page: u64 = self.params.page.unwrap_or_default();
+        let limit: u64 = self.params.limit.unwrap_or_default();
 
         self.and_where(|s| {
             s.params.position.map(|p| {
@@ -78,7 +80,7 @@ impl ConstructorStandingsQueryBuilder {
                     ConstructorStandings::Table,
                     ConstructorStandings::PositionText,
                 ))
-                .eq(Expr::value(*p))
+                .eq(Expr::value(p))
             })
         })
         .and_where(|s| {
@@ -89,7 +91,7 @@ impl ConstructorStandingsQueryBuilder {
         .and_where(|s| {
             s.params
                 .year
-                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(*y)))
+                .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(y)))
         })
         .and_clause()
         .stmt
@@ -100,7 +102,7 @@ impl ConstructorStandingsQueryBuilder {
     fn and_clause(self) -> Self {
         if let Some(round) = self.params.round {
             return self.and_where(|_| {
-                Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(*round)))
+                Some(Expr::col((Races::Table, Races::Round)).eq(Expr::value(round)))
             });
         }
 
@@ -130,7 +132,7 @@ impl ConstructorStandingsQueryBuilder {
                             Expr::col((ConstructorStandings::Table, ConstructorStandings::RaceId))
                                 .equals((Races::Table, Races::RaceId)),
                         )
-                        .and_where(Expr::col((Races::Table, Races::Year)).eq(*year))
+                        .and_where(Expr::col((Races::Table, Races::Year)).eq(year))
                         .to_owned(),
                 )
             },

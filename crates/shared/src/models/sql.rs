@@ -144,7 +144,7 @@ pub struct PitStop {
     pub driver_ref: String,
     pub stop: i32,
     pub lap: i32,
-    pub time: time::Time,
+    pub time: String,
     pub duration: Option<String>,
 }
 
