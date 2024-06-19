@@ -17,5 +17,3 @@ log.workspace = true
 axum.workspace = true
 figment.workspace = true
 async-graphql.workspace = true
-
-derives = { path = "../derives" }
