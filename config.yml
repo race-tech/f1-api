@@ -11,12 +11,6 @@ cache:
   port: 6379
 
 middlewares:
-  - rate_limiter:
-      enabled: false
-      requests: 100
-      seconds: 60
-      type: sliding_window
-  - cache:
-      enabled: false
-      # Time to live in seconds
-      ttl: 3600
+  - graphiql:
+      enabled: true
+      route: /

@@ -2,18 +2,14 @@ use application::graphql::{Query, ServiceSchema};
 use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
-    middleware,
     response::{self, IntoResponse},
+    routing::{get, post},
     Extension, Router,
 };
 
 use infrastructure::config::{Config, MiddlewareConfig};
-use middlewares::cache::Cache;
 use shared::error::Result;
 
-use crate::middlewares::rate_limiter::RateLimiter;
-
-mod middlewares;
 #[cfg(test)]
 mod tests;
 
@@ -61,8 +57,6 @@ async fn graphql_handler(
 }
 
 fn router(config: &Config) -> Result<Router> {
-    use axum::routing::get;
-
     let schema = schema(config)?;
 
     let api_routes = Router::new();
@@ -72,13 +66,13 @@ fn router(config: &Config) -> Result<Router> {
         router: api_routes,
     };
 
-    let _api_routes = builder.middlewares()?;
+    let modular_router = builder.middlewares()?;
 
     let router = Router::new()
-        .route("/", get(graphiql).post(graphql_handler))
+        .route("/", post(graphql_handler))
         .layer(Extension(schema));
 
-    Ok(router)
+    Ok(modular_router.merge(router))
 }
 
 fn schema(config: &Config) -> Result<Schema<Query, EmptyMutation, EmptySubscription>> {
@@ -96,21 +90,10 @@ struct ServiceBuilder<'c> {
 impl<'c> ServiceBuilder<'c> {
     fn middlewares(self) -> Result<Router> {
         if let Some(middlewares) = &self.config.middlewares {
-            let router = middlewares.iter().fold(self.router, |router, m| match *m {
-                MiddlewareConfig::RateLimiter {
-                    enabled,
-                    ty,
-                    seconds,
-                    requests,
-                } if enabled => router.route_layer(middleware::from_fn_with_state(
-                    RateLimiter::new(ty, requests, seconds),
-                    middlewares::rate_limiter::mw_rate_limiter,
-                )),
-                MiddlewareConfig::Cache { enabled, ttl } if enabled => {
-                    router.route_layer(middleware::from_fn_with_state(
-                        Cache::new(ttl),
-                        middlewares::cache::mw_cache_layer,
-                    ))
+            let router = middlewares.iter().fold(self.router, |router, m| match m {
+                MiddlewareConfig::Graphiql { enabled, route } if *enabled => {
+                    let route = route.as_deref().unwrap_or("/");
+                    router.route(route, get(graphiql))
                 }
                 _ => router,
             });

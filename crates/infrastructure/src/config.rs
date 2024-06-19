@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Config {
     pub database: DatabaseConfig,
-    pub cache: CacheConfig,
+    pub cache: DragonflyDBConfig,
     pub middlewares: Option<Vec<MiddlewareConfig>>,
 }
 
@@ -30,7 +30,7 @@ pub struct DatabaseConfig {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct CacheConfig {
+pub struct DragonflyDBConfig {
     pub hostname: String,
     pub port: u16,
 }
@@ -38,18 +38,10 @@ pub struct CacheConfig {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum MiddlewareConfig {
-    RateLimiter {
+    Graphiql {
         #[serde(default)]
         enabled: bool,
-        #[serde(rename = "type")]
-        ty: Option<RateLimiterType>,
-        seconds: i64,
-        requests: usize,
-    },
-    Cache {
-        #[serde(default)]
-        enabled: bool,
-        ttl: u64,
+        route: Option<String>,
     },
 }
 
@@ -71,9 +63,9 @@ impl Default for DatabaseConfig {
     }
 }
 
-impl Default for CacheConfig {
+impl Default for DragonflyDBConfig {
     fn default() -> Self {
-        CacheConfig {
+        DragonflyDBConfig {
             hostname: "127.0.0.1".into(),
             port: 6379,
         }
