@@ -1,7 +1,7 @@
-[![build & test](https://github.com/f1-tech/api/blob/master/.github/workflows/rust.yml/badge.svg)](https://github.com/f1-tech/api/blob/master/.github/workflows/rust.yml)
-[![circleci](https://img.shields.io/circleci/build/gh/f1-tech/api?logo=circleci&logoColor=white&label=circleci)](https://circleci.com/gh/f1-tech/api)
-[![license](https://img.shields.io/github/license/f1-tech/api)](https://www.gnu.org/licenses/gpl-3.0.en.html)
-[![rust report card](https://rust-reportcard.xuri.me/badge/github.com/f1-tech/api)](https://rust-reportcard.xuri.me/report/github.com/f1-tech/api)
+[![build & test](https://img.shields.io/github/actions/workflow/status/f1-tech/f1-api/rust.yml?logo=github)](https://github.com/f1-tech/f1-api/blob/master/.github/workflows/rust.yml)
+[![circleci](https://img.shields.io/circleci/build/gh/f1-tech/f1-api?logo=circleci&logoColor=white&label=circleci)](https://circleci.com/gh/f1-tech/f1-api)
+[![license](https://img.shields.io/github/license/f1-tech/f1-api)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![rust report card](https://rust-reportcard.xuri.me/badge/github.com/f1-tech/f1-api)](https://rust-reportcard.xuri.me/report/github.com/f1-tech/f1-api)
 
 # F1 API
 
@@ -20,5 +20,5 @@ To build and run the API, you need to have the following tools installed on your
 
 To run the API locally, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/f1-tech/api.git`
+1. Clone the repository: `git clone https://github.com/f1-tech/f1-api.git`
 2. Run the project using the docker compose file: `docker-compose up -d --build`
