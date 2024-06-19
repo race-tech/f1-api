@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Config {
+    pub port: Option<u16>,
     pub database: DatabaseConfig,
     pub cache: DragonflyDBConfig,
     pub middlewares: Option<Vec<MiddlewareConfig>>,
@@ -13,7 +14,7 @@ impl Config {
     pub fn try_new() -> shared::error::Result<Self> {
         let config = Figment::from(Serialized::defaults(Config::default()))
             .merge(Yaml::file(
-                std::env::var("PURPLE_SECTOR_CONFIG").unwrap_or("config.yml".into()),
+                std::env::var("F1_API_CONFIG").unwrap_or("config.yml".into()),
             ))
             .extract()?;
         Ok(config)

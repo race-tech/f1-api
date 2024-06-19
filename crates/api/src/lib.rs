@@ -39,7 +39,7 @@ impl TryFrom<Config> for Api {
 
     fn try_from(config: Config) -> std::prelude::v1::Result<Self, Self::Error> {
         Ok(Self {
-            port: 8000,
+            port: config.port.unwrap_or(8000),
             router: router(&config)?,
         })
     }
