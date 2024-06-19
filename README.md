@@ -22,3 +22,33 @@ To run the API locally, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/f1-tech/f1-api.git`
 2. Run the project using the docker compose file: `docker-compose up -d --build`
+
+## Configuration
+
+You can configure the API using a yaml file. This file should be named `config.yaml` and should be placed in the root of the project. The following configuration options are available:
+
+```yaml
+port: 8000
+
+database:
+  name: f1db
+  hostname: database
+  port: 3306
+  user: user
+  password: password
+
+cache:
+  hostname: dragonfly
+  port: 6379
+
+middlewares:
+  - graphiql:
+      enabled: true
+      route: /
+```
+
+You can also change the file name and location by setting the `F1_API_CONFIG` environment variable.
+
+## License
+
+This project is licensed under the [GPL-3.0 License](https://github.com/f1-tech/f1-api/blob/master/LICENSE).
