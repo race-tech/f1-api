@@ -18,7 +18,7 @@ sea-query = { version = "0.30.7", default-features = false, features = [
 ] }
 r2d2 = "0.8.10"
 mysql = { version = "25.0.1", default-features = false, features = ["minimal"] }
-mysql_common = { version = "0.32.2", default-features = false, features = [
+mysql_common = { version = "0.32.4", default-features = false, features = [
     "time",
     "derive",
     "bigdecimal",
