@@ -1,4 +1,4 @@
-# Version v2.0.0 (Jun 19, 2024)
+# Version v0.2.0 (Jun 20, 2024)
 
 ## Major features
 
@@ -13,6 +13,7 @@
 - Added issue and pull request templates
 - Added dependabot to the project
 - Added the port configuration to the configuration file
+- Dumped unused dependencies (`proc_macro2`, `quote` and `syn`)
 
 # Version v0.1.2 (Apr 21, 2024)
 
