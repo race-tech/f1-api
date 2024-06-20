@@ -8,23 +8,23 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: docker build -f resources/dockerfiles/test/Dockerfile -t f1-tech .
-      - run: docker run -ti --rm f1-tech bash -c "rustup component add clippy && cargo clippy --all-targets -- -Dwarnings"
+      - run: docker build -f resources/dockerfiles/test/Dockerfile -t f1-api .
+      - run: docker run -ti --rm f1-api bash -c "rustup component add clippy && cargo clippy --all-targets -- -Dwarnings"
   fmt:
     docker:
       - image: docker:25.0.3
     steps:
       - checkout
       - setup_remote_docker
-      - run: docker build -f resources/dockerfiles/test/Dockerfile -t f1-tech .
-      - run: docker run -ti --rm f1-tech bash -c "rustup component add rustfmt && cargo fmt -p f1-api -- --check --verbose"
+      - run: docker build -f resources/dockerfiles/test/Dockerfile -t f1-api .
+      - run: docker run -ti --rm f1-api bash -c "rustup component add rustfmt && cargo fmt -p f1-api -- --check --verbose"
   unix:
     docker:
       - image: docker:25.0.3
     steps:
       - checkout
       - setup_remote_docker
-      - run: docker build -f resources/dockerfiles/test/Dockerfile -t f1-tech .
+      - run: docker build -f resources/dockerfiles/test/Dockerfile -t f1-api .
       - run: resources/dockerfiles/scripts/run_integration_tests.sh --tests
 
 workflows:
