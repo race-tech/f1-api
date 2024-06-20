@@ -40,5 +40,5 @@ tokio = { version = "1", default-features = false, features = [
     "macros",
     "rt-multi-thread",
 ] }
-figment = { version = "0.10.18", default-feature = false, features = ["yaml"] }
+figment = { version = "0.10.19", default-feature = false, features = ["yaml"] }
 async-graphql = { version = "7.0.6", features = ["time"] }
