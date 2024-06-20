@@ -1,7 +1,7 @@
-[![build & test](https://img.shields.io/github/actions/workflow/status/f1-tech/f1-api/rust.yml?logo=github)](https://github.com/f1-tech/f1-api/blob/master/.github/workflows/rust.yml)
-[![circleci](https://img.shields.io/circleci/build/gh/f1-tech/f1-api?logo=circleci&logoColor=white&label=circleci)](https://circleci.com/gh/f1-tech/f1-api)
-[![license](https://img.shields.io/github/license/f1-tech/f1-api)](https://www.gnu.org/licenses/gpl-3.0.en.html)
-[![rust report card](https://rust-reportcard.xuri.me/badge/github.com/f1-tech/f1-api)](https://rust-reportcard.xuri.me/report/github.com/f1-tech/f1-api)
+[![build & test](https://img.shields.io/github/actions/workflow/status/race-tech/f1-api/rust.yml?logo=github)](https://github.com/race-tech/f1-api/blob/master/.github/workflows/rust.yml)
+[![circleci](https://img.shields.io/circleci/build/gh/race-tech/f1-api?logo=circleci&logoColor=white&label=circleci)](https://circleci.com/gh/race-tech/f1-api)
+[![license](https://img.shields.io/github/license/race-tech/f1-api)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![rust report card](https://rust-reportcard.xuri.me/badge/github.com/race-tech/f1-api)](https://rust-reportcard.xuri.me/report/github.com/race-tech/f1-api)
 
 # F1 API
 
@@ -20,7 +20,7 @@ To build and run the API, you need to have the following tools installed on your
 
 To run the API locally, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/f1-tech/f1-api.git`
+1. Clone the repository: `git clone https://github.com/race-tech/f1-api.git`
 2. Run the project using the docker compose file: `docker-compose up -d --build`
 
 ## Configuration
@@ -51,4 +51,4 @@ You can also change the file name and location by setting the `F1_API_CONFIG` en
 
 ## License
 
-This project is licensed under the [GPL-3.0 License](https://github.com/f1-tech/f1-api/blob/master/LICENSE).
+This project is licensed under the [GPL-3.0 License](https://github.com/race-tech/f1-api/blob/master/LICENSE).
