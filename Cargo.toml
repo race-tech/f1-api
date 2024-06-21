@@ -37,4 +37,4 @@ tokio = { version = "1", default-features = false, features = [
 ] }
 figment = { version = "0.10.19", default-feature = false, features = ["yaml"] }
 async-graphql = { version = "7.0.6", features = ["time"] }
-async-graphql-axum = "7.0.5"
+async-graphql-axum = "7.0.6"
