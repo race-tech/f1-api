@@ -15,7 +15,6 @@ jobs:
         id: return_dispatch
         with:
           token: ${{ secrets.UPDATER_PAT }}
-          ref: main
           repo: f1-data-updater
           owner: race-tech
           workflow: main.yml
@@ -34,10 +33,24 @@ jobs:
     needs: caller
 
     steps:
+      - name: Check if a new artifact has been created
+        id: check
+        uses: thibault-cne/check-artifacts@v1
+        with:
+          token: ${{ secrets.UPDATER_PAT }}
+          repo: f1-data-updater
+          owner: race-tech
+          run_id: ${{ needs.caller.outputs.run_id }}
+          name: f1db.sql.gz
+
       - name: Dowload SQL dump
+        if: steps.check.outputs.artifact_exists == 'true'
         uses: actions/download-artifact@v4
         with:
           name: f1db.sql.gz
-          github-token: ${{ secrets.UPDATER_PAT }} # token with actions:read permissions on target repo
+          github-token: ${{ secrets.UPDATER_PAT }}
           repository: race-tech/f1-data-updater
           run-id: ${{ needs.caller.outputs.run_id }}
+
+      - name: Test
+        run: echo "continuing..."
