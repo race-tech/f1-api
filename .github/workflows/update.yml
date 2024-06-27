@@ -14,14 +14,14 @@ jobs:
         uses: codex-/return-dispatch@v1
         id: return_dispatch
         with:
-          token: ${{ github.UPDATER_PAT }}
+          token: ${{ secrets.UPDATER_PAT }}
           repo: f1-data-updater
           owner: race-tech
           workflow: main.yml
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
         uses: Codex-/await-remote-run@v1.0.0
         with:
-          token: ${{ github.UPDATER_PAT }}
+          token: ${{ secrets.UPDATER_PAT }}
           repo: f1-data-updater
           owner: race-tech
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
