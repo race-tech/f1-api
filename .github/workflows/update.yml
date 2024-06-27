@@ -15,6 +15,7 @@ jobs:
         id: return_dispatch
         with:
           token: ${{ secrets.UPDATER_PAT }}
+          ref: main
           repo: f1-data-updater
           owner: race-tech
           workflow: main.yml
