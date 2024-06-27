@@ -17,7 +17,7 @@ export REDIS_IP_OR_HOSTNAME=dragonfly
 docker network create f1-api
 
 # Start the database and cache
-docker run -e MYSQL_DATABASE=${DB_NAME} -e MYSQL_USER=${DB_USER} -e MYSQL_PASSWORD=${DB_PASSWORD} --network f1-api -h ${DB_IP_OR_HOSTNAME} -d --rm thibaultcne/purple-sector:db-test --default-authentication-plugin=mysql_native_password
+docker run -e MYSQL_DATABASE=${DB_NAME} -e MYSQL_USER=${DB_USER} -e MYSQL_PASSWORD=${DB_PASSWORD} --network f1-api -h ${DB_IP_OR_HOSTNAME} -d --rm thibaultcne/race-tech:db-test
 docker run -d --network f1-api -h ${REDIS_IP_OR_HOSTNAME} --rm docker.dragonflydb.io/dragonflydb/dragonfly:v1.16.1
 
 sleep 5
