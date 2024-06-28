@@ -2,6 +2,7 @@
 services:
   database:
     image: ghcr.io/race-tech/f1-api:db-latest
+    pull_policy: always
     restart: always
     ports:
       - "3306:3306"
