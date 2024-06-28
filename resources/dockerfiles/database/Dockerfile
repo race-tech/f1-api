@@ -1,8 +1,6 @@
 FROM alpine:3.14 AS builder
 
-RUN apk add --no-cache wget
-
-RUN wget https://ergast.com/downloads/f1db.sql.gz -P /tmp
+COPY f1db.sql.gz /tmp/f1db.sql.gz
 RUN gunzip /tmp/f1db.sql.gz
 
 FROM mysql:latest
