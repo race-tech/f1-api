@@ -20,7 +20,7 @@ jobs:
           owner: race-tech
           workflow: main.yml
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: Codex-/await-remote-run@v1.0.0
+        uses: codex-/await-remote-run@v1
         with:
           token: ${{ secrets.UPDATER_PAT }}
           repo: f1-data-updater
