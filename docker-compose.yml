@@ -1,9 +1,7 @@
 ---
 services:
   database:
-    build:
-      context: resources/dockerfiles/database
-      no_cache: true
+    image: ghcr.io/f1-api-db:latest
     restart: always
     ports:
       - "3306:3306"
