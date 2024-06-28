@@ -34,6 +34,7 @@ jobs:
     needs: caller
 
     outputs:
+      run_id: ${{ needs.caller.outputs.run_id }}
       artifact_exists: ${{ steps.check.outputs.artifact_exists }}
 
     steps:
@@ -62,7 +63,7 @@ jobs:
           name: f1db.sql.gz
           github-token: ${{ secrets.UPDATER_PAT }}
           repository: race-tech/f1-data-updater
-          run-id: ${{ needs.caller.outputs.run_id }}
+          run-id: ${{ needs.checker.outputs.run_id }}
 
       - name: Docker meta
         id: meta
@@ -73,7 +74,7 @@ jobs:
             ghcr.io/${{ github.repository }}-db
           # generate Docker tags based on the following events/attributes
           tags: |
-            type=semver,pattern={{version}}
+            type=schedule,pattern={{date 'YYYYMMDD'}}
             type=raw,value=latest
             type=sha
 
