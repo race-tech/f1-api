@@ -5,7 +5,3 @@ database:
   port: 3306
   user: user
   password: password
-
-cache:
-  hostname: dragonfly
-  port: 6379

@@ -64,7 +64,6 @@ dependencies = [
  "axum",
  "infrastructure",
  "log",
- "redis",
  "serde_json",
  "shared",
  "time",
@@ -448,16 +447,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a31c789563b815f77f4250caee12365734369f942439b7defd71e18a48197130"
 dependencies = [
  "cc",
-]
-
-[[package]]
-name = "combine"
-version = "4.6.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba5a308b75df32fe02788e748662718f03fde005016435c444eea572398219fd"
-dependencies = [
- "bytes",
- "memchr",
 ]
 
 [[package]]
@@ -959,7 +948,6 @@ dependencies = [
  "figment",
  "mysql",
  "r2d2",
- "redis",
  "serde",
  "shared",
 ]
@@ -1536,19 +1524,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "redis"
-version = "0.25.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0d7a6955c7511f60f3ba9e86c6d02b3c3f144f8c24b288d1f4e18074ab8bbec"
-dependencies = [
- "combine",
- "itoa",
- "percent-encoding",
- "ryu",
- "url",
-]
-
-[[package]]
 name = "redox_syscall"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1766,7 +1741,6 @@ dependencies = [
  "mysql",
  "mysql_common",
  "r2d2",
- "redis",
  "serde",
  "serde_json",
  "time",

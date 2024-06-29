@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     pub port: Option<u16>,
     pub database: DatabaseConfig,
-    pub cache: DragonflyDBConfig,
     pub middlewares: Option<Vec<MiddlewareConfig>>,
 }
 
@@ -28,12 +27,6 @@ pub struct DatabaseConfig {
     pub port: u16,
     pub user: String,
     pub password: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct DragonflyDBConfig {
-    pub hostname: String,
-    pub port: u16,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -60,15 +53,6 @@ impl Default for DatabaseConfig {
             port: 3306,
             user: "user".into(),
             password: "password".into(),
-        }
-    }
-}
-
-impl Default for DragonflyDBConfig {
-    fn default() -> Self {
-        DragonflyDBConfig {
-            hostname: "127.0.0.1".into(),
-            port: 6379,
         }
     }
 }
