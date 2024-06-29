@@ -4,13 +4,11 @@ pub mod config;
 mod pool;
 
 pub type Pool = r2d2::Pool<pool::MySqlConnectionManager>;
-pub type CachePool = r2d2::Pool<pool::RedisClient>;
 pub type Connection = r2d2::PooledConnection<pool::MySqlConnectionManager>;
 
 #[derive(Clone)]
 pub struct ConnectionPool {
     pub pool: Pool,
-    pub cache: CachePool,
 }
 
 impl TryFrom<&config::Config> for ConnectionPool {
@@ -23,13 +21,6 @@ impl TryFrom<&config::Config> for ConnectionPool {
             .build(manager)
             .map_err(|_| error!(ConnectionPool => "Failed to create connection pool"))?;
 
-        let cache = r2d2::Pool::builder()
-            .max_size(10)
-            .build(pool::RedisClient::try_from(&config.cache)?)
-            .map_err(
-                |_| error!(ConnectionPool => "Failed to create rate limiter connection pool"),
-            )?;
-
-        Ok(Self { pool, cache })
+        Ok(Self { pool })
     }
 }

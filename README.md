@@ -37,10 +37,6 @@ database:
   user: user
   password: password
 
-cache:
-  hostname: dragonfly
-  port: 6379
-
 middlewares:
   - graphiql:
       enabled: true

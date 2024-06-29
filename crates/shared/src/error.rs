@@ -40,7 +40,6 @@ pub enum ErrorKind {
     // External error kinds
     R2D2,
     Mysql,
-    Redis,
     Figment,
     Serde,
     Axum,
@@ -48,7 +47,6 @@ pub enum ErrorKind {
 
 macros::error_from!(R2D2 => r2d2::Error);
 macros::error_from!(Mysql => mysql::Error);
-macros::error_from!(Redis => redis::RedisError);
 macros::error_from!(Figment => figment::Error);
 macros::error_from!(Serde => serde_json::Error);
 macros::error_from!(Axum => axum::Error);
@@ -74,7 +72,6 @@ impl std::fmt::Display for ErrorKind {
 
             R2D2 => write!(f, "r2d2 error"),
             Mysql => write!(f, "mysql error"),
-            Redis => write!(f, "redis error"),
             Figment => write!(f, "figment error"),
             Serde => write!(f, "serde error"),
             Axum => write!(f, "axum error"),
@@ -104,7 +101,6 @@ impl Serialize for ErrorKind {
 
             R2D2 => s.serialize_unit_variant("ErrorKind", 10, "R2D2"),
             Mysql => s.serialize_unit_variant("ErrorKind", 11, "Mysql"),
-            Redis => s.serialize_unit_variant("ErrorKind", 12, "Redis"),
             Figment => s.serialize_unit_variant("ErrorKind", 13, "Figment"),
             Serde => s.serialize_unit_variant("ErrorKind", 14, "Serde"),
             Axum => s.serialize_unit_variant("ErrorKind", 15, "Axum"),
@@ -133,7 +129,6 @@ impl From<ErrorKind> for StatusCode {
 
             R2D2 => Self::INTERNAL_SERVER_ERROR,
             Mysql => Self::INTERNAL_SERVER_ERROR,
-            Redis => Self::INTERNAL_SERVER_ERROR,
             Figment => Self::INTERNAL_SERVER_ERROR,
             Serde => Self::INTERNAL_SERVER_ERROR,
             Axum => Self::INTERNAL_SERVER_ERROR,

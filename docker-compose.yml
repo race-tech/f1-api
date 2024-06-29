@@ -15,19 +15,6 @@ services:
       timeout: 20s
       retries: 10
 
-  dragonfly:
-    image: docker.dragonflydb.io/dragonflydb/dragonfly:v1.16.1
-    ulimits:
-      memlock: -1
-    volumes:
-      - dragonflydata:/data
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      timeout: 20s
-      retries: 10
-
   api:
     build:
       context: .
@@ -40,9 +27,6 @@ services:
         condition: service_healthy
       dragonfly:
         condition: service_healthy
-
-volumes:
-  dragonflydata:
 
 networks:
   default:
