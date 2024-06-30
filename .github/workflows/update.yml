@@ -78,12 +78,11 @@ jobs:
         with:
           # list of Docker images to use as base name for tags
           images: |
-            ghcr.io/${{ github.repository }}
+            ghcr.io/race-tech/f1-db
           # generate Docker tags based on the following events/attributes
           tags: |
-            type=schedule,pattern={{date 'YYYYMMDD'}},prefix=db-
-            type=raw,value=latest,prefix=db-
-            type=sha,prefix=db-
+            type=schedule,pattern={{date 'YYYYMMDD'}}
+            type=raw,value=latest
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
