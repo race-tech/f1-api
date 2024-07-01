@@ -28,8 +28,8 @@ jobs:
           repo: f1-data-updater
           owner: race-tech
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
-          run_timeout_seconds: 300 # Optional
-          poll_interval_ms: 5000 # Optional
+          run_timeout_seconds: 600
+          poll_interval_ms: 5000
 
   checker:
     runs-on: ubuntu-latest
