@@ -55,7 +55,7 @@ pub struct Race {
     pub name: String,
     pub date: time::Date,
     pub time: Option<String>,
-    pub url: String,
+    pub url: Option<String>,
     pub fp1: Option<DateAndTime>,
     pub fp2: Option<DateAndTime>,
     pub fp3: Option<DateAndTime>,
@@ -265,7 +265,6 @@ pub struct GetStatusOpts {
 
 #[derive(Debug, SimpleObject)]
 pub struct Status {
-    pub status_id: i32,
     pub status: String,
     pub count: i32,
 }
@@ -287,8 +286,8 @@ impl From<super::Race> for Race {
             season: v.year,
             round: v.round,
             name: v.name,
-            date: v.race_date,
-            time: v.race_time.map(|t| format!("{}", t)),
+            date: v.date,
+            time: v.time.map(|t| format!("{}", t)),
             url: v.url,
             fp1: v.fp1_date.map(|date| DateAndTime {
                 date,
@@ -463,21 +462,6 @@ impl From<super::Driver> for Driver {
     }
 }
 
-impl From<&super::Lap> for Circuit {
-    fn from(value: &super::Lap) -> Self {
-        Self {
-            circuit_ref: value.circuit_ref.clone(),
-            name: value.circuit_name.clone(),
-            location: value.circuit_location.clone(),
-            country: value.circuit_country.clone(),
-            lat: value.circuit_lat,
-            lng: value.circuit_lng,
-            alt: value.circuit_alt,
-            url: value.circuit_url.clone(),
-        }
-    }
-}
-
 impl TryFrom<Vec<super::Lap>> for Laps {
     type Error = crate::error::Error;
 
@@ -491,12 +475,13 @@ impl TryFrom<Vec<super::Lap>> for Laps {
             }
         };
 
-        let circuit: Circuit = first.into();
-        let url = first.race_url.clone();
-        let race_name = first.race_name.clone();
-        let date = first.race_date;
+        let circuit: Circuit = first.circuit.clone().into();
+        let url = first.race.url.clone();
+        let race_name = first.race.name.clone();
+        let date = first.race.date;
         let time = first
-            .race_time
+            .race
+            .time
             .map(|t| t.format(&crate::TIME_FORMAT).unwrap_or_default());
 
         let mut curr_lap_number = -1;
@@ -543,21 +528,6 @@ impl From<super::PitStop> for PitStop {
     }
 }
 
-impl From<&super::PitStop> for Circuit {
-    fn from(value: &super::PitStop) -> Self {
-        Self {
-            circuit_ref: value.circuit_ref.clone(),
-            name: value.circuit_name.clone(),
-            location: value.circuit_location.clone(),
-            country: value.circuit_country.clone(),
-            lat: value.circuit_lat,
-            lng: value.circuit_lng,
-            alt: value.circuit_alt,
-            url: value.circuit_url.clone(),
-        }
-    }
-}
-
 impl TryFrom<Vec<super::PitStop>> for PitStops {
     type Error = crate::error::Error;
 
@@ -571,12 +541,13 @@ impl TryFrom<Vec<super::PitStop>> for PitStops {
             }
         };
 
-        let circuit: Circuit = first.into();
-        let url = first.race_url.clone();
-        let race_name = first.race_name.clone();
-        let date = first.race_date;
+        let circuit: Circuit = first.circuit.clone().into();
+        let url = first.race.url.clone();
+        let race_name = first.race.name.clone();
+        let date = first.race.date;
         let time = first
-            .race_time
+            .race
+            .time
             .map(|t| t.format(&crate::TIME_FORMAT).unwrap());
         let pit_stops = value.into_iter().map(Into::into).collect();
 
@@ -603,7 +574,6 @@ impl From<super::Season> for Season {
 impl From<super::Status> for Status {
     fn from(value: super::Status) -> Self {
         Self {
-            status_id: value.status_id,
             status: value.status,
             count: value.count,
         }

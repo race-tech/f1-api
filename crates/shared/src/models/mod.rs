@@ -1,5 +1,5 @@
 pub mod graphql;
 pub mod response;
-pub mod sql;
+pub mod surreal;
 
-pub use sql::*;
+pub use surreal::*;
