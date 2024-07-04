@@ -2,53 +2,41 @@
 //!
 //! See [`MySqlConnectionManager`].
 
-use mysql::{error::Error as MySqlError, prelude::*, Conn, Opts, OptsBuilder};
+use async_trait::async_trait;
+use surrealdb::engine::remote::http::Http;
+use surrealdb::opt::{Config as SurrealConfig, IntoEndpoint};
+use surrealdb::Surreal;
 
 use crate::config::DatabaseConfig;
 
-/// An [`r2d2`] connection manager for [`mysql`] connections.
-#[derive(Clone, Debug)]
-pub struct MySqlConnectionManager {
-    opts: Opts,
+/// An [`bb8`] connection manager for [`surreal`] connections.
+#[derive(Debug)]
+pub struct SurrealConnectionManager {
+    config: DatabaseConfig,
+    path: String,
 }
 
-impl TryFrom<&DatabaseConfig> for MySqlConnectionManager {
-    type Error = shared::error::Error;
+#[async_trait]
+impl bb8::ManageConnection for SurrealConnectionManager {
+    type Connection = Surreal<<(String, SurrealConfig) as IntoEndpoint<Http>>::Client>;
+    type Error = surrealdb::Error;
 
-    fn try_from(
-        DatabaseConfig {
-            name,
-            hostname,
-            port,
-            user,
-            password,
-        }: &DatabaseConfig,
-    ) -> Result<Self, Self::Error> {
-        let opts = OptsBuilder::new()
-            .ip_or_hostname(Some(hostname))
-            .db_name(Some(name))
-            .user(Some(user))
-            .pass(Some(password))
-            .tcp_port(*port)
-            .into();
+    async fn connect(&self) -> Result<Self::Connection, Self::Error> {
+        Ok(Surreal::new::<Http>((self.path.clone(), self.config.clone().into())).await?)
+    }
 
-        Ok(Self { opts })
+    async fn is_valid(&self, conn: &mut Self::Connection) -> Result<(), Self::Error> {
+        conn.health().await
+    }
+
+    fn has_broken(&self, _conn: &mut Self::Connection) -> bool {
+        false
     }
 }
 
-impl r2d2::ManageConnection for MySqlConnectionManager {
-    type Connection = Conn;
-    type Error = MySqlError;
-
-    fn connect(&self) -> Result<Conn, Self::Error> {
-        Conn::new(self.opts.clone())
-    }
-
-    fn is_valid(&self, conn: &mut Conn) -> Result<(), Self::Error> {
-        conn.query("SELECT version()").map(|_: Vec<String>| ())
-    }
-
-    fn has_broken(&self, conn: &mut Conn) -> bool {
-        self.is_valid(conn).is_err()
+impl From<DatabaseConfig> for SurrealConnectionManager {
+    fn from(config: DatabaseConfig) -> Self {
+        let path = config.path.clone();
+        SurrealConnectionManager { config, path }
     }
 }

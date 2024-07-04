@@ -1,6 +1,8 @@
 use figment::providers::{Format, Serialized, Yaml};
 use figment::Figment;
 use serde::{Deserialize, Serialize};
+use surrealdb::opt::auth::Root;
+use surrealdb::opt::Config as SurrealConfig;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Config {
@@ -20,13 +22,11 @@ impl Config {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DatabaseConfig {
-    pub name: String,
-    pub hostname: String,
-    pub port: u16,
+    pub path: String,
     pub user: String,
-    pub password: String,
+    pub pass: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -48,11 +48,18 @@ pub enum RateLimiterType {
 impl Default for DatabaseConfig {
     fn default() -> Self {
         DatabaseConfig {
-            name: "f1db".into(),
-            hostname: "127.0.0.1".into(),
-            port: 3306,
+            path: "localhost:8000".into(),
             user: "user".into(),
-            password: "password".into(),
+            pass: "password".into(),
         }
+    }
+}
+
+impl From<DatabaseConfig> for SurrealConfig {
+    fn from(value: DatabaseConfig) -> Self {
+        SurrealConfig::new().user(Root {
+            username: &value.user,
+            password: &value.pass,
+        })
     }
 }
