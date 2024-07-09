@@ -1,6 +1,15 @@
-mod graphql;
+pub(crate) mod iden;
 mod pagination;
-mod surreal;
+pub(crate) mod sql;
 
-type QueryResult =
-    shared::error::Result<(String, std::collections::HashMap<String, serde_json::Value>)>;
+pub mod circuits;
+pub mod constructor_standings;
+pub mod constructors;
+pub mod driver_standings;
+pub mod drivers;
+pub mod graphql;
+pub mod laps;
+pub mod pit_stops;
+pub mod races;
+pub mod seasons;
+pub mod status;

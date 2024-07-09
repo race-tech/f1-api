@@ -4,7 +4,6 @@ pub mod config;
 mod pool;
 
 pub type Pool = bb8::Pool<pool::SurrealConnectionManager>;
-pub type Conn<'a> = bb8::PooledConnection<'a, pool::SurrealConnectionManager>;
 
 #[derive(Clone)]
 pub struct ConnectionPool {

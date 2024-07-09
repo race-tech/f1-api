@@ -11,7 +11,6 @@ serde_json.workspace = true
 serde.workspace = true
 surrealdb.workspace = true
 log.workspace = true
-bb8.workspace = true
 axum.workspace = true
 figment.workspace = true
 async-graphql.workspace = true

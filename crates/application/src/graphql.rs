@@ -55,10 +55,9 @@ impl Query {
 
     async fn circuit<'ctx>(&self, ctx: &Context<'ctx>, circuit_ref: String) -> Result<Circuit> {
         let pool = ctx.data::<ConnectionPool>().unwrap();
-        let conn = &mut pool.pool.get().await?;
+        let conn = &mut pool.pool.get()?;
 
-        let res = crate::circuits::CircuitsQueryBuilder::get(circuit_ref);
-        let res = conn.query(res.0).bind(res.1).await?;
+        let res = crate::circuits::CircuitsQueryBuilder::get(circuit_ref, conn)?;
         Ok(res.into())
     }
 
