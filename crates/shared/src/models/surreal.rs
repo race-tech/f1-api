@@ -26,7 +26,7 @@ pub struct Driver {
     pub url: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Constructor {
     #[serde(rename = "ref")]
     pub constructor_ref: String,
@@ -37,17 +37,14 @@ pub struct Constructor {
 
 #[derive(Deserialize, Debug)]
 pub struct ConstructorStanding {
-    #[serde(rename = "ref")]
-    pub constructor_ref: String,
-    pub name: String,
-    pub nationality: Option<String>,
-    pub url: String,
+    #[serde(rename = "constructors")]
+    pub constructor: Constructor,
     pub points: f32,
     pub position: Option<i32>,
     pub position_text: Option<String>,
     pub wins: i32,
-    pub year: i32,
-    pub round: i32,
+    pub race: Race,
+    pub season: Season,
 }
 
 #[derive(Deserialize, Debug)]

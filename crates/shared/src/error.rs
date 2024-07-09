@@ -38,6 +38,7 @@ pub enum ErrorKind {
     FromUtf8,
 
     // External error kinds
+    BB8,
     Surreal,
     Figment,
     Serde,
@@ -50,6 +51,18 @@ macros::error_from!(Serde => serde_json::Error);
 macros::error_from!(Axum => axum::Error);
 macros::error_from!(Axum => axum::http::Error);
 macros::error_from!(FromUtf8 => std::string::FromUtf8Error);
+
+impl<E> From<bb8::RunError<E>> for Error
+where
+    E: std::error::Error + 'static,
+{
+    fn from(value: bb8::RunError<E>) -> Self {
+        Self {
+            kind: ErrorKind::BB8,
+            message: Some(value.to_string()),
+        }
+    }
+}
 
 impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -68,6 +81,7 @@ impl std::fmt::Display for ErrorKind {
             ParseInt => write!(f, "can't parse int"),
             FromUtf8 => write!(f, "invalid utf8 string"),
 
+            BB8 => write!(f, "bb8 error"),
             Surreal => write!(f, "surreal error"),
             Figment => write!(f, "figment error"),
             Serde => write!(f, "serde error"),
@@ -100,6 +114,7 @@ impl Serialize for ErrorKind {
             Figment => s.serialize_unit_variant("ErrorKind", 13, "Figment"),
             Serde => s.serialize_unit_variant("ErrorKind", 14, "Serde"),
             Axum => s.serialize_unit_variant("ErrorKind", 15, "Axum"),
+            BB8 => s.serialize_unit_variant("ErrorKind", 16, "BB8"),
         }
     }
 }
@@ -127,6 +142,7 @@ impl From<ErrorKind> for StatusCode {
             Figment => Self::INTERNAL_SERVER_ERROR,
             Serde => Self::INTERNAL_SERVER_ERROR,
             Axum => Self::INTERNAL_SERVER_ERROR,
+            BB8 => Self::INTERNAL_SERVER_ERROR,
         }
     }
 }

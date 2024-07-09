@@ -1,4 +1,5 @@
 use async_graphql::*;
+use serde::Deserialize;
 
 use crate::error;
 use crate::error::Result;
@@ -9,7 +10,7 @@ pub struct DateAndTime {
     pub time: String,
 }
 
-#[derive(InputObject)]
+#[derive(InputObject, Clone, Copy)]
 pub struct PaginationOpts {
     pub limit: Option<u64>,
     pub page: Option<u64>,
@@ -63,7 +64,7 @@ pub struct Race {
     pub sprint: Option<DateAndTime>,
 }
 
-#[derive(Debug, SimpleObject)]
+#[derive(Debug, SimpleObject, Deserialize)]
 pub struct Circuit {
     pub circuit_ref: String,
     pub name: String,
@@ -339,22 +340,11 @@ impl From<&crate::models::ConstructorStanding> for Standing {
     }
 }
 
-impl From<&crate::models::ConstructorStanding> for Constructor {
-    fn from(value: &crate::models::ConstructorStanding) -> Self {
-        Self {
-            constructor_ref: value.constructor_ref.clone(),
-            name: value.name.clone(),
-            nationality: value.nationality.clone(),
-            url: value.url.clone(),
-        }
-    }
-}
-
 impl From<&crate::models::ConstructorStanding> for InnerConstructorStanding {
     fn from(value: &crate::models::ConstructorStanding) -> Self {
         Self {
             standing: value.into(),
-            constructor: value.into(),
+            constructor: value.constructor.clone().into(),
         }
     }
 }
@@ -364,12 +354,12 @@ impl From<Vec<super::ConstructorStanding>> for Wrapper<ConstructorStanding> {
         let mut map = std::collections::BTreeMap::new();
 
         value.into_iter().for_each(|v| {
-            let key = format!("{}-{}", v.year, v.round);
+            let key = format!("{}-{}", v.season.year, v.race.round);
             let standing: InnerConstructorStanding = (&v).into();
 
             let entry = map.entry(key).or_insert(ConstructorStanding {
-                season: v.year,
-                round: v.round,
+                season: v.season.year,
+                round: v.race.round,
                 standings: Vec::new(),
             });
 

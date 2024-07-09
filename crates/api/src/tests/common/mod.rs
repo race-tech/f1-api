@@ -24,7 +24,7 @@ impl<'a> Test<'a> {
     }
 
     pub async fn test_ok(self) {
-        let schema = setup();
+        let schema = setup().await;
 
         let resp = schema.execute(self.queri).await;
         assert!(resp.is_ok());
@@ -46,7 +46,7 @@ impl<'a> Test<'a> {
     }
 }
 
-pub fn setup() -> Schema<Query, EmptyMutation, EmptySubscription> {
+pub async fn setup() -> Schema<Query, EmptyMutation, EmptySubscription> {
     let config = infrastructure::config::Config::try_new().expect("valid config file");
-    schema(&config).expect("couldn't load schema")
+    schema(&config).await.expect("couldn't load schema")
 }

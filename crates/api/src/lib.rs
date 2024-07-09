@@ -34,13 +34,11 @@ impl Api {
     }
 }
 
-impl TryFrom<Config> for Api {
-    type Error = shared::error::Error;
-
-    fn try_from(config: Config) -> std::prelude::v1::Result<Self, Self::Error> {
+impl Api {
+    pub async fn try_from(config: Config) -> Result<Self> {
         Ok(Self {
             port: config.port.unwrap_or(8000),
-            router: router(&config)?,
+            router: router(&config).await?,
         })
     }
 }
@@ -56,8 +54,8 @@ async fn graphql_handler(
     schema.execute(req.into_inner()).await.into() // (3)
 }
 
-fn router(config: &Config) -> Result<Router> {
-    let schema = schema(config)?;
+async fn router(config: &Config) -> Result<Router> {
+    let schema = schema(config).await?;
 
     let api_routes = Router::new();
 
@@ -75,11 +73,13 @@ fn router(config: &Config) -> Result<Router> {
     Ok(modular_router.merge(router))
 }
 
-fn schema(config: &Config) -> Result<Schema<Query, EmptyMutation, EmptySubscription>> {
-    let pool = infrastructure::ConnectionPool::try_from(config)?;
-    Ok(Schema::build(Query, EmptyMutation, EmptySubscription)
-        .data(pool)
-        .finish())
+async fn schema(config: &Config) -> Result<Schema<Query, EmptyMutation, EmptySubscription>> {
+    let pool = infrastructure::ConnectionPool::try_from(config).await?;
+    Ok(
+        Schema::build(Query::default(), EmptyMutation, EmptySubscription)
+            .data(pool)
+            .finish(),
+    )
 }
 
 struct ServiceBuilder<'c> {
