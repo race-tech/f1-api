@@ -5,7 +5,7 @@ use super::common::Test;
 #[tokio::test]
 async fn test_get_laps() {
     let value: serde_json::Value = json!({
-        "lap_times": {
+        "lapTimes": {
                     "url": "https://en.wikipedia.org/wiki/2023_Bahrain_Grand_Prix",
                     "raceName": "Bahrain Grand Prix",
                     "date": "2023-03-05",
@@ -221,7 +221,7 @@ async fn test_get_laps() {
 #[tokio::test]
 async fn test_get_laps_by_driver_ref() {
     let value: serde_json::Value = json!({
-        "lap_times": {
+        "lapTimes": {
                     "url": "https://en.wikipedia.org/wiki/2023_Bahrain_Grand_Prix",
                     "raceName": "Bahrain Grand Prix",
                     "date": "2023-03-05",
@@ -580,7 +580,7 @@ async fn test_get_laps_by_driver_ref() {
 #[tokio::test]
 async fn test_get_laps_by_driver_ref_and_page() {
     let value: serde_json::Value = json!({
-        "lap_times": {
+        "lapTimes": {
                     "url": "https://en.wikipedia.org/wiki/2023_Bahrain_Grand_Prix",
                     "raceName": "Bahrain Grand Prix",
                     "date": "2023-03-05",
@@ -909,7 +909,7 @@ async fn test_get_laps_by_driver_ref_and_page() {
 #[tokio::test]
 async fn test_get_laps_by_driver_ref_and_lap_number() {
     let value: serde_json::Value = json!({
-        "lap_times": {
+        "lapTimes": {
                     "url": "https://en.wikipedia.org/wiki/2023_Bahrain_Grand_Prix",
                     "raceName": "Bahrain Grand Prix",
                     "date": "2023-03-05",
