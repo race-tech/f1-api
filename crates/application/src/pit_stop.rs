@@ -1,7 +1,7 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
-use shared::models::Lap as LapModel;
-use shared::parameters::GetLapsParameters;
+use shared::models::PitStop as PitStopModel;
+use shared::parameters::GetPitStopsParameters;
 
 use crate::{
     iden::*,
@@ -9,13 +9,13 @@ use crate::{
     sql::SqlBuilder,
 };
 
-pub struct LapsQueryBuilder {
+pub struct PitStopQueryBuilder {
     stmt: SelectStatement,
-    params: GetLapsParameters,
+    params: GetPitStopsParameters,
 }
 
-impl LapsQueryBuilder {
-    pub fn params(params: GetLapsParameters) -> Paginated<LapModel> {
+impl PitStopQueryBuilder {
+    pub fn params(params: GetPitStopsParameters) -> Paginated<PitStopModel> {
         let stmt = Query::select()
             .distinct()
             .expr_as(
@@ -65,10 +65,16 @@ impl LapsQueryBuilder {
                 Alias::new("circuitUrl"),
             )
             .column((Drivers::Table, Drivers::DriverRef))
-            .column((LapTimes::Table, LapTimes::Lap))
-            .column((LapTimes::Table, LapTimes::Position))
-            .column((LapTimes::Table, LapTimes::Time))
-            .from(LapTimes::Table)
+            .column((PitStops::Table, PitStops::Stop))
+            .column((PitStops::Table, PitStops::Lap))
+            .expr_as(
+                Func::cust(Alias::new("DATE_FORMAT"))
+                    .arg(Expr::col((PitStops::Table, PitStops::Time)))
+                    .arg("%H:%i:%S"),
+                Alias::new("time"),
+            )
+            .column((PitStops::Table, PitStops::Duration))
+            .from(PitStops::Table)
             .from(Races::Table)
             .from(Circuits::Table)
             .from(Drivers::Table)
@@ -77,23 +83,22 @@ impl LapsQueryBuilder {
                     .equals((Circuits::Table, Circuits::CircuitId)),
             )
             .and_where(
-                Expr::col((LapTimes::Table, LapTimes::DriverId))
+                Expr::col((PitStops::Table, PitStops::DriverId))
                     .equals((Drivers::Table, Drivers::DriverId)),
             )
             .and_where(
-                Expr::col((LapTimes::Table, LapTimes::RaceId))
+                Expr::col((PitStops::Table, PitStops::RaceId))
                     .equals((Races::Table, Races::RaceId)),
             )
-            .and_where(Expr::col((Races::Table, Races::Year)).eq(Expr::value(params.year)))
-            .and_where(Expr::col((Races::Table, Races::Round)).eq(Expr::value(params.round)))
-            .order_by((LapTimes::Table, LapTimes::Lap), sea_query::Order::Asc)
-            .order_by((LapTimes::Table, LapTimes::Position), sea_query::Order::Asc)
+            .and_where(Expr::col((Races::Table, Races::Year)).eq(Expr::val(params.year)))
+            .and_where(Expr::col((Races::Table, Races::Round)).eq(Expr::val(params.round)))
+            .order_by(PitStops::Time, sea_query::Order::Asc)
             .to_owned();
 
         Self { stmt, params }.build()
     }
 
-    fn build(self) -> Paginated<LapModel> {
+    fn build(self) -> Paginated<PitStopModel> {
         let page: u64 = self.params.page.unwrap_or_default();
         let limit: u64 = self.params.limit.unwrap_or_default();
 
@@ -106,7 +111,12 @@ impl LapsQueryBuilder {
         .and_where(|s| {
             s.params
                 .lap_number
-                .map(|n| Expr::col((LapTimes::Table, LapTimes::Lap)).eq(Expr::value(n)))
+                .map(|n| Expr::col((PitStops::Table, PitStops::Lap)).eq(Expr::value(n)))
+        })
+        .and_where(|s| {
+            s.params
+                .pit_stop_number
+                .map(|n| Expr::col((PitStops::Table, PitStops::Stop)).eq(Expr::value(n)))
         })
         .stmt
         .paginate(page)
@@ -114,7 +124,7 @@ impl LapsQueryBuilder {
     }
 }
 
-impl SqlBuilder for LapsQueryBuilder {
+impl SqlBuilder for PitStopQueryBuilder {
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

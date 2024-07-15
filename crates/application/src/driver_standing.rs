@@ -9,12 +9,12 @@ use crate::{
     sql::SqlBuilder,
 };
 
-pub struct DriverStandingsQueryBuilder {
+pub struct DriverStandingQueryBuilder {
     params: GetDriverStandingsParameters,
     stmt: SelectStatement,
 }
 
-impl DriverStandingsQueryBuilder {
+impl DriverStandingQueryBuilder {
     pub fn params(params: GetDriverStandingsParameters) -> Paginated<DriverStandingModel> {
         let stmt = Query::select()
             .distinct()
@@ -139,7 +139,7 @@ impl DriverStandingsQueryBuilder {
     }
 }
 
-impl SqlBuilder for DriverStandingsQueryBuilder {
+impl SqlBuilder for DriverStandingQueryBuilder {
     fn stmt(&mut self) -> &mut SelectStatement {
         &mut self.stmt
     }

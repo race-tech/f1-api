@@ -1,4 +1,3 @@
-use application::graphql::{Query, ServiceSchema};
 use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
@@ -10,6 +9,10 @@ use axum::{
 use infrastructure::config::{Config, MiddlewareConfig};
 use shared::error::Result;
 
+use crate::graphql::{Query, ServiceSchema};
+
+mod extension;
+mod graphql;
 #[cfg(test)]
 mod tests;
 
@@ -77,9 +80,11 @@ fn router(config: &Config) -> Result<Router> {
 
 fn schema(config: &Config) -> Result<Schema<Query, EmptyMutation, EmptySubscription>> {
     let pool = infrastructure::ConnectionPool::try_from(config)?;
-    Ok(Schema::build(Query, EmptyMutation, EmptySubscription)
-        .data(pool)
-        .finish())
+    Ok(
+        Schema::build(Query::default(), EmptyMutation, EmptySubscription)
+            .data(pool)
+            .finish(),
+    )
 }
 
 struct ServiceBuilder<'c> {

@@ -9,12 +9,12 @@ use crate::{
     sql::SqlBuilder,
 };
 
-pub struct ConstructorStandingsQueryBuilder {
+pub struct ConstructorStandingQueryBuilder {
     params: GetConstructorStandingsParameters,
     stmt: SelectStatement,
 }
 
-impl ConstructorStandingsQueryBuilder {
+impl ConstructorStandingQueryBuilder {
     pub fn params(
         params: GetConstructorStandingsParameters,
     ) -> Paginated<ConstructorStandingModel> {
@@ -142,7 +142,7 @@ impl ConstructorStandingsQueryBuilder {
     }
 }
 
-impl SqlBuilder for ConstructorStandingsQueryBuilder {
+impl SqlBuilder for ConstructorStandingQueryBuilder {
     fn stmt(&mut self) -> &mut SelectStatement {
         &mut self.stmt
     }

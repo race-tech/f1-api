@@ -5,7 +5,7 @@ use super::common::Test;
 #[tokio::test]
 async fn test_get_laps() {
     let value: serde_json::Value = json!({
-        "laps": {
+        "lap_times": {
                     "url": "https://en.wikipedia.org/wiki/2023_Bahrain_Grand_Prix",
                     "raceName": "Bahrain Grand Prix",
                     "date": "2023-03-05",
@@ -187,7 +187,7 @@ async fn test_get_laps() {
 
     Test::new(
         r#"{
-            laps(options: { year: 2023, round: 1 }, pagination: { limit: 30, page: 1 }) {
+            lap_times(options: { year: 2023, round: 1 }, pagination: { limit: 30, page: 1 }) {
                 url
                 raceName
                 date
@@ -221,7 +221,7 @@ async fn test_get_laps() {
 #[tokio::test]
 async fn test_get_laps_by_driver_ref() {
     let value: serde_json::Value = json!({
-        "laps": {
+        "lap_times": {
                     "url": "https://en.wikipedia.org/wiki/2023_Bahrain_Grand_Prix",
                     "raceName": "Bahrain Grand Prix",
                     "date": "2023-03-05",
@@ -543,7 +543,7 @@ async fn test_get_laps_by_driver_ref() {
 
     Test::new(
         r#"{
-            laps(
+            lap_times(
                 options: { year: 2023, round: 1, driverRef: "max_verstappen" }
                 pagination: { limit: 30, page: 1 }
             ) {
@@ -580,7 +580,7 @@ async fn test_get_laps_by_driver_ref() {
 #[tokio::test]
 async fn test_get_laps_by_driver_ref_and_page() {
     let value: serde_json::Value = json!({
-        "laps": {
+        "lap_times": {
                     "url": "https://en.wikipedia.org/wiki/2023_Bahrain_Grand_Prix",
                     "raceName": "Bahrain Grand Prix",
                     "date": "2023-03-05",
@@ -872,7 +872,7 @@ async fn test_get_laps_by_driver_ref_and_page() {
 
     Test::new(
         r#"{
-            laps(
+            lap_times(
                 options: { year: 2023, round: 1, driverRef: "max_verstappen" }
                 pagination: { limit: 30, page: 2 }
             ) {
@@ -909,7 +909,7 @@ async fn test_get_laps_by_driver_ref_and_page() {
 #[tokio::test]
 async fn test_get_laps_by_driver_ref_and_lap_number() {
     let value: serde_json::Value = json!({
-        "laps": {
+        "lap_times": {
                     "url": "https://en.wikipedia.org/wiki/2023_Bahrain_Grand_Prix",
                     "raceName": "Bahrain Grand Prix",
                     "date": "2023-03-05",
@@ -941,7 +941,7 @@ async fn test_get_laps_by_driver_ref_and_lap_number() {
 
     Test::new(
         r#"{
-            laps(
+            lap_times(
                 options: { year: 2023, round: 1, driverRef: "max_verstappen", lapNumber: 10 }
                 pagination: { limit: 30, page: 1 }
             ) {

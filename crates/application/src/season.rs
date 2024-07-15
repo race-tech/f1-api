@@ -13,12 +13,12 @@ use crate::{
     sql::SqlBuilder,
 };
 
-pub struct SeasonsQueryBuilder {
+pub struct SeasonQueryBuilder {
     stmt: SelectStatement,
     params: GetSeasonsParameters,
 }
 
-impl SeasonsQueryBuilder {
+impl SeasonQueryBuilder {
     pub fn get(season: u32, conn: &mut infrastructure::Connection) -> Result<SeasonModel> {
         let query = Query::select()
             .distinct()
@@ -279,7 +279,7 @@ impl SeasonsQueryBuilder {
     }
 }
 
-impl SqlBuilder for SeasonsQueryBuilder {
+impl SqlBuilder for SeasonQueryBuilder {
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }
