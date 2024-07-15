@@ -2,11 +2,9 @@
 port: 8000
 
 database:
-  name: f1db
-  hostname: database
-  port: 3306
-  user: user
-  password: password
+  path: surreal:8000
+  user: root
+  pass: root
 
 middlewares:
   - graphiql:

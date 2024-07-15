@@ -14,6 +14,7 @@ pub struct ConnectionPool {
 impl ConnectionPool {
     pub async fn try_from(config: &config::Config) -> Result<Self, shared::error::Error> {
         let manager = pool::SurrealConnectionManager::from(config.database.clone());
+
         let pool = bb8::Pool::builder()
             .max_size(20)
             .build(manager)

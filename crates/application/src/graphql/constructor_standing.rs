@@ -5,15 +5,16 @@ use shared::{
     error::Result,
     models::graphql::{ConstructorStanding, GetConstructorStandingsOpts, PaginationOpts, Wrapper},
     models::response::Response,
+    models::surreal,
 };
 
 use crate::pagination::Paginate;
 
 #[derive(Default)]
-pub struct Query;
+pub struct ConstructorStandingQuery;
 
 #[Object]
-impl Query {
+impl ConstructorStandingQuery {
     async fn constructors_standings<'ctx>(
         &self,
         ctx: &Context<'ctx>,
@@ -25,11 +26,11 @@ impl Query {
 
         let res =
             crate::surreal::constructor_standings::get_with_params(options.unwrap_or_default())
-                .paginate(pagination.unwrap_or_default())
+                .paginate::<surreal::ConstructorStanding>(pagination.unwrap_or_default())
                 .query_and_count(conn)
                 .await?;
 
-        let wrapper: Wrapper<ConstructorStanding> = res.0.into();
-        Ok((wrapper.0, res.1).into())
+        let standings: Wrapper<ConstructorStanding> = res.0.into();
+        Ok((standings.0, res.1).into())
     }
 }

@@ -11,6 +11,7 @@ serde_json.workspace = true
 async-graphql.workspace = true
 surrealdb.workspace = true
 surql.workspace = true
+log.workspace = true
 
 infrastructure = { path = "../infrastructure" }
 shared = { path = "../shared" }

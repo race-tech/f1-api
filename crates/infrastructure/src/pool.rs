@@ -22,7 +22,9 @@ impl bb8::ManageConnection for SurrealConnectionManager {
     type Error = surrealdb::Error;
 
     async fn connect(&self) -> Result<Self::Connection, Self::Error> {
-        Ok(Surreal::new::<Http>((self.path.clone(), self.config.clone().into())).await?)
+        let db = Surreal::new::<Http>((self.path.clone(), self.config.clone().into())).await?;
+        db.use_ns("fia").use_db("f1").await?;
+        Ok(db)
     }
 
     async fn is_valid(&self, conn: &mut Self::Connection) -> Result<(), Self::Error> {

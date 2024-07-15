@@ -1,20 +1,5 @@
 ---
 services:
-  database:
-    image: ghcr.io/race-tech/f1-db:latest
-    pull_policy: always
-    restart: always
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
-
   api:
     build:
       context: .
@@ -23,8 +8,16 @@ services:
     volumes:
       - ./config.yml:/config.yml
     depends_on:
-      database:
-        condition: service_healthy
+      - surreal
+
+  surreal:
+    hostname: surreal
+    image: surrealdb/surrealdb:latest
+    command: start --user root --pass root file:/data/fia.db
+    ports:
+      - "8080:8000"
+    volumes:
+      - ./data:/data
 
 networks:
   default:

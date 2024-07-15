@@ -58,10 +58,9 @@ impl<U: DeserializeOwned> Paginated<SelectStatement, U> {
             .start(self.offset)
             .to_owned();
 
-        let mut res = conn
-            .query(vec![count.into(), query.into()])
-            .bind(self.params)
-            .await?;
+        log::debug!("{}", query);
+
+        let mut res = conn.query(count).query(query).bind(self.params).await?;
 
         let total: Option<u64> = res.take(0)?;
 

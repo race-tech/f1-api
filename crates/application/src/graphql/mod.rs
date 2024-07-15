@@ -6,4 +6,7 @@ mod constructor_standing;
 pub type ServiceSchema = Schema<Query, EmptyMutation, EmptySubscription>;
 
 #[derive(MergedObject, Default)]
-pub struct Query(circuit::Query, constructor_standing::Query);
+pub struct Query(
+    circuit::CircuitQuery,
+    constructor_standing::ConstructorStandingQuery,
+);

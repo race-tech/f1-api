@@ -5,6 +5,7 @@
 
 # Ignore database folder
 db/
+data/
 
 # Ignore VSCode files
 .vscode/*

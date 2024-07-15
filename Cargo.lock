@@ -118,6 +118,7 @@ version = "0.1.0"
 dependencies = [
  "async-graphql",
  "infrastructure",
+ "log",
  "serde",
  "serde_json",
  "shared",
@@ -3168,7 +3169,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 [[package]]
 name = "surql"
 version = "0.1.0"
-source = "git+https://github.com/thibault-cne/surql.git?branch=master#ca574633eedec7c677d7334beccb0ceab43c3014"
+source = "git+https://github.com/thibault-cne/surql.git?branch=master#08bde38d22a00ddb1742e6778db5f5451dbc119f"
 dependencies = [
  "surrealdb",
 ]

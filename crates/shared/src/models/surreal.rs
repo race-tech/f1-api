@@ -7,7 +7,9 @@ pub struct Circuit {
     pub name: String,
     pub location: Option<String>,
     pub country: Option<String>,
+    #[serde(deserialize_with = "super::de_option_f32")]
     pub lat: Option<f32>,
+    #[serde(deserialize_with = "super::de_option_f32")]
     pub lng: Option<f32>,
     pub alt: Option<i32>,
     pub url: String,
@@ -44,7 +46,6 @@ pub struct ConstructorStanding {
     pub position_text: Option<String>,
     pub wins: i32,
     pub race: Race,
-    pub season: Season,
 }
 
 #[derive(Deserialize, Debug)]
@@ -89,24 +90,36 @@ pub struct PitStop {
 
 #[derive(Deserialize, Debug)]
 pub struct Race {
-    pub year: i32,
     pub round: i32,
     pub name: String,
+    #[serde(deserialize_with = "super::de_date")]
     pub date: time::Date,
+    #[serde(deserialize_with = "super::de_option_time")]
     pub time: Option<time::Time>,
     pub url: Option<String>,
+    #[serde(deserialize_with = "super::de_option_date")]
     pub fp1_date: Option<time::Date>,
+    #[serde(deserialize_with = "super::de_option_time")]
     pub fp1_time: Option<time::Time>,
+    #[serde(deserialize_with = "super::de_option_date")]
     pub fp2_date: Option<time::Date>,
+    #[serde(deserialize_with = "super::de_option_time")]
     pub fp2_time: Option<time::Time>,
+    #[serde(deserialize_with = "super::de_option_date")]
     pub fp3_date: Option<time::Date>,
+    #[serde(deserialize_with = "super::de_option_time")]
     pub fp3_time: Option<time::Time>,
+    #[serde(deserialize_with = "super::de_option_date")]
     pub quali_date: Option<time::Date>,
+    #[serde(deserialize_with = "super::de_option_time")]
     pub quali_time: Option<time::Time>,
+    #[serde(deserialize_with = "super::de_option_date")]
     pub sprint_date: Option<time::Date>,
+    #[serde(deserialize_with = "super::de_option_time")]
     pub sprint_time: Option<time::Time>,
 
     pub circuit: Circuit,
+    pub season: Season,
 }
 
 #[derive(Deserialize, Debug)]

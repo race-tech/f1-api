@@ -284,7 +284,7 @@ impl Default for PaginationOpts {
 impl From<super::Race> for Race {
     fn from(v: super::Race) -> Self {
         Race {
-            season: v.year,
+            season: v.season.year,
             round: v.round,
             name: v.name,
             date: v.date,
@@ -354,11 +354,11 @@ impl From<Vec<super::ConstructorStanding>> for Wrapper<ConstructorStanding> {
         let mut map = std::collections::BTreeMap::new();
 
         value.into_iter().for_each(|v| {
-            let key = format!("{}-{}", v.season.year, v.race.round);
+            let key = format!("{}-{}", v.race.season.year, v.race.round);
             let standing: InnerConstructorStanding = (&v).into();
 
             let entry = map.entry(key).or_insert(ConstructorStanding {
-                season: v.season.year,
+                season: v.race.season.year,
                 round: v.race.round,
                 standings: Vec::new(),
             });
