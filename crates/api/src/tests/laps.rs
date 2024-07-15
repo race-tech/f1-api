@@ -187,7 +187,7 @@ async fn test_get_laps() {
 
     Test::new(
         r#"{
-            lap_times(options: { year: 2023, round: 1 }, pagination: { limit: 30, page: 1 }) {
+            lapTimes(options: { year: 2023, round: 1 }, pagination: { limit: 30, page: 1 }) {
                 url
                 raceName
                 date
@@ -543,7 +543,7 @@ async fn test_get_laps_by_driver_ref() {
 
     Test::new(
         r#"{
-            lap_times(
+            lapTimes(
                 options: { year: 2023, round: 1, driverRef: "max_verstappen" }
                 pagination: { limit: 30, page: 1 }
             ) {
@@ -872,7 +872,7 @@ async fn test_get_laps_by_driver_ref_and_page() {
 
     Test::new(
         r#"{
-            lap_times(
+            lapTimes(
                 options: { year: 2023, round: 1, driverRef: "max_verstappen" }
                 pagination: { limit: 30, page: 2 }
             ) {
@@ -941,7 +941,7 @@ async fn test_get_laps_by_driver_ref_and_lap_number() {
 
     Test::new(
         r#"{
-            lap_times(
+            lapTimes(
                 options: { year: 2023, round: 1, driverRef: "max_verstappen", lapNumber: 10 }
                 pagination: { limit: 30, page: 1 }
             ) {
