@@ -23,4 +23,6 @@ pub struct Query(
     lap_time::LapTimeQuery,
     pit_stop::PitStopQuery,
     race::RaceQuery,
+    season::SeasonQuery,
+    status::StatusQuery,
 );
