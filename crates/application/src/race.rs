@@ -9,7 +9,7 @@ use crate::{
     sql::SqlBuilder,
 };
 
-pub struct RacesQueryBuilder {
+pub struct RaceQueryBuilder {
     stmt: SelectStatement,
     params: GetRacesParameters,
 }
@@ -29,7 +29,7 @@ const DATE_AND_TIME_COLS: &[(Races, &str)] = &[
     (Races::SprintTime, "sprint_time"),
 ];
 
-impl RacesQueryBuilder {
+impl RaceQueryBuilder {
     pub fn params(params: GetRacesParameters) -> Paginated<RaceModel> {
         let stmt = Query::select()
             .distinct()
@@ -179,7 +179,7 @@ impl RacesQueryBuilder {
     }
 }
 
-impl SqlBuilder for RacesQueryBuilder {
+impl SqlBuilder for RaceQueryBuilder {
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

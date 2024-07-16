@@ -1,6 +1,4 @@
-use application::graphql::Query;
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
-
+use crate::graphql::ServiceSchema;
 use crate::schema;
 
 pub struct Test<'a> {
@@ -46,7 +44,7 @@ impl<'a> Test<'a> {
     }
 }
 
-pub fn setup() -> Schema<Query, EmptyMutation, EmptySubscription> {
+pub fn setup() -> ServiceSchema {
     let config = infrastructure::config::Config::try_new().expect("valid config file");
     schema(&config).expect("couldn't load schema")
 }

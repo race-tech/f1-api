@@ -13,12 +13,12 @@ use crate::{
     sql::SqlBuilder,
 };
 
-pub struct ConstructorsQueryBuilder {
+pub struct ConstructorQueryBuilder {
     params: GetConstructorsParameters,
     stmt: SelectStatement,
 }
 
-impl ConstructorsQueryBuilder {
+impl ConstructorQueryBuilder {
     pub fn get(
         constructor_ref: String,
         conn: &mut infrastructure::Connection,
@@ -213,7 +213,7 @@ impl ConstructorsQueryBuilder {
     }
 }
 
-impl SqlBuilder for ConstructorsQueryBuilder {
+impl SqlBuilder for ConstructorQueryBuilder {
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

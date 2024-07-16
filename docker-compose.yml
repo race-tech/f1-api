@@ -2,6 +2,7 @@
 services:
   database:
     image: ghcr.io/race-tech/f1-db:latest
+    command: --mysql-native-password=ON
     pull_policy: always
     restart: always
     ports:
@@ -9,7 +10,8 @@ services:
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
