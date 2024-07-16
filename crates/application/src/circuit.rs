@@ -9,12 +9,12 @@ use shared::parameters::GetCircuitsParameters;
 use crate::pagination::Paginated;
 use crate::{iden::*, one_of, pagination::Paginate, sql::*};
 
-pub struct CircuitsQueryBuilder {
+pub struct CircuitQueryBuilder {
     stmt: SelectStatement,
     params: GetCircuitsParameters,
 }
 
-impl CircuitsQueryBuilder {
+impl CircuitQueryBuilder {
     pub fn get(circuit_ref: String, conn: &mut infrastructure::Connection) -> Result<CircuitModel> {
         let query = Query::select()
             .distinct()
@@ -186,7 +186,7 @@ impl CircuitsQueryBuilder {
     }
 }
 
-impl SqlBuilder for CircuitsQueryBuilder {
+impl SqlBuilder for CircuitQueryBuilder {
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

@@ -13,12 +13,12 @@ use crate::{
     sql::SqlBuilder,
 };
 
-pub struct DriversQueryBuilder {
+pub struct DriverQueryBuilder {
     stmt: SelectStatement,
     params: GetDriversParameters,
 }
 
-impl DriversQueryBuilder {
+impl DriverQueryBuilder {
     pub fn get(driver_ref: String, conn: &mut infrastructure::Connection) -> Result<DriverModel> {
         let query = Query::select()
             .distinct()
@@ -280,7 +280,7 @@ impl DriversQueryBuilder {
     }
 }
 
-impl SqlBuilder for DriversQueryBuilder {
+impl SqlBuilder for DriverQueryBuilder {
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }
