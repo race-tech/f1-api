@@ -44,10 +44,8 @@ impl RaceQuery {
         // SAFETY: This should always work
         let conn = &mut ctx.extract_conn()?;
 
-        let res = application::race::RaceQueryBuilder::params(
-            (options.unwrap_or_default(), pagination.unwrap_or_default()).into(),
-        )
-        .query_and_count(conn)?;
+        let res = application::race::RaceQueryBuilder::races(options.unwrap_or_default())
+            .query_pagination(pagination.unwrap_or_default(), conn)?;
 
         let races = res.0.into_iter().map(Into::into).collect();
         Ok((races, res.1).into())

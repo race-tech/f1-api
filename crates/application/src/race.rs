@@ -1,18 +1,13 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
 use shared::error::Result;
-use shared::{models::Race as RaceModel, parameters::GetRacesParameters};
+use shared::{models::graphql::GetRacesOpts, models::Race as RaceModel};
 
-use crate::{
-    iden::*,
-    one_of,
-    pagination::{Paginate, Paginated},
-    sql::SqlBuilder,
-};
+use crate::{iden::*, one_of, sql::SqlBuilder};
 
-pub struct RaceQueryBuilder {
+pub struct RaceQueryBuilder<P> {
     stmt: SelectStatement,
-    params: GetRacesParameters,
+    params: P,
 }
 
 const DATE_AND_TIME_COLS: &[(Races, &str)] = &[
@@ -30,7 +25,7 @@ const DATE_AND_TIME_COLS: &[(Races, &str)] = &[
     (Races::SprintTime, "sprint_time"),
 ];
 
-impl RaceQueryBuilder {
+impl RaceQueryBuilder<()> {
     pub fn race(year: u32, round: u32) -> Self {
         let stmt = Query::select()
             .distinct()
@@ -84,10 +79,7 @@ impl RaceQueryBuilder {
             .limit(1)
             .to_owned();
 
-        Self {
-            stmt,
-            params: GetRacesParameters::default(),
-        }
+        Self { stmt, params: () }
     }
 
     pub fn latest_race() -> Result<Self> {
@@ -144,13 +136,12 @@ impl RaceQueryBuilder {
             .limit(1)
             .to_owned();
 
-        Ok(Self {
-            stmt,
-            params: GetRacesParameters::default(),
-        })
+        Ok(Self { stmt, params: () })
     }
+}
 
-    pub fn params(params: GetRacesParameters) -> Paginated<RaceModel> {
+impl RaceQueryBuilder<GetRacesOpts> {
+    pub fn races(params: GetRacesOpts) -> Self {
         let stmt = Query::select()
             .distinct()
             .column((Races::Table, Races::Year))
@@ -205,10 +196,7 @@ impl RaceQueryBuilder {
         Self { stmt, params }.build()
     }
 
-    fn build(self) -> Paginated<RaceModel> {
-        let page: u64 = self.params.page.unwrap_or_default();
-        let limit: u64 = self.params.limit.unwrap_or_default();
-
+    fn build(self) -> Self {
         self.from(
             |s| {
                 one_of!(
@@ -293,13 +281,10 @@ impl RaceQueryBuilder {
                 .result
                 .map(|r| Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(r)))
         })
-        .stmt
-        .paginate(page)
-        .per_page(limit)
     }
 }
 
-impl SqlBuilder for RaceQueryBuilder {
+impl<P> SqlBuilder for RaceQueryBuilder<P> {
     type Output = RaceModel;
 
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
