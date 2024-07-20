@@ -1,5 +1,6 @@
 use async_graphql::{Context, Object};
 
+use application::SqlBuilder;
 use shared::{
     error::Result,
     models::graphql::{GetLapsOpts, Laps, PaginationOpts},
@@ -20,10 +21,8 @@ impl LapTimeQuery {
     ) -> Result<Laps> {
         let conn = &mut ctx.extract_conn()?;
 
-        let res = application::lap_time::LapTimeQueryBuilder::params(
-            (options, pagination.unwrap_or_default()).into(),
-        )
-        .query_and_count(conn)?;
+        let res = application::lap_time::LapTimeQueryBuilder::lap_times(options)
+            .query_pagination(pagination.unwrap_or_default(), conn)?;
 
         res.0.try_into()
     }

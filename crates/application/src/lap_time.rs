@@ -1,21 +1,17 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
+use shared::models::graphql::GetLapsOpts;
 use shared::models::Lap as LapModel;
-use shared::parameters::GetLapsParameters;
 
-use crate::{
-    iden::*,
-    pagination::{Paginate, Paginated},
-    sql::SqlBuilder,
-};
+use crate::{iden::*, sql::SqlBuilder};
 
-pub struct LapTimeQueryBuilder {
+pub struct LapTimeQueryBuilder<P> {
     stmt: SelectStatement,
-    params: GetLapsParameters,
+    params: P,
 }
 
-impl LapTimeQueryBuilder {
-    pub fn params(params: GetLapsParameters) -> Paginated<LapModel> {
+impl LapTimeQueryBuilder<GetLapsOpts> {
+    pub fn lap_times(params: GetLapsOpts) -> Self {
         let stmt = Query::select()
             .distinct()
             .expr_as(
@@ -93,10 +89,7 @@ impl LapTimeQueryBuilder {
         Self { stmt, params }.build()
     }
 
-    fn build(self) -> Paginated<LapModel> {
-        let page: u64 = self.params.page.unwrap_or_default();
-        let limit: u64 = self.params.limit.unwrap_or_default();
-
+    fn build(self) -> Self {
         self.and_where(|s| {
             s.params
                 .driver_ref
@@ -108,13 +101,10 @@ impl LapTimeQueryBuilder {
                 .lap_number
                 .map(|n| Expr::col((LapTimes::Table, LapTimes::Lap)).eq(Expr::value(n)))
         })
-        .stmt
-        .paginate(page)
-        .per_page(limit)
     }
 }
 
-impl SqlBuilder for LapTimeQueryBuilder {
+impl<P> SqlBuilder for LapTimeQueryBuilder<P> {
     type Output = LapModel;
 
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
