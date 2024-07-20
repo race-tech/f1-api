@@ -1,21 +1,16 @@
 use sea_query::{Expr, Func, Query, SelectStatement};
 
+use shared::models::graphql::GetConstructorsOpts;
 use shared::models::Constructor as ConstructorModel;
-use shared::parameters::GetConstructorsParameters;
 
-use crate::{
-    iden::*,
-    one_of,
-    pagination::{Paginate, Paginated},
-    sql::SqlBuilder,
-};
+use crate::{iden::*, one_of, sql::SqlBuilder};
 
-pub struct ConstructorQueryBuilder {
-    params: GetConstructorsParameters,
+pub struct ConstructorQueryBuilder<P> {
     stmt: SelectStatement,
+    params: P,
 }
 
-impl ConstructorQueryBuilder {
+impl ConstructorQueryBuilder<()> {
     pub fn constructor(constructor_ref: &str) -> Self {
         let stmt = Query::select()
             .distinct()
@@ -37,13 +32,12 @@ impl ConstructorQueryBuilder {
             )
             .to_owned();
 
-        Self {
-            params: GetConstructorsParameters::default(),
-            stmt,
-        }
+        Self { params: (), stmt }
     }
+}
 
-    pub fn params(params: GetConstructorsParameters) -> Paginated<ConstructorModel> {
+impl ConstructorQueryBuilder<GetConstructorsOpts> {
+    pub fn constructors(params: GetConstructorsOpts) -> Self {
         let stmt = Query::select()
             .distinct()
             .columns(
@@ -63,10 +57,7 @@ impl ConstructorQueryBuilder {
         Self { params, stmt }.build()
     }
 
-    fn build(self) -> Paginated<ConstructorModel> {
-        let page: u64 = self.params.page.unwrap_or_default();
-        let limit: u64 = self.params.limit.unwrap_or_default();
-
+    fn build(self) -> Self {
         self.from(
             |s| {
                 one_of!(
@@ -148,10 +139,6 @@ impl ConstructorQueryBuilder {
                 .map(|year| Expr::col((Races::Table, Races::Year)).eq(year))
         })
         .and_clause()
-        .stmt
-        .to_owned()
-        .paginate(page)
-        .per_page(limit)
     }
 
     fn and_clause(self) -> Self {
@@ -208,7 +195,7 @@ impl ConstructorQueryBuilder {
     }
 }
 
-impl SqlBuilder for ConstructorQueryBuilder {
+impl<P> SqlBuilder for ConstructorQueryBuilder<P> {
     type Output = ConstructorModel;
 
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {

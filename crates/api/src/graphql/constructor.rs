@@ -36,10 +36,10 @@ impl ConstructorQuery {
     ) -> Result<Response<Vec<Constructor>>> {
         let conn = &mut ctx.extract_conn()?;
 
-        let res = application::constructor::ConstructorQueryBuilder::params(
-            (options.unwrap_or_default(), pagination.unwrap_or_default()).into(),
+        let res = application::constructor::ConstructorQueryBuilder::constructors(
+            options.unwrap_or_default(),
         )
-        .query_and_count(conn)?;
+        .query_pagination(pagination.unwrap_or_default(), conn)?;
 
         let data = res.0.into_iter().map(Into::into).collect();
         Ok((data, res.1).into())
