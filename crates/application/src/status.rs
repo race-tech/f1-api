@@ -1,22 +1,17 @@
 use sea_query::{Alias, Asterisk, Expr, Func, Query, SelectStatement};
 
+use shared::models::graphql::GetStatusOpts;
 use shared::models::Status as StatusModel;
-use shared::parameters::GetStatusParameters;
 
-use crate::{
-    iden::*,
-    one_of,
-    pagination::{Paginate, Paginated},
-    sql::SqlBuilder,
-};
+use crate::{iden::*, one_of, sql::SqlBuilder};
 
-pub struct StatusQueryBuilder {
+pub struct StatusQueryBuilder<P> {
     stmt: SelectStatement,
-    params: GetStatusParameters,
+    params: P,
 }
 
-impl StatusQueryBuilder {
-    pub fn params(params: GetStatusParameters) -> Paginated<StatusModel> {
+impl StatusQueryBuilder<GetStatusOpts> {
+    pub fn statuses(params: GetStatusOpts) -> Self {
         let stmt = Query::select()
             .distinct()
             .column((Status::Table, Status::Id))
@@ -34,10 +29,7 @@ impl StatusQueryBuilder {
         Self { stmt, params }.build()
     }
 
-    fn build(self) -> Paginated<StatusModel> {
-        let page: u64 = self.params.page.unwrap_or_default();
-        let limit: u64 = self.params.limit.unwrap_or_default();
-
+    fn build(self) -> Self {
         self.from(
             |s| one_of!(s.params.year, s.params.round, s.params.circuit_ref),
             Races::Table,
@@ -99,13 +91,10 @@ impl StatusQueryBuilder {
                 .round
                 .map(|r| Expr::col((Races::Table, Races::Round)).eq(Expr::val(r)))
         })
-        .stmt
-        .paginate(page)
-        .per_page(limit)
     }
 }
 
-impl SqlBuilder for StatusQueryBuilder {
+impl<P> SqlBuilder for StatusQueryBuilder<P> {
     type Output = StatusModel;
 
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
