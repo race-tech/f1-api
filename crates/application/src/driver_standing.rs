@@ -1,21 +1,17 @@
 use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement};
 
+use shared::models::graphql::GetDriverStandingsOpts;
 use shared::models::DriverStanding as DriverStandingModel;
-use shared::parameters::GetDriverStandingsParameters;
 
-use crate::{
-    iden::*,
-    pagination::{Paginate, Paginated},
-    sql::SqlBuilder,
-};
+use crate::{iden::*, sql::SqlBuilder};
 
-pub struct DriverStandingQueryBuilder {
-    params: GetDriverStandingsParameters,
+pub struct DriverStandingQueryBuilder<P> {
+    params: P,
     stmt: SelectStatement,
 }
 
-impl DriverStandingQueryBuilder {
-    pub fn params(params: GetDriverStandingsParameters) -> Paginated<DriverStandingModel> {
+impl DriverStandingQueryBuilder<GetDriverStandingsOpts> {
+    pub fn driver_standings(params: GetDriverStandingsOpts) -> Self {
         let stmt = Query::select()
             .distinct()
             .columns(
@@ -69,10 +65,7 @@ impl DriverStandingQueryBuilder {
         Self { params, stmt }.build()
     }
 
-    fn build(self) -> Paginated<DriverStandingModel> {
-        let page: u64 = self.params.page.unwrap_or_default();
-        let limit: u64 = self.params.limit.unwrap_or_default();
-
+    fn build(self) -> Self {
         self.and_where(|s| {
             s.params.position.map(|p| {
                 Expr::col((DriverStandings::Table, DriverStandings::PositionText))
@@ -91,9 +84,6 @@ impl DriverStandingQueryBuilder {
                 .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(y)))
         })
         .and_clause()
-        .stmt
-        .paginate(page)
-        .per_page(limit)
     }
 
     fn and_clause(self) -> Self {
@@ -139,7 +129,7 @@ impl DriverStandingQueryBuilder {
     }
 }
 
-impl SqlBuilder for DriverStandingQueryBuilder {
+impl<P> SqlBuilder for DriverStandingQueryBuilder<P> {
     type Output = DriverStandingModel;
 
     fn stmt(&mut self) -> &mut SelectStatement {
