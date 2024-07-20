@@ -1,21 +1,17 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
+use shared::models::graphql::GetPitStopsOpts;
 use shared::models::PitStop as PitStopModel;
-use shared::parameters::GetPitStopsParameters;
 
-use crate::{
-    iden::*,
-    pagination::{Paginate, Paginated},
-    sql::SqlBuilder,
-};
+use crate::{iden::*, sql::SqlBuilder};
 
-pub struct PitStopQueryBuilder {
+pub struct PitStopQueryBuilder<P> {
     stmt: SelectStatement,
-    params: GetPitStopsParameters,
+    params: P,
 }
 
-impl PitStopQueryBuilder {
-    pub fn params(params: GetPitStopsParameters) -> Paginated<PitStopModel> {
+impl PitStopQueryBuilder<GetPitStopsOpts> {
+    pub fn pit_stops(params: GetPitStopsOpts) -> Self {
         let stmt = Query::select()
             .distinct()
             .expr_as(
@@ -98,10 +94,7 @@ impl PitStopQueryBuilder {
         Self { stmt, params }.build()
     }
 
-    fn build(self) -> Paginated<PitStopModel> {
-        let page: u64 = self.params.page.unwrap_or_default();
-        let limit: u64 = self.params.limit.unwrap_or_default();
-
+    fn build(self) -> Self {
         self.and_where(|s| {
             s.params
                 .driver_ref
@@ -118,13 +111,10 @@ impl PitStopQueryBuilder {
                 .pit_stop_number
                 .map(|n| Expr::col((PitStops::Table, PitStops::Stop)).eq(Expr::value(n)))
         })
-        .stmt
-        .paginate(page)
-        .per_page(limit)
     }
 }
 
-impl SqlBuilder for PitStopQueryBuilder {
+impl<P> SqlBuilder for PitStopQueryBuilder<P> {
     type Output = PitStopModel;
 
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
