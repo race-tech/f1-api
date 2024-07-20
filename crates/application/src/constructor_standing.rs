@@ -1,23 +1,17 @@
 use sea_query::{Expr, Func, IntoColumnRef, Query, SelectStatement};
 
+use shared::models::graphql::GetConstructorStandingsOpts;
 use shared::models::ConstructorStanding as ConstructorStandingModel;
-use shared::parameters::GetConstructorStandingsParameters;
 
-use crate::{
-    iden::*,
-    pagination::{Paginate, Paginated},
-    sql::SqlBuilder,
-};
+use crate::{iden::*, sql::SqlBuilder};
 
-pub struct ConstructorStandingQueryBuilder {
-    params: GetConstructorStandingsParameters,
+pub struct ConstructorStandingQueryBuilder<P> {
+    params: P,
     stmt: SelectStatement,
 }
 
-impl ConstructorStandingQueryBuilder {
-    pub fn params(
-        params: GetConstructorStandingsParameters,
-    ) -> Paginated<ConstructorStandingModel> {
+impl ConstructorStandingQueryBuilder<GetConstructorStandingsOpts> {
+    pub fn constructor_standings(params: GetConstructorStandingsOpts) -> Self {
         let stmt = Query::select()
             .distinct()
             .columns(
@@ -70,10 +64,7 @@ impl ConstructorStandingQueryBuilder {
         Self { params, stmt }.build()
     }
 
-    fn build(self) -> Paginated<ConstructorStandingModel> {
-        let page: u64 = self.params.page.unwrap_or_default();
-        let limit: u64 = self.params.limit.unwrap_or_default();
-
+    fn build(self) -> Self {
         self.and_where(|s| {
             s.params.position.map(|p| {
                 Expr::col((
@@ -94,9 +85,6 @@ impl ConstructorStandingQueryBuilder {
                 .map(|y| Expr::col((Races::Table, Races::Year)).eq(Expr::val(y)))
         })
         .and_clause()
-        .stmt
-        .paginate(page)
-        .per_page(limit)
     }
 
     fn and_clause(self) -> Self {
@@ -142,7 +130,7 @@ impl ConstructorStandingQueryBuilder {
     }
 }
 
-impl SqlBuilder for ConstructorStandingQueryBuilder {
+impl<P> SqlBuilder for ConstructorStandingQueryBuilder<P> {
     type Output = ConstructorStandingModel;
 
     fn stmt(&mut self) -> &mut SelectStatement {
