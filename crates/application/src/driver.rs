@@ -1,8 +1,5 @@
-use mysql::prelude::Queryable;
-use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
+use sea_query::{Expr, Func, Query, SelectStatement};
 
-use shared::error;
-use shared::error::Result;
 use shared::models::Driver as DriverModel;
 use shared::parameters::GetDriversParameters;
 
@@ -19,8 +16,8 @@ pub struct DriverQueryBuilder {
 }
 
 impl DriverQueryBuilder {
-    pub fn get(driver_ref: String, conn: &mut infrastructure::Connection) -> Result<DriverModel> {
-        let query = Query::select()
+    pub fn driver(driver_ref: &str) -> Self {
+        let stmt = Query::select()
             .distinct()
             .from(Drivers::Table)
             .columns(
@@ -38,11 +35,13 @@ impl DriverQueryBuilder {
                 .into_iter()
                 .map(|c| (Drivers::Table, c)),
             )
-            .and_where(Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(&driver_ref)))
-            .to_string(MysqlQueryBuilder);
+            .and_where(Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(driver_ref)))
+            .to_owned();
 
-        conn.query_first(query)?
-            .ok_or(error!(EntityNotFound => "driver with reference `{}` not found", driver_ref))
+        Self {
+            stmt,
+            params: GetDriversParameters::default(),
+        }
     }
 
     pub fn params(params: GetDriversParameters) -> Paginated<DriverModel> {

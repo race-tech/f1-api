@@ -1,6 +1,8 @@
 use async_graphql::{Context, Object};
 
+use application::SqlBuilder;
 use shared::{
+    error,
     error::Result,
     models::graphql::{GetSeasonsOpts, PaginationOpts, Season},
     models::response::Response,
@@ -16,9 +18,10 @@ impl SeasonQuery {
     async fn season<'ctx>(&self, ctx: &Context<'ctx>, year: u32) -> Result<Season> {
         let conn = &mut ctx.extract_conn()?;
 
-        let res = application::season::SeasonQueryBuilder::get(year, conn)?;
-
-        Ok(res.into())
+        application::season::SeasonQueryBuilder::season(year)
+            .query_first(conn)?
+            .map(Into::into)
+            .ok_or(error!(EntityNotFound => "season not found"))
     }
 
     async fn seasons<'ctx>(

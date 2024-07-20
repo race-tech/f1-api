@@ -3,7 +3,7 @@ use sea_query::{IntoTableRef, MysqlQueryBuilder, SimpleExpr};
 
 use shared::error::Result;
 
-pub(crate) trait SqlBuilder: Sized {
+pub trait SqlBuilder: Sized {
     type Output: FromRow;
 
     fn stmt(&mut self) -> &mut sea_query::SelectStatement;

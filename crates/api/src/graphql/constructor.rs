@@ -1,6 +1,8 @@
 use async_graphql::{Context, Object};
 
+use application::SqlBuilder;
 use shared::{
+    error,
     error::Result,
     models::graphql::{Constructor, GetConstructorsOpts, PaginationOpts},
     models::response::Response,
@@ -20,9 +22,10 @@ impl ConstructorQuery {
     ) -> Result<Constructor> {
         let conn = &mut ctx.extract_conn()?;
 
-        let res = application::constructor::ConstructorQueryBuilder::get(constructor_ref, conn)?;
-
-        Ok(res.into())
+        application::constructor::ConstructorQueryBuilder::constructor(&constructor_ref)
+            .query_first(conn)?
+            .map(Into::into)
+            .ok_or(error!(EntityNotFound => "constructor not found"))
     }
 
     async fn constructors<'ctx>(

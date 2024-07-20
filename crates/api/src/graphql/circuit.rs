@@ -1,6 +1,8 @@
 use async_graphql::{Context, Object};
 
+use application::SqlBuilder;
 use shared::{
+    error,
     error::Result,
     models::graphql::{Circuit, GetCircuitsOpts, PaginationOpts},
     models::response::Response,
@@ -16,8 +18,10 @@ impl CircuitQuery {
     async fn circuit<'ctx>(&self, ctx: &Context<'ctx>, circuit_ref: String) -> Result<Circuit> {
         let conn = &mut ctx.extract_conn()?;
 
-        let res = application::circuit::CircuitQueryBuilder::get(circuit_ref, conn)?;
-        Ok(res.into())
+        application::circuit::CircuitQueryBuilder::circuit(&circuit_ref)
+            .query_first(conn)?
+            .map(Into::into)
+            .ok_or(error!(EntityNotFound => "circuit not found"))
     }
 
     async fn circuits<'ctx>(

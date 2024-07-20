@@ -1,6 +1,8 @@
 use async_graphql::{Context, Object};
 
+use application::SqlBuilder;
 use shared::{
+    error,
     error::Result,
     models::graphql::{Driver, GetDriversOpts, PaginationOpts},
     models::response::Response,
@@ -16,9 +18,10 @@ impl DriverQuery {
     async fn driver<'ctx>(&self, ctx: &Context<'ctx>, driver_ref: String) -> Result<Driver> {
         let conn = &mut ctx.extract_conn()?;
 
-        let res = application::driver::DriverQueryBuilder::get(driver_ref, conn)?;
-
-        Ok(res.into())
+        application::driver::DriverQueryBuilder::driver(&driver_ref)
+            .query_first(conn)?
+            .map(Into::into)
+            .ok_or(error!(EntityNotFound => "driver not found"))
     }
 
     async fn drivers<'ctx>(

@@ -12,3 +12,5 @@ pub mod pit_stop;
 pub mod race;
 pub mod season;
 pub mod status;
+
+pub use sql::SqlBuilder;

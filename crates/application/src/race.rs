@@ -31,7 +31,66 @@ const DATE_AND_TIME_COLS: &[(Races, &str)] = &[
 ];
 
 impl RaceQueryBuilder {
-    pub fn get_latest_race() -> Result<Self> {
+    pub fn race(year: u32, round: u32) -> Self {
+        let stmt = Query::select()
+            .distinct()
+            .column((Races::Table, Races::Year))
+            .column((Races::Table, Races::Round))
+            .expr_as(
+                Expr::col((Races::Table, Races::Name)),
+                Alias::new("raceName"),
+            )
+            .expr_as(Expr::col((Races::Table, Races::Url)), Alias::new("raceUrl"))
+            .to_owned();
+
+        let stmt = DATE_AND_TIME_COLS
+            .windows(2)
+            .step_by(2)
+            .fold(stmt, |mut stmt, w| {
+                let (col1, alias1) = w[0];
+                let (col2, alias2) = w[1];
+                stmt.expr_as(
+                    Func::cust(Alias::new("DATE_FORMAT"))
+                        .arg(Expr::col((Races::Table, col1)))
+                        .arg("%Y-%m-%d"),
+                    Alias::new(alias1),
+                )
+                .expr_as(
+                    Func::cust(Alias::new("DATE_FORMAT"))
+                        .arg(Expr::col((Races::Table, col2)))
+                        .arg("%H:%i:%S"),
+                    Alias::new(alias2),
+                )
+                .to_owned()
+            })
+            .column((Circuits::Table, Circuits::CircuitRef))
+            .column((Circuits::Table, Circuits::Name))
+            .column((Circuits::Table, Circuits::Location))
+            .column((Circuits::Table, Circuits::Country))
+            .column((Circuits::Table, Circuits::Lat))
+            .column((Circuits::Table, Circuits::Lng))
+            .column((Circuits::Table, Circuits::Alt))
+            .column((Circuits::Table, Circuits::Url))
+            .from(Races::Table)
+            .from(Circuits::Table)
+            .and_where(
+                Expr::col((Races::Table, Races::CircuitId))
+                    .equals((Circuits::Table, Circuits::CircuitId)),
+            )
+            .and_where(Expr::col((Races::Table, Races::Year)).eq(year))
+            .and_where(Expr::col((Races::Table, Races::Round)).eq(round))
+            .order_by((Races::Table, Races::Year), sea_query::Order::Asc)
+            .order_by((Races::Table, Races::Round), sea_query::Order::Asc)
+            .limit(1)
+            .to_owned();
+
+        Self {
+            stmt,
+            params: GetRacesParameters::default(),
+        }
+    }
+
+    pub fn latest_race() -> Result<Self> {
         let now = time::OffsetDateTime::now_utc();
         let date = now.format(shared::DATE_FORMAT)?;
 
@@ -241,6 +300,8 @@ impl RaceQueryBuilder {
 }
 
 impl SqlBuilder for RaceQueryBuilder {
+    type Output = RaceModel;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

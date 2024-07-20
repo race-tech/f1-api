@@ -1,8 +1,5 @@
-use mysql::prelude::Queryable;
-use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
+use sea_query::{Expr, Func, Query, SelectStatement};
 
-use shared::error;
-use shared::error::Result;
 use shared::models::Constructor as ConstructorModel;
 use shared::parameters::GetConstructorsParameters;
 
@@ -19,11 +16,8 @@ pub struct ConstructorQueryBuilder {
 }
 
 impl ConstructorQueryBuilder {
-    pub fn get(
-        constructor_ref: String,
-        conn: &mut infrastructure::Connection,
-    ) -> Result<ConstructorModel> {
-        let query = Query::select()
+    pub fn constructor(constructor_ref: &str) -> Self {
+        let stmt = Query::select()
             .distinct()
             .columns(
                 [
@@ -39,13 +33,14 @@ impl ConstructorQueryBuilder {
             .from(Constructors::Table)
             .and_where(
                 Expr::col((Constructors::Table, Constructors::ConstructorRef))
-                    .eq(Expr::value(&*constructor_ref)),
+                    .eq(Expr::value(constructor_ref)),
             )
-            .to_string(MysqlQueryBuilder);
+            .to_owned();
 
-        conn.query_first(query)?.ok_or(
-            error!(EntityNotFound => "constructor with reference `{}` not found", constructor_ref),
-        )
+        Self {
+            params: GetConstructorsParameters::default(),
+            stmt,
+        }
     }
 
     pub fn params(params: GetConstructorsParameters) -> Paginated<ConstructorModel> {
