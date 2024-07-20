@@ -7,7 +7,7 @@ async fn test_latest_race() {
     let resp = super::common::setup()
         .execute(
             r#"{
-    latest_race(}) {
+    latestRace(}) {
             data {
                 season
                 round
