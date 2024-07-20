@@ -1,17 +1,16 @@
 use sea_query::{Expr, Query, SelectStatement};
 
+use shared::models::graphql::GetCircuitsOpts;
 use shared::models::Circuit as CircuitModel;
-use shared::parameters::GetCircuitsParameters;
 
-use crate::pagination::Paginated;
-use crate::{iden::*, one_of, pagination::Paginate, sql::*};
+use crate::{iden::*, one_of, sql::*};
 
-pub struct CircuitQueryBuilder {
+pub struct CircuitQueryBuilder<P> {
     stmt: SelectStatement,
-    params: GetCircuitsParameters,
+    params: P,
 }
 
-impl CircuitQueryBuilder {
+impl CircuitQueryBuilder<()> {
     pub fn circuit(circuit_ref: &str) -> Self {
         let stmt = Query::select()
             .distinct()
@@ -36,16 +35,12 @@ impl CircuitQueryBuilder {
             )
             .to_owned();
 
-        Self {
-            stmt,
-            params: GetCircuitsParameters::default(),
-        }
+        Self { stmt, params: () }
     }
+}
 
-    pub fn params(params: GetCircuitsParameters) -> Paginated<CircuitModel> {
-        let page = params.page.unwrap_or_default();
-        let per_page = params.limit.unwrap_or_default();
-
+impl CircuitQueryBuilder<GetCircuitsOpts> {
+    pub fn circuits(params: GetCircuitsOpts) -> Self {
         let stmt = Query::select()
             .distinct()
             .from(Circuits::Table)
@@ -70,11 +65,7 @@ impl CircuitQueryBuilder {
             )
             .to_owned();
 
-        Self { stmt, params }
-            .build()
-            .stmt
-            .paginate(page)
-            .per_page(per_page)
+        Self { stmt, params }.build()
     }
 
     fn build(self) -> Self {
@@ -185,7 +176,7 @@ impl CircuitQueryBuilder {
     }
 }
 
-impl SqlBuilder for CircuitQueryBuilder {
+impl<P> SqlBuilder for CircuitQueryBuilder<P> {
     type Output = CircuitModel;
 
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
