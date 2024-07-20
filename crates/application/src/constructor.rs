@@ -214,6 +214,8 @@ impl ConstructorQueryBuilder {
 }
 
 impl SqlBuilder for ConstructorQueryBuilder {
+    type Output = ConstructorModel;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

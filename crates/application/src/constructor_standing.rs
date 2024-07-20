@@ -143,6 +143,8 @@ impl ConstructorStandingQueryBuilder {
 }
 
 impl SqlBuilder for ConstructorStandingQueryBuilder {
+    type Output = ConstructorStandingModel;
+
     fn stmt(&mut self) -> &mut SelectStatement {
         &mut self.stmt
     }

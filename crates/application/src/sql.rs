@@ -1,7 +1,25 @@
-use sea_query::{IntoTableRef, SimpleExpr};
+use mysql::prelude::{FromRow, Queryable};
+use sea_query::{IntoTableRef, MysqlQueryBuilder, SimpleExpr};
+
+use shared::error::Result;
 
 pub(crate) trait SqlBuilder: Sized {
+    type Output: FromRow;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement;
+
+    fn query(mut self, conn: &mut infrastructure::Connection) -> Result<Vec<Self::Output>> {
+        let query = self.stmt().to_string(MysqlQueryBuilder);
+        Ok(conn.query(query)?)
+    }
+
+    fn query_first(
+        mut self,
+        conn: &mut infrastructure::Connection,
+    ) -> Result<Option<Self::Output>> {
+        let query = self.stmt().to_string(MysqlQueryBuilder);
+        Ok(conn.query_first(query)?)
+    }
 
     fn from<F, R>(mut self, f: F, table: R) -> Self
     where

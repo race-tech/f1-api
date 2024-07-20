@@ -187,6 +187,8 @@ impl CircuitQueryBuilder {
 }
 
 impl SqlBuilder for CircuitQueryBuilder {
+    type Output = CircuitModel;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

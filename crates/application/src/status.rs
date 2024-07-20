@@ -106,6 +106,8 @@ impl StatusQueryBuilder {
 }
 
 impl SqlBuilder for StatusQueryBuilder {
+    type Output = StatusModel;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

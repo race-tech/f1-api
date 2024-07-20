@@ -280,6 +280,8 @@ impl SeasonQueryBuilder {
 }
 
 impl SqlBuilder for SeasonQueryBuilder {
+    type Output = SeasonModel;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

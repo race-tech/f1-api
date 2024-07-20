@@ -10,6 +10,7 @@ sea-query.workspace = true
 mysql.workspace = true
 serde.workspace = true
 async-graphql.workspace = true
+time.workspace = true
 
 infrastructure = { path = "../infrastructure" }
 shared = { path = "../shared" }

@@ -140,6 +140,8 @@ impl DriverStandingQueryBuilder {
 }
 
 impl SqlBuilder for DriverStandingQueryBuilder {
+    type Output = DriverStandingModel;
+
     fn stmt(&mut self) -> &mut SelectStatement {
         &mut self.stmt
     }

@@ -281,6 +281,8 @@ impl DriverQueryBuilder {
 }
 
 impl SqlBuilder for DriverQueryBuilder {
+    type Output = DriverModel;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

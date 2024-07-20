@@ -125,6 +125,8 @@ impl PitStopQueryBuilder {
 }
 
 impl SqlBuilder for PitStopQueryBuilder {
+    type Output = PitStopModel;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

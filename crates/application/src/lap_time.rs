@@ -115,6 +115,8 @@ impl LapTimeQueryBuilder {
 }
 
 impl SqlBuilder for LapTimeQueryBuilder {
+    type Output = LapModel;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }
