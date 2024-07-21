@@ -21,7 +21,7 @@ To build and run the API, you need to have the following tools installed on your
 To run the API locally, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/race-tech/f1-api.git`
-2. Run the project using the docker compose file: `docker-compose up -d --build`
+2. Run the project using the docker compose file: `docker-compose -f docker-compose.dev.yml up -d --build`
 
 ## Configuration
 
