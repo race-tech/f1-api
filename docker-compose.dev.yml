@@ -17,7 +17,8 @@ services:
       retries: 10
 
   api:
-    image: ghcr.io/race-tech/f1-api:latest
+    build:
+      context: .
     ports:
       - "8000:8000"
     volumes:
