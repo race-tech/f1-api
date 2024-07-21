@@ -48,3 +48,7 @@ You can also change the file name and location by setting the `F1_API_CONFIG` en
 ## License
 
 This project is licensed under the [GPL-3.0 License](https://github.com/race-tech/f1-api/blob/master/LICENSE).
+
+## Notice
+
+This project is unofficial and is not associated in any way with the Formula 1 companies. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX and related marks are trade marks of Formula One Licensing B.V
