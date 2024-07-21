@@ -85,7 +85,7 @@ fn test_driver_ref_and_result() {
 }
 
 #[test]
-fn test_status() {
+fn test_circuits_status() {
     let params = GetCircuitsOpts {
         status: Some(1),
         ..Default::default()
