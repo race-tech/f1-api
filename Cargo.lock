@@ -80,6 +80,7 @@ dependencies = [
  "sea-query",
  "serde",
  "shared",
+ "time",
 ]
 
 [[package]]

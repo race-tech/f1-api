@@ -1,7 +1,42 @@
-use sea_query::{IntoTableRef, SimpleExpr};
+use mysql::prelude::{FromRow, Queryable};
+use sea_query::{IntoTableRef, MysqlQueryBuilder, SimpleExpr};
 
-pub(crate) trait SqlBuilder: Sized {
+use shared::{
+    error::Result,
+    models::{graphql::PaginationOpts, response::Pagination},
+};
+
+use crate::pagination::Paginate;
+
+pub trait SqlBuilder: Sized {
+    type Output: FromRow;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement;
+
+    fn query(mut self, conn: &mut infrastructure::Connection) -> Result<Vec<Self::Output>> {
+        let query = self.stmt().to_string(MysqlQueryBuilder);
+        Ok(conn.query(query)?)
+    }
+
+    fn query_first(
+        mut self,
+        conn: &mut infrastructure::Connection,
+    ) -> Result<Option<Self::Output>> {
+        let query = self.stmt().to_string(MysqlQueryBuilder);
+        Ok(conn.query_first(query)?)
+    }
+
+    fn query_pagination(
+        mut self,
+        pagination: PaginationOpts,
+        conn: &mut infrastructure::Connection,
+    ) -> Result<(Vec<Self::Output>, Pagination)> {
+        self.stmt()
+            .to_owned()
+            .paginate(pagination.page.unwrap_or_default())
+            .per_page(pagination.limit.unwrap_or_default())
+            .query_and_count(conn)
+    }
 
     fn from<F, R>(mut self, f: F, table: R) -> Self
     where

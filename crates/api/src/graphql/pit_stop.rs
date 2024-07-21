@@ -1,5 +1,6 @@
 use async_graphql::{Context, Object};
 
+use application::SqlBuilder;
 use shared::{
     error::Result,
     models::graphql::{GetPitStopsOpts, PaginationOpts, PitStops},
@@ -20,10 +21,8 @@ impl PitStopQuery {
     ) -> Result<PitStops> {
         let conn = &mut ctx.extract_conn()?;
 
-        let res = application::pit_stop::PitStopQueryBuilder::params(
-            (options, pagination.unwrap_or_default()).into(),
-        )
-        .query_and_count(conn)?;
+        let res = application::pit_stop::PitStopQueryBuilder::pit_stops(options)
+            .query_pagination(pagination.unwrap_or_default(), conn)?;
 
         res.0.try_into()
     }

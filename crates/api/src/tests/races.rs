@@ -3,6 +3,25 @@ use serde_json::json;
 use super::common::Test;
 
 #[tokio::test]
+async fn test_latest_race() {
+    let resp = super::common::setup()
+        .execute(
+            r#"{
+            latestRace {
+                    season
+                    round
+                    name
+                    date
+                    time
+                    url
+                }
+            }"#,
+        )
+        .await;
+    assert!(resp.is_ok());
+}
+
+#[tokio::test]
 async fn test_get_races_by_year() {
     let value: serde_json::Value = json!({
         "data": [

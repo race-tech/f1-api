@@ -1,38 +1,31 @@
-use mysql::prelude::Queryable;
-use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
+use sea_query::{Expr, Func, Query, SelectStatement};
 
-use shared::error;
-use shared::error::Result;
+use shared::models::graphql::GetSeasonsOpts;
 use shared::models::Season as SeasonModel;
-use shared::parameters::GetSeasonsParameters;
 
-use crate::{
-    iden::*,
-    one_of,
-    pagination::{Paginate, Paginated},
-    sql::SqlBuilder,
-};
+use crate::{iden::*, one_of, sql::SqlBuilder};
 
-pub struct SeasonQueryBuilder {
+pub struct SeasonQueryBuilder<P> {
     stmt: SelectStatement,
-    params: GetSeasonsParameters,
+    params: P,
 }
 
-impl SeasonQueryBuilder {
-    pub fn get(season: u32, conn: &mut infrastructure::Connection) -> Result<SeasonModel> {
-        let query = Query::select()
+impl SeasonQueryBuilder<()> {
+    pub fn season(season: u32) -> Self {
+        let stmt = Query::select()
             .distinct()
             .column((Seasons::Table, Seasons::Year))
             .column((Seasons::Table, Seasons::Url))
             .from(Seasons::Table)
             .and_where(Expr::col((Seasons::Table, Seasons::Year)).eq(Expr::value(season)))
-            .to_string(MysqlQueryBuilder);
+            .to_owned();
 
-        conn.query_first(query)?
-            .ok_or(error!(EntityNotFound => "season with year `{}` not found", season))
+        Self { stmt, params: () }
     }
+}
 
-    pub fn params(params: GetSeasonsParameters) -> Paginated<SeasonModel> {
+impl SeasonQueryBuilder<GetSeasonsOpts> {
+    pub fn seasons(params: GetSeasonsOpts) -> Self {
         let stmt = Query::select()
             .distinct()
             .column((Seasons::Table, Seasons::Year))
@@ -44,23 +37,16 @@ impl SeasonQueryBuilder {
         Self { stmt, params }.build()
     }
 
-    fn build(self) -> Paginated<SeasonModel> {
-        let page: u64 = self.params.page.unwrap_or_default();
-        let limit: u64 = self.params.limit.unwrap_or_default();
-
+    fn build(self) -> Self {
         self.from(|s| s.params.driver_ref.is_some(), Drivers::Table)
             .from(|s| s.params.constructor_ref.is_some(), Constructors::Table)
-            .from_clause_one()
-            .from_clause_two()
+            .clause_one()
+            .clause_two()
             .and_where_clause_one()
             .and_where_clause_two()
-            .stmt
-            .paginate(page)
-            .per_page(limit)
     }
 
-    #[allow(clippy::wrong_self_convention)]
-    fn from_clause_one(self) -> Self {
+    fn clause_one(self) -> Self {
         if !one_of!(
             self.params.driver_standing,
             self.params.constructor_standing
@@ -79,8 +65,7 @@ impl SeasonQueryBuilder {
             )
     }
 
-    #[allow(clippy::wrong_self_convention)]
-    fn from_clause_two(self) -> Self {
+    fn clause_two(self) -> Self {
         if one_of!(
             self.params.driver_standing,
             self.params.constructor_standing
@@ -279,7 +264,9 @@ impl SeasonQueryBuilder {
     }
 }
 
-impl SqlBuilder for SeasonQueryBuilder {
+impl<P> SqlBuilder for SeasonQueryBuilder<P> {
+    type Output = SeasonModel;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

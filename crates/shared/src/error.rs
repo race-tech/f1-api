@@ -44,6 +44,7 @@ pub enum ErrorKind {
     Serde,
     Axum,
     AsyncGraphQL,
+    TimeFormat,
 }
 
 macros::error_from!(R2D2 => r2d2::Error);
@@ -53,6 +54,7 @@ macros::error_from!(Serde => serde_json::Error);
 macros::error_from!(Axum => axum::Error);
 macros::error_from!(Axum => axum::http::Error);
 macros::error_from!(FromUtf8 => std::string::FromUtf8Error);
+macros::error_from!(TimeFormat => time::error::Format);
 
 impl From<async_graphql::Error> for Error {
     fn from(value: async_graphql::Error) -> Self {
@@ -86,6 +88,7 @@ impl std::fmt::Display for ErrorKind {
             Serde => write!(f, "serde error"),
             Axum => write!(f, "axum error"),
             AsyncGraphQL => write!(f, "async_graphql error"),
+            TimeFormat => write!(f, "time format error"),
         }
     }
 }
@@ -116,6 +119,7 @@ impl Serialize for ErrorKind {
             Serde => s.serialize_unit_variant("ErrorKind", 14, "Serde"),
             Axum => s.serialize_unit_variant("ErrorKind", 15, "Axum"),
             AsyncGraphQL => s.serialize_unit_variant("ErrorKind", 16, "AsyncGraphQL"),
+            TimeFormat => s.serialize_unit_variant("ErrorKind", 17, "TimeFormat"),
         }
     }
 }
@@ -145,6 +149,7 @@ impl From<ErrorKind> for StatusCode {
             Serde => Self::INTERNAL_SERVER_ERROR,
             Axum => Self::INTERNAL_SERVER_ERROR,
             AsyncGraphQL => Self::INTERNAL_SERVER_ERROR,
+            TimeFormat => Self::INTERNAL_SERVER_ERROR,
         }
     }
 }

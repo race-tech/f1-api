@@ -1,6 +1,8 @@
 use async_graphql::{Context, Object};
 
+use application::SqlBuilder;
 use shared::{
+    error,
     error::Result,
     models::graphql::{GetRacesOpts, PaginationOpts, Race},
     models::response::Response,
@@ -13,20 +15,24 @@ pub struct RaceQuery;
 
 #[Object]
 impl RaceQuery {
-    async fn race<'ctx>(&self, ctx: &Context<'ctx>, year: u32, round: u32) -> Result<Option<Race>> {
+    async fn latest_race<'ctx>(&self, ctx: &Context<'ctx>) -> Result<Race> {
         // SAFETY: This should always work
         let conn = &mut ctx.extract_conn()?;
-        let params = shared::parameters::GetRacesParameters {
-            year: Some(year),
-            round: Some(round),
-            limit: Some(1),
-            page: Some(1),
-            ..Default::default()
-        };
 
-        let res = application::race::RaceQueryBuilder::params(params).query_and_count(conn)?;
+        application::race::RaceQueryBuilder::latest_race()?
+            .query_first(conn)?
+            .map(Into::into)
+            .ok_or(error!(InternalServer => "latest race not found"))
+    }
 
-        Ok(res.0.into_iter().map(Into::into).next())
+    async fn race<'ctx>(&self, ctx: &Context<'ctx>, year: u32, round: u32) -> Result<Race> {
+        // SAFETY: This should always work
+        let conn = &mut ctx.extract_conn()?;
+
+        application::race::RaceQueryBuilder::race(year, round)
+            .query_first(conn)?
+            .map(Into::into)
+            .ok_or(error!(EntityNotFound => "race not found"))
     }
 
     async fn races<'ctx>(
@@ -38,10 +44,8 @@ impl RaceQuery {
         // SAFETY: This should always work
         let conn = &mut ctx.extract_conn()?;
 
-        let res = application::race::RaceQueryBuilder::params(
-            (options.unwrap_or_default(), pagination.unwrap_or_default()).into(),
-        )
-        .query_and_count(conn)?;
+        let res = application::race::RaceQueryBuilder::races(options.unwrap_or_default())
+            .query_pagination(pagination.unwrap_or_default(), conn)?;
 
         let races = res.0.into_iter().map(Into::into).collect();
         Ok((races, res.1).into())

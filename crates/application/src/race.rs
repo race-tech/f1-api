@@ -1,17 +1,13 @@
 use sea_query::{Alias, Expr, Func, Query, SelectStatement};
 
-use shared::{models::Race as RaceModel, parameters::GetRacesParameters};
+use shared::error::Result;
+use shared::{models::graphql::GetRacesOpts, models::Race as RaceModel};
 
-use crate::{
-    iden::*,
-    one_of,
-    pagination::{Paginate, Paginated},
-    sql::SqlBuilder,
-};
+use crate::{iden::*, one_of, sql::SqlBuilder};
 
-pub struct RaceQueryBuilder {
+pub struct RaceQueryBuilder<P> {
     stmt: SelectStatement,
-    params: GetRacesParameters,
+    params: P,
 }
 
 const DATE_AND_TIME_COLS: &[(Races, &str)] = &[
@@ -29,8 +25,122 @@ const DATE_AND_TIME_COLS: &[(Races, &str)] = &[
     (Races::SprintTime, "sprint_time"),
 ];
 
-impl RaceQueryBuilder {
-    pub fn params(params: GetRacesParameters) -> Paginated<RaceModel> {
+impl RaceQueryBuilder<()> {
+    pub fn race(year: u32, round: u32) -> Self {
+        let stmt = Query::select()
+            .distinct()
+            .column((Races::Table, Races::Year))
+            .column((Races::Table, Races::Round))
+            .expr_as(
+                Expr::col((Races::Table, Races::Name)),
+                Alias::new("raceName"),
+            )
+            .expr_as(Expr::col((Races::Table, Races::Url)), Alias::new("raceUrl"))
+            .to_owned();
+
+        let stmt = DATE_AND_TIME_COLS
+            .windows(2)
+            .step_by(2)
+            .fold(stmt, |mut stmt, w| {
+                let (col1, alias1) = w[0];
+                let (col2, alias2) = w[1];
+                stmt.expr_as(
+                    Func::cust(Alias::new("DATE_FORMAT"))
+                        .arg(Expr::col((Races::Table, col1)))
+                        .arg("%Y-%m-%d"),
+                    Alias::new(alias1),
+                )
+                .expr_as(
+                    Func::cust(Alias::new("DATE_FORMAT"))
+                        .arg(Expr::col((Races::Table, col2)))
+                        .arg("%H:%i:%S"),
+                    Alias::new(alias2),
+                )
+                .to_owned()
+            })
+            .column((Circuits::Table, Circuits::CircuitRef))
+            .column((Circuits::Table, Circuits::Name))
+            .column((Circuits::Table, Circuits::Location))
+            .column((Circuits::Table, Circuits::Country))
+            .column((Circuits::Table, Circuits::Lat))
+            .column((Circuits::Table, Circuits::Lng))
+            .column((Circuits::Table, Circuits::Alt))
+            .column((Circuits::Table, Circuits::Url))
+            .from(Races::Table)
+            .from(Circuits::Table)
+            .and_where(
+                Expr::col((Races::Table, Races::CircuitId))
+                    .equals((Circuits::Table, Circuits::CircuitId)),
+            )
+            .and_where(Expr::col((Races::Table, Races::Year)).eq(year))
+            .and_where(Expr::col((Races::Table, Races::Round)).eq(round))
+            .order_by((Races::Table, Races::Year), sea_query::Order::Asc)
+            .order_by((Races::Table, Races::Round), sea_query::Order::Asc)
+            .limit(1)
+            .to_owned();
+
+        Self { stmt, params: () }
+    }
+
+    pub fn latest_race() -> Result<Self> {
+        let now = time::OffsetDateTime::now_utc();
+        let date = now.format(shared::DATE_FORMAT)?;
+
+        let stmt = Query::select()
+            .column((Races::Table, Races::Year))
+            .column((Races::Table, Races::Round))
+            .expr_as(
+                Expr::col((Races::Table, Races::Name)),
+                Alias::new("raceName"),
+            )
+            .expr_as(Expr::col((Races::Table, Races::Url)), Alias::new("raceUrl"))
+            .to_owned();
+
+        let stmt = DATE_AND_TIME_COLS
+            .windows(2)
+            .step_by(2)
+            .fold(stmt, |mut stmt, w| {
+                let (col1, alias1) = w[0];
+                let (col2, alias2) = w[1];
+                stmt.expr_as(
+                    Func::cust(Alias::new("DATE_FORMAT"))
+                        .arg(Expr::col((Races::Table, col1)))
+                        .arg("%Y-%m-%d"),
+                    Alias::new(alias1),
+                )
+                .expr_as(
+                    Func::cust(Alias::new("DATE_FORMAT"))
+                        .arg(Expr::col((Races::Table, col2)))
+                        .arg("%H:%i:%S"),
+                    Alias::new(alias2),
+                )
+                .to_owned()
+            })
+            .column((Circuits::Table, Circuits::CircuitRef))
+            .column((Circuits::Table, Circuits::Name))
+            .column((Circuits::Table, Circuits::Location))
+            .column((Circuits::Table, Circuits::Country))
+            .column((Circuits::Table, Circuits::Lat))
+            .column((Circuits::Table, Circuits::Lng))
+            .column((Circuits::Table, Circuits::Alt))
+            .column((Circuits::Table, Circuits::Url))
+            .from(Races::Table)
+            .from(Circuits::Table)
+            .and_where(
+                Expr::col((Races::Table, Races::CircuitId))
+                    .equals((Circuits::Table, Circuits::CircuitId)),
+            )
+            .and_where(Expr::col((Races::Table, Races::Date)).lt(date))
+            .order_by(Alias::new("date"), sea_query::Order::Desc)
+            .limit(1)
+            .to_owned();
+
+        Ok(Self { stmt, params: () })
+    }
+}
+
+impl RaceQueryBuilder<GetRacesOpts> {
+    pub fn races(params: GetRacesOpts) -> Self {
         let stmt = Query::select()
             .distinct()
             .column((Races::Table, Races::Year))
@@ -85,10 +195,7 @@ impl RaceQueryBuilder {
         Self { stmt, params }.build()
     }
 
-    fn build(self) -> Paginated<RaceModel> {
-        let page: u64 = self.params.page.unwrap_or_default();
-        let limit: u64 = self.params.limit.unwrap_or_default();
-
+    fn build(self) -> Self {
         self.from(
             |s| {
                 one_of!(
@@ -173,13 +280,12 @@ impl RaceQueryBuilder {
                 .result
                 .map(|r| Expr::col((Results::Table, Results::PositionText)).eq(Expr::value(r)))
         })
-        .stmt
-        .paginate(page)
-        .per_page(limit)
     }
 }
 
-impl SqlBuilder for RaceQueryBuilder {
+impl<P> SqlBuilder for RaceQueryBuilder<P> {
+    type Output = RaceModel;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }

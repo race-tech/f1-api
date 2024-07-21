@@ -5,8 +5,8 @@ use sea_query::{
 };
 
 use infrastructure::Connection;
+use shared::error::Result;
 use shared::models::response::Pagination;
-use shared::prelude::Result;
 
 const DEFAULT_PER_PAGE: u64 = 20;
 

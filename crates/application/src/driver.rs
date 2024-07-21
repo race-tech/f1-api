@@ -1,26 +1,18 @@
-use mysql::prelude::Queryable;
-use sea_query::{Expr, Func, MysqlQueryBuilder, Query, SelectStatement};
+use sea_query::{Expr, Func, Query, SelectStatement};
 
-use shared::error;
-use shared::error::Result;
+use shared::models::graphql::GetDriversOpts;
 use shared::models::Driver as DriverModel;
-use shared::parameters::GetDriversParameters;
 
-use crate::{
-    iden::*,
-    one_of,
-    pagination::{Paginate, Paginated},
-    sql::SqlBuilder,
-};
+use crate::{iden::*, one_of, sql::SqlBuilder};
 
-pub struct DriverQueryBuilder {
+pub struct DriverQueryBuilder<P> {
     stmt: SelectStatement,
-    params: GetDriversParameters,
+    params: P,
 }
 
-impl DriverQueryBuilder {
-    pub fn get(driver_ref: String, conn: &mut infrastructure::Connection) -> Result<DriverModel> {
-        let query = Query::select()
+impl DriverQueryBuilder<()> {
+    pub fn driver(driver_ref: &str) -> Self {
+        let stmt = Query::select()
             .distinct()
             .from(Drivers::Table)
             .columns(
@@ -38,14 +30,15 @@ impl DriverQueryBuilder {
                 .into_iter()
                 .map(|c| (Drivers::Table, c)),
             )
-            .and_where(Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(&driver_ref)))
-            .to_string(MysqlQueryBuilder);
+            .and_where(Expr::col((Drivers::Table, Drivers::DriverRef)).eq(Expr::value(driver_ref)))
+            .to_owned();
 
-        conn.query_first(query)?
-            .ok_or(error!(EntityNotFound => "driver with reference `{}` not found", driver_ref))
+        Self { stmt, params: () }
     }
+}
 
-    pub fn params(params: GetDriversParameters) -> Paginated<DriverModel> {
+impl DriverQueryBuilder<GetDriversOpts> {
+    pub fn drivers(params: GetDriversOpts) -> Self {
         let stmt = Query::select()
             .distinct()
             .from(Drivers::Table)
@@ -79,10 +72,7 @@ impl DriverQueryBuilder {
             || self.params.fastest.is_some()
     }
 
-    fn build(self) -> Paginated<DriverModel> {
-        let page: u64 = self.params.page.unwrap_or_default();
-        let limit: u64 = self.params.limit.unwrap_or_default();
-
+    fn build(self) -> Self {
         self.from(
             |s| {
                 one_of!(
@@ -108,10 +98,6 @@ impl DriverQueryBuilder {
                 .map(|year| Expr::col((Races::Table, Races::Year)).eq(Expr::value(year)))
         })
         .and_clause_three()
-        .stmt
-        .to_owned()
-        .paginate(page)
-        .per_page(limit)
     }
 
     fn and_clause_one(self) -> Self {
@@ -280,7 +266,9 @@ impl DriverQueryBuilder {
     }
 }
 
-impl SqlBuilder for DriverQueryBuilder {
+impl<P> SqlBuilder for DriverQueryBuilder<P> {
+    type Output = DriverModel;
+
     fn stmt(&mut self) -> &mut sea_query::SelectStatement {
         &mut self.stmt
     }
