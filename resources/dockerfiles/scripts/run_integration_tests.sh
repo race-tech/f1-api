@@ -16,7 +16,7 @@ export DB_PASSWORD=password
 docker network create f1-api
 
 # Start the database and cache
-docker run -e MYSQL_DATABASE=${DB_NAME} -e MYSQL_USER=${DB_USER} -e MYSQL_PASSWORD=${DB_PASSWORD} --network f1-api -h ${DB_IP_OR_HOSTNAME} -d --rm thibaultcne/purple-sector:db-test --default-authentication-plugin=mysql_native_password
+docker run -e MYSQL_DATABASE=${DB_NAME} -e MYSQL_USER=${DB_USER} -e MYSQL_PASSWORD=${DB_PASSWORD} --network f1-api -h ${DB_IP_OR_HOSTNAME} -d --rm ghcr.io/race-tech/f1-db:test
 
 sleep 5
 
@@ -25,7 +25,7 @@ docker run --rm --network f1-api f1-api cargo test $@
 TEST_RES=$?
 
 # Stop the database and cache
-docker stop $(docker ps -q --filter ancestor=thibaultcne/purple-sector:db-test)
+docker stop $(docker ps -q --filter ancestor=ghcr.io/race-tech/f1-db:test)
 
 # Remove the network
 docker network rm f1-api
