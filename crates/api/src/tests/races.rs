@@ -7,40 +7,17 @@ async fn test_latest_race() {
     let resp = super::common::setup()
         .execute(
             r#"{
-    latestRace(}) {
-            data {
-                season
-                round
-                name
-                date
-                time
-                url
-                fp1 {
+            latestRace {
+                    season
+                    round
+                    name
                     date
                     time
+                    url
                 }
-                fp2 {
-                    date
-                    time
-                }
-                fp3 {
-                    date
-                    time
-                }
-                quali {
-                    date
-                    time
-                }
-                sprint {
-                    date
-                    time
-                }
-            }
-        }
-    }"#,
+            }"#,
         )
         .await;
-
     assert!(resp.is_ok());
 }
 

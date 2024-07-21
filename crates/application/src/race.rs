@@ -87,7 +87,6 @@ impl RaceQueryBuilder<()> {
         let date = now.format(shared::DATE_FORMAT)?;
 
         let stmt = Query::select()
-            .distinct()
             .column((Races::Table, Races::Year))
             .column((Races::Table, Races::Round))
             .expr_as(
@@ -132,7 +131,7 @@ impl RaceQueryBuilder<()> {
                     .equals((Circuits::Table, Circuits::CircuitId)),
             )
             .and_where(Expr::col((Races::Table, Races::Date)).lt(date))
-            .order_by((Races::Table, Races::Date), sea_query::Order::Desc)
+            .order_by(Alias::new("date"), sea_query::Order::Desc)
             .limit(1)
             .to_owned();
 
