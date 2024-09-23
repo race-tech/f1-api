@@ -24,7 +24,7 @@ mysql_common = { version = "0.32.4", default-features = false, features = [
     "bigdecimal",
 ] }
 log = { version = "0.4.22", features = ["std"] }
-axum = { version = "0.7.5", default-features = false, features = [
+axum = { version = "0.7.6", default-features = false, features = [
     "json",
     "tokio",
     "query",
