@@ -14,9 +14,9 @@ pub struct DriverStandingQuery;
 
 #[Object]
 impl DriverStandingQuery {
-    async fn drivers_standings<'ctx>(
+    async fn drivers_standings(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         options: Option<GetDriverStandingsOpts>,
         pagination: Option<PaginationOpts>,
     ) -> Result<Response<Vec<DriverStanding>>> {
