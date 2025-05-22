@@ -13,9 +13,9 @@ pub struct LapTimeQuery;
 
 #[Object]
 impl LapTimeQuery {
-    async fn lap_times<'ctx>(
+    async fn lap_times(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         options: GetLapsOpts,
         pagination: Option<PaginationOpts>,
     ) -> Result<Laps> {

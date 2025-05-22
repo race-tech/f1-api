@@ -92,7 +92,7 @@ struct ServiceBuilder<'c> {
     router: Router,
 }
 
-impl<'c> ServiceBuilder<'c> {
+impl ServiceBuilder<'_> {
     fn middlewares(self) -> Result<Router> {
         if let Some(middlewares) = &self.config.middlewares {
             let router = middlewares.iter().fold(self.router, |router, m| match m {

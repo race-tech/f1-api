@@ -15,7 +15,7 @@ pub struct SeasonQuery;
 
 #[Object]
 impl SeasonQuery {
-    async fn season<'ctx>(&self, ctx: &Context<'ctx>, year: u32) -> Result<Season> {
+    async fn season(&self, ctx: &Context<'_>, year: u32) -> Result<Season> {
         let conn = &mut ctx.extract_conn()?;
 
         application::season::SeasonQueryBuilder::season(year)
@@ -24,9 +24,9 @@ impl SeasonQuery {
             .ok_or(error!(EntityNotFound => "season not found"))
     }
 
-    async fn seasons<'ctx>(
+    async fn seasons(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         options: Option<GetSeasonsOpts>,
         pagination: Option<PaginationOpts>,
     ) -> Result<Response<Vec<Season>>> {

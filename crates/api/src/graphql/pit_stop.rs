@@ -13,9 +13,9 @@ pub struct PitStopQuery;
 
 #[Object]
 impl PitStopQuery {
-    async fn pit_stops<'ctx>(
+    async fn pit_stops(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         options: GetPitStopsOpts,
         pagination: Option<PaginationOpts>,
     ) -> Result<PitStops> {
