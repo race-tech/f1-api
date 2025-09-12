@@ -3,7 +3,7 @@ members = ["crates/*", "bin/*"]
 resolver = "2"
 
 [workspace.dependencies]
-time = { version = "0.3.36", features = [
+time = { version = "0.3.43", features = [
     "serde",
     "std",
     "parsing",
