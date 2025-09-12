@@ -1,4 +1,4 @@
-FROM rust:1-buster AS chef
+FROM rust:slim-bullseye AS chef
 
 RUN cargo install cargo-chef
 
