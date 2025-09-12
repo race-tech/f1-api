@@ -5,6 +5,8 @@
 
 # Ignore database folder
 db/
+*.sql
+*.sql.gz
 
 # Ignore VSCode files
 .vscode/*
