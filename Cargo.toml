@@ -3,7 +3,7 @@ members = ["crates/*", "bin/*"]
 resolver = "2"
 
 [workspace.dependencies]
-time = { version = "0.3.36", features = [
+time = { version = "0.3.43", features = [
     "serde",
     "std",
     "parsing",
@@ -34,6 +34,6 @@ tokio = { version = "1", default-features = false, features = [
     "macros",
     "rt-multi-thread",
 ] }
-figment = { version = "0.10.19", default-feature = false, features = ["yaml"] }
+figment = { version = "0.10.19", default-features = false, features = ["yaml"] }
 async-graphql = { version = "7.0.7", features = ["time"] }
 async-graphql-axum = "7.0.7"

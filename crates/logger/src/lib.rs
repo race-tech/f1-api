@@ -177,7 +177,7 @@ mod test {
         assert_eq!(builder.default_level, LevelFilter::Trace);
     }
 
-    fn create_log(name: &str, level: Level) -> Metadata {
+    fn create_log(name: &str, level: Level) -> Metadata<'_> {
         let mut builder = Metadata::builder();
         builder.level(level);
         builder.target(name);
