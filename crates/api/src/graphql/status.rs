@@ -14,9 +14,9 @@ pub struct StatusQuery;
 
 #[Object]
 impl StatusQuery {
-    async fn status<'ctx>(
+    async fn status(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         options: Option<GetStatusOpts>,
         pagination: Option<PaginationOpts>,
     ) -> Result<Response<Vec<Status>>> {

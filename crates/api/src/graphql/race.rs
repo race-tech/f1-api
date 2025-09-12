@@ -15,7 +15,7 @@ pub struct RaceQuery;
 
 #[Object]
 impl RaceQuery {
-    async fn latest_race<'ctx>(&self, ctx: &Context<'ctx>) -> Result<Race> {
+    async fn latest_race(&self, ctx: &Context<'_>) -> Result<Race> {
         // SAFETY: This should always work
         let conn = &mut ctx.extract_conn()?;
 
@@ -25,7 +25,7 @@ impl RaceQuery {
             .ok_or(error!(InternalServer => "latest race not found"))
     }
 
-    async fn race<'ctx>(&self, ctx: &Context<'ctx>, year: u32, round: u32) -> Result<Race> {
+    async fn race(&self, ctx: &Context<'_>, year: u32, round: u32) -> Result<Race> {
         // SAFETY: This should always work
         let conn = &mut ctx.extract_conn()?;
 
@@ -35,9 +35,9 @@ impl RaceQuery {
             .ok_or(error!(EntityNotFound => "race not found"))
     }
 
-    async fn races<'ctx>(
+    async fn races(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         options: Option<GetRacesOpts>,
         pagination: Option<PaginationOpts>,
     ) -> Result<Response<Vec<Race>>> {

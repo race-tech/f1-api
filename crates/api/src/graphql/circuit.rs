@@ -15,7 +15,7 @@ pub struct CircuitQuery;
 
 #[Object]
 impl CircuitQuery {
-    async fn circuit<'ctx>(&self, ctx: &Context<'ctx>, circuit_ref: String) -> Result<Circuit> {
+    async fn circuit(&self, ctx: &Context<'_>, circuit_ref: String) -> Result<Circuit> {
         let conn = &mut ctx.extract_conn()?;
 
         application::circuit::CircuitQueryBuilder::circuit(&circuit_ref)
@@ -24,9 +24,9 @@ impl CircuitQuery {
             .ok_or(error!(EntityNotFound => "circuit not found"))
     }
 
-    async fn circuits<'ctx>(
+    async fn circuits(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         options: Option<GetCircuitsOpts>,
         pagination: Option<PaginationOpts>,
     ) -> Result<Response<Vec<Circuit>>> {

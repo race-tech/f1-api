@@ -1,4 +1,4 @@
-FROM rust:alpine3.19 AS chef
+FROM rust:alpine AS chef
 
 RUN apk add --no-cache musl-dev
 
@@ -42,7 +42,7 @@ COPY crates crates
 
 RUN cargo build --release
 
-FROM alpine:3.19 AS runtime
+FROM alpine AS runtime
 
 LABEL maintainer="Thibault C. <thibault.chene23@gmail.com>"
 

@@ -15,11 +15,7 @@ pub struct ConstructorQuery;
 
 #[Object]
 impl ConstructorQuery {
-    async fn constructor<'ctx>(
-        &self,
-        ctx: &Context<'ctx>,
-        constructor_ref: String,
-    ) -> Result<Constructor> {
+    async fn constructor(&self, ctx: &Context<'_>, constructor_ref: String) -> Result<Constructor> {
         let conn = &mut ctx.extract_conn()?;
 
         application::constructor::ConstructorQueryBuilder::constructor(&constructor_ref)
@@ -28,9 +24,9 @@ impl ConstructorQuery {
             .ok_or(error!(EntityNotFound => "constructor not found"))
     }
 
-    async fn constructors<'ctx>(
+    async fn constructors(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         options: Option<GetConstructorsOpts>,
         pagination: Option<PaginationOpts>,
     ) -> Result<Response<Vec<Constructor>>> {
