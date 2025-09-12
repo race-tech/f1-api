@@ -14,9 +14,9 @@ pub struct ConstructorStandingQuery;
 
 #[Object]
 impl ConstructorStandingQuery {
-    async fn constructors_standings<'ctx>(
+    async fn constructors_standings(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         options: Option<GetConstructorStandingsOpts>,
         pagination: Option<PaginationOpts>,
     ) -> Result<Response<Vec<ConstructorStanding>>> {

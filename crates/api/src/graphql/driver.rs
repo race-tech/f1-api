@@ -15,7 +15,7 @@ pub struct DriverQuery;
 
 #[Object]
 impl DriverQuery {
-    async fn driver<'ctx>(&self, ctx: &Context<'ctx>, driver_ref: String) -> Result<Driver> {
+    async fn driver(&self, ctx: &Context<'_>, driver_ref: String) -> Result<Driver> {
         let conn = &mut ctx.extract_conn()?;
 
         application::driver::DriverQueryBuilder::driver(&driver_ref)
@@ -24,9 +24,9 @@ impl DriverQuery {
             .ok_or(error!(EntityNotFound => "driver not found"))
     }
 
-    async fn drivers<'ctx>(
+    async fn drivers(
         &self,
-        ctx: &Context<'ctx>,
+        ctx: &Context<'_>,
         options: Option<GetDriversOpts>,
         pagination: Option<PaginationOpts>,
     ) -> Result<Response<Vec<Driver>>> {
