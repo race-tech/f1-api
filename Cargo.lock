@@ -154,7 +154,7 @@ dependencies = [
  "quote",
  "strum",
  "syn 2.0.87",
- "thiserror",
+ "thiserror 1.0.58",
 ]
 
 [[package]]
@@ -1684,7 +1684,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.87",
- "thiserror",
+ "thiserror 1.0.58",
 ]
 
 [[package]]
@@ -1950,6 +1950,17 @@ name = "thiserror-impl"
 version = "1.0.58"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c61f3ba182994efc43764a46c018c347bc492c79f024e705f46567b418f6d4f7"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.87",
+]
+
+[[package]]
+name = "thiserror-impl"
+version = "2.0.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c5e1be1c48b9172ee610da68fd9cd2770e7a4056cb3fc98710ee6906f0c7960"
 dependencies = [
  "proc-macro2",
  "quote",
