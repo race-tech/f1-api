@@ -7,72 +7,28 @@ on:
     - cron: "0 0 * * 1"
 
 jobs:
-  caller:
-    runs-on: ubuntu-latest
-
-    outputs:
-      run_id: ${{ steps.return_dispatch.outputs.run_id }}
-
-    steps:
-      - name: Dispatch an action and get the run ID
-        uses: codex-/return-dispatch@v2
-        id: return_dispatch
-        with:
-          token: ${{ secrets.UPDATER_PAT }}
-          ref: main
-          repo: f1-data-updater
-          owner: race-tech
-          workflow: main.yml
-      - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: codex-/await-remote-run@v1
-        with:
-          token: ${{ secrets.UPDATER_PAT }}
-          repo: f1-data-updater
-          owner: race-tech
-          run_id: ${{ steps.return_dispatch.outputs.run_id }}
-          run_timeout_seconds: 600
-          poll_interval_ms: 5000
-
-  checker:
-    runs-on: ubuntu-latest
-    needs: caller
-
-    outputs:
-      run_id: ${{ needs.caller.outputs.run_id }}
-      artifact_exists: ${{ steps.check.outputs.artifact_exists }}
-
-    steps:
-      - name: Check if a new artifact has been created
-        id: check
-        uses: thibault-cne/check-artifacts@v1
-        with:
-          token: ${{ secrets.UPDATER_PAT }}
-          repo: f1-data-updater
-          owner: race-tech
-          run_id: ${{ needs.caller.outputs.run_id }}
-          name: f1db.sql.gz
+  create-database-dump:
+    uses: race-tech/actions/.github/workflows/update_f1_db.yml@main
 
   updater:
     runs-on: ubuntu-latest
-    needs: checker
-    if: needs.checker.outputs.artifact_exists == 'true'
-    permissions:
-      contents: read
-      packages: write
+    needs: create-database-dump
+
+    if: needs.create-database-dump.outputs.should-update == 'true'
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Dowload SQL dump
         uses: actions/download-artifact@v5
         with:
           name: f1db.sql.gz
-          github-token: ${{ secrets.UPDATER_PAT }}
-          repository: race-tech/f1-data-updater
-          run-id: ${{ needs.checker.outputs.run_id }}
-
-      - name: Docker meta
+          github-token: ${{ secrets.GH_TOKEN }}
+          repository: race-tech/actions
+          run-id: ${{ needs.create-database-dump.outputs.run-id }}      
+      
+      - name: Create docker tags
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -97,7 +53,7 @@ jobs:
           username: "${{ github.actor }}"
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push database image
         uses: docker/build-push-action@v6
         with:
           file: resources/dockerfiles/database/Dockerfile
@@ -106,4 +62,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=max     
+   
