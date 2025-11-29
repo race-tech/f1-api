@@ -3,15 +3,15 @@ members = ["crates/*", "bin/*"]
 resolver = "2"
 
 [workspace.dependencies]
-time = { version = "0.3.43", features = [
+time = { version = "0.3.44", features = [
     "serde",
     "std",
     "parsing",
     "macros",
     "formatting",
 ] }
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.133"
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.143"
 sea-query = { version = "0.30.7", default-features = false, features = [
     "derive",
     "backend-mysql",
