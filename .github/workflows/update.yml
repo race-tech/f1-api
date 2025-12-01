@@ -25,7 +25,7 @@ jobs:
       - name: Dowload SQL dump
         uses: actions/download-artifact@v6
         with:
-          name: f1db.sql.gz
+          path: f1db.sql.gz
           github-token: ${{ secrets.GH_TOKEN }}
           repository: race-tech/f1-sql-updater
           run-id: ${{ needs.create-database-dump.outputs.run-id }}      
