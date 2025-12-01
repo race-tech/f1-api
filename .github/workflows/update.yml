@@ -12,7 +12,7 @@ jobs:
   create-database-dump:
     uses: race-tech/actions/.github/workflows/update_f1_db.yml@main
     secrets:
-      access-token: ${{ secrets.GH_TOKEN }}
+      access-token: ${{ secrets.F1_UPDATE_PAT }}
 
 
   updater:
