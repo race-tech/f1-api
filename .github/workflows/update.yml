@@ -35,9 +35,7 @@ jobs:
           artifact-ids: ${{ needs.create-database-dump.outputs.artifact-id }}      
 
       - name: Check file type
-        run: |
-          file f1db.sql.gz
-          ls f1db.sql.gz
+        run: file f1db.sql.gz
       
       - name: Create docker tags
         id: meta
