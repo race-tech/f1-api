@@ -1,4 +1,4 @@
-FROM alpine:3.14 AS builder
+FROM alpine:3.22 AS builder
 
 COPY f1db.sql.gz /tmp/f1db.sql.gz
 RUN gunzip /tmp/f1db.sql.gz
