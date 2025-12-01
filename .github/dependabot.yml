@@ -4,8 +4,17 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+
   - package-ecosystem: cargo
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+
+  - package-ecosystem: docker
+    directories:
+      - "/"
+      - "resources/dockerfiles/database/"
+      - "resources/dockerfiles/test/"
+    schedule:
+      interval: "weekly"
