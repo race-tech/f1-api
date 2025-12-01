@@ -27,7 +27,7 @@ jobs:
         with:
           path: f1db.sql.gz
           github-token: ${{ secrets.GH_TOKEN }}
-          repository: race-tech/f1-sql-updater
+          repository: race-tech/f1-api
           run-id: ${{ needs.create-database-dump.outputs.run-id }}      
           artifact-ids: ${{ needs.create-database-dump.outputs.artifact-id }}      
       
