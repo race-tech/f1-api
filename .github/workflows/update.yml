@@ -11,6 +11,9 @@ on:
 jobs:
   create-database-dump:
     uses: race-tech/actions/.github/workflows/update_f1_db.yml@main
+    secrets:
+      access-token: ${{ secrets.GH_TOKEN }}
+
 
   updater:
     runs-on: ubuntu-latest
