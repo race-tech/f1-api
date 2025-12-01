@@ -1,52 +1,98 @@
+---
 name: ci
+
 on:
-  # publish on releases, e.g. v2.1.13 (image tagged as "2.1.13" - "v" prefix is removed)
-  release:
-    types: [published]
+  push:
+    branches:
+      - main
+      - release/*
+  pull_request: {}
 
 jobs:
-  docker_publish:
-    runs-on: "ubuntu-latest"
-    permissions:
-      contents: read
-      packages: write
-
+  cache:
+    runs-on: ubuntu-latest
+    name: cache
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
+      - uses: actions/checkout@v6
+      - name: Set up cargo cache
+        uses: actions/cache@v4
+        continue-on-error: false
         with:
-          # list of Docker images to use as base name for tags
-          images: |
-            ghcr.io/${{ github.repository }}
-          # generate Docker tags based on the following events/attributes
-          tags: |
-            type=semver,pattern={{version}}
-            type=raw,value=latest
-            type=sha
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Toolchain info
+        run: |
+          cargo --version --verbose
+          rustc --version
+          cargo clippy --version
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+  fmt:
+    runs-on: ubuntu-latest
+    name: fmt
+    needs: cache
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up cargo cache
+        uses: actions/cache@v4
+        continue-on-error: false
         with:
-          registry: ghcr.io
-          username: "${{ github.actor }}"
-          password: ${{ secrets.GITHUB_TOKEN }}
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+      - name: fmt
+        run: cargo fmt --all -- --check
 
-      - name: Build and push
-        uses: docker/build-push-action@v6
+  clippy:
+    runs-on: ubuntu-latest
+    name: clippy
+    needs: cache
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up cargo cache
+        uses: actions/cache@v4
+        continue-on-error: false
         with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+      - name: clippy
+        run: cargo clippy -- -D warnings
+
+  build:
+    runs-on: ubuntu-latest
+    name: build
+    needs: cache
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up cargo cache
+        uses: actions/cache@v4
+        continue-on-error: false
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: build
+        run: cargo check --workspace --release --all-features
