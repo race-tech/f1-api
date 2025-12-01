@@ -33,6 +33,9 @@ jobs:
           repository: race-tech/f1-api
           run-id: ${{ needs.create-database-dump.outputs.run-id }}      
           artifact-ids: ${{ needs.create-database-dump.outputs.artifact-id }}      
+
+      - name: Check file type
+        run: file f1db.sql.gz
       
       - name: Create docker tags
         id: meta
