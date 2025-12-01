@@ -28,11 +28,14 @@ jobs:
       - name: Dowload SQL dump
         uses: actions/download-artifact@v6
         with:
-          path: f1db.sql.gz
+          path: artifacts
           github-token: ${{ secrets.GH_TOKEN }}
           repository: race-tech/f1-api
           run-id: ${{ needs.create-database-dump.outputs.run-id }}      
           artifact-ids: ${{ needs.create-database-dump.outputs.artifact-id }}      
+
+      - name: Move database dump to workspace
+        run: mv artifacts/f1db.sql.gz .
       
       - name: Create docker tags
         id: meta
