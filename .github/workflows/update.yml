@@ -16,6 +16,9 @@ jobs:
 
 
   updater:
+    permissions:
+      packages: write
+
     runs-on: ubuntu-latest
     needs: create-database-dump
 
