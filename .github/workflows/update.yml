@@ -11,8 +11,14 @@ on:
 jobs:
   create-database-dump:
     uses: race-tech/actions/.github/workflows/update_f1_db.yml@main
+    secrets:
+      access-token: ${{ secrets.F1_UPDATE_PAT }}
+
 
   updater:
+    permissions:
+      packages: write
+
     runs-on: ubuntu-latest
     needs: create-database-dump
 
@@ -25,11 +31,14 @@ jobs:
       - name: Dowload SQL dump
         uses: actions/download-artifact@v6
         with:
-          path: f1db.sql.gz
+          path: artifacts
           github-token: ${{ secrets.GH_TOKEN }}
-          repository: race-tech/f1-sql-updater
+          repository: race-tech/f1-api
           run-id: ${{ needs.create-database-dump.outputs.run-id }}      
           artifact-ids: ${{ needs.create-database-dump.outputs.artifact-id }}      
+
+      - name: Move database dump to workspace
+        run: mv artifacts/f1db.sql.gz .
       
       - name: Create docker tags
         id: meta
