@@ -265,3 +265,33 @@ diesel::joinable!(results -> constructors (constructor_id));
 diesel::joinable!(sprint_results -> races (race_id));
 diesel::joinable!(sprint_results -> drivers (driver_id));
 diesel::joinable!(sprint_results -> constructors (constructor_id));
+
+diesel::allow_tables_to_appear_in_same_query!(constructor_results, races);
+diesel::allow_tables_to_appear_in_same_query!(constructor_results, constructors);
+
+diesel::allow_tables_to_appear_in_same_query!(constructor_standings, races);
+diesel::allow_tables_to_appear_in_same_query!(constructor_standings, constructors);
+
+diesel::allow_tables_to_appear_in_same_query!(driver_standings, races);
+diesel::allow_tables_to_appear_in_same_query!(driver_standings, drivers);
+
+diesel::allow_tables_to_appear_in_same_query!(lap_times, races);
+diesel::allow_tables_to_appear_in_same_query!(lap_times, drivers);
+
+diesel::allow_tables_to_appear_in_same_query!(pit_stops, races);
+diesel::allow_tables_to_appear_in_same_query!(pit_stops, drivers);
+
+diesel::allow_tables_to_appear_in_same_query!(qualifying, races);
+diesel::allow_tables_to_appear_in_same_query!(qualifying, drivers);
+diesel::allow_tables_to_appear_in_same_query!(qualifying, constructors);
+
+diesel::allow_tables_to_appear_in_same_query!(races, circuits);
+diesel::allow_tables_to_appear_in_same_query!(races, seasons);
+
+diesel::allow_tables_to_appear_in_same_query!(results, races);
+diesel::allow_tables_to_appear_in_same_query!(results, drivers);
+diesel::allow_tables_to_appear_in_same_query!(results, constructors);
+
+diesel::allow_tables_to_appear_in_same_query!(sprint_results, races);
+diesel::allow_tables_to_appear_in_same_query!(sprint_results, drivers);
+diesel::allow_tables_to_appear_in_same_query!(sprint_results, constructors);
