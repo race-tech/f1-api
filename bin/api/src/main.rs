@@ -1,5 +1,8 @@
 use infrastructure::config::Config;
 
+mod api;
+mod query_root;
+
 #[tokio::main]
 async fn main() -> shared::error::Result<()> {
     logger::Logger::new()
@@ -18,6 +21,7 @@ async fn main() -> shared::error::Result<()> {
         }
     };
 
-    api_lib::Api::try_from(config)?.serve().await;
+    api::Api::try_new(config).await?.serve().await;
+
     Ok(())
 }

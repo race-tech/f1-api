@@ -8,8 +8,13 @@ edition = "2021"
 [dependencies]
 log.workspace = true
 tokio.workspace = true
+axum.workspace = true
+async-graphql.workspace = true
+async-graphql-axum.workspace = true
+sea-orm.workspace = true
+seaography.workspace = true
 
-api-lib = { path = "../../crates/api" }
+backend = { path = "../../crates/backend" }
 logger = { path = "../../crates/logger" }
 shared = { path = "../../crates/shared" }
 infrastructure = { path = "../../crates/infrastructure" }

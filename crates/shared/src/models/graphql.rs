@@ -5,7 +5,7 @@ use crate::error::Result;
 
 #[derive(Debug, SimpleObject)]
 pub struct DateAndTime {
-    pub date: time::Date,
+    pub date: chrono::NaiveDate,
     pub time: String,
 }
 
@@ -53,7 +53,7 @@ pub struct Race {
     pub season: i32,
     pub round: i32,
     pub name: String,
-    pub date: time::Date,
+    pub date: chrono::NaiveDate,
     pub time: Option<String>,
     pub url: String,
     pub fp1: Option<DateAndTime>,
@@ -133,7 +133,7 @@ pub struct Driver {
     pub code: Option<String>,
     pub forename: String,
     pub surname: String,
-    pub dob: Option<time::Date>,
+    pub dob: Option<chrono::NaiveDate>,
     pub nationality: Option<String>,
     pub url: String,
 }
@@ -192,7 +192,7 @@ pub struct Lap {
 pub struct Laps {
     pub url: Option<String>,
     pub race_name: String,
-    pub date: time::Date,
+    pub date: chrono::NaiveDate,
     pub time: Option<String>,
 
     pub circuit: Circuit,
@@ -224,7 +224,7 @@ pub struct PitStop {
 pub struct PitStops {
     pub url: Option<String>,
     pub race_name: String,
-    pub date: time::Date,
+    pub date: chrono::NaiveDate,
     pub time: Option<String>,
 
     pub circuit: Circuit,
@@ -497,7 +497,7 @@ impl TryFrom<Vec<super::Lap>> for Laps {
         let date = first.race_date;
         let time = first
             .race_time
-            .map(|t| t.format(&crate::TIME_FORMAT).unwrap_or_default());
+            .map(|t| t.format(&crate::TIME_FORMAT).to_string());
 
         let mut curr_lap_number = -1;
         let mut laps = Vec::new();
@@ -577,7 +577,7 @@ impl TryFrom<Vec<super::PitStop>> for PitStops {
         let date = first.race_date;
         let time = first
             .race_time
-            .map(|t| t.format(&crate::TIME_FORMAT).unwrap());
+            .map(|t| t.format(crate::TIME_FORMAT).to_string());
         let pit_stops = value.into_iter().map(Into::into).collect();
 
         Ok(PitStops {

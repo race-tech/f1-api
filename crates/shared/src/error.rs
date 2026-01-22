@@ -54,7 +54,7 @@ macros::error_from!(Serde => serde_json::Error);
 macros::error_from!(Axum => axum::Error);
 macros::error_from!(Axum => axum::http::Error);
 macros::error_from!(FromUtf8 => std::string::FromUtf8Error);
-macros::error_from!(TimeFormat => time::error::Format);
+macros::error_from!(TimeFormat => chrono::ParseError);
 
 impl From<async_graphql::Error> for Error {
     fn from(value: async_graphql::Error) -> Self {

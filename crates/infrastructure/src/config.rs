@@ -56,3 +56,14 @@ impl Default for DatabaseConfig {
         }
     }
 }
+
+impl From<&DatabaseConfig> for sea_orm::sqlx::mysql::MySqlConnectOptions {
+    fn from(value: &DatabaseConfig) -> Self {
+        Self::new()
+            .host(&value.hostname)
+            .port(value.port)
+            .database(&value.name)
+            .username(&value.user)
+            .password(&value.password)
+    }
+}
