@@ -7,8 +7,6 @@ edition = "2021"
 
 [dependencies]
 sea-orm.workspace = true
-mysql.workspace = true
-r2d2.workspace = true
 figment.workspace = true
 serde.workspace = true
 
