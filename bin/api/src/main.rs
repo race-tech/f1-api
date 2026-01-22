@@ -4,7 +4,7 @@ mod api;
 mod query_root;
 
 #[tokio::main]
-async fn main() -> shared::error::Result<()> {
+async fn main() -> error::Result<()> {
     logger::Logger::new()
         .init()
         .expect("cannot initialize the logger");

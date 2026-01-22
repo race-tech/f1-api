@@ -280,17 +280,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "backend"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "sea-orm",
- "seaography",
- "shared",
- "tokio",
-]
-
-[[package]]
 name = "base64"
 version = "0.21.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -897,6 +886,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "entities"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "sea-orm",
+ "seaography",
+ "tokio",
+]
+
+[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -910,6 +909,22 @@ checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
  "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "error"
+version = "0.1.0"
+dependencies = [
+ "async-graphql",
+ "axum",
+ "chrono",
+ "figment",
+ "log",
+ "mysql",
+ "mysql_common",
+ "r2d2",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -941,13 +956,13 @@ dependencies = [
  "async-graphql",
  "async-graphql-axum",
  "axum",
- "backend",
+ "entities",
+ "error",
  "infrastructure",
  "log",
  "logger",
  "sea-orm",
  "seaography",
- "shared",
  "tokio",
 ]
 
@@ -1515,12 +1530,12 @@ dependencies = [
 name = "infrastructure"
 version = "0.1.0"
 dependencies = [
+ "error",
  "figment",
  "mysql",
  "r2d2",
  "sea-orm",
  "serde",
- "shared",
 ]
 
 [[package]]
@@ -2887,22 +2902,6 @@ dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest",
-]
-
-[[package]]
-name = "shared"
-version = "0.1.0"
-dependencies = [
- "async-graphql",
- "axum",
- "chrono",
- "figment",
- "log",
- "mysql",
- "mysql_common",
- "r2d2",
- "serde",
- "serde_json",
 ]
 
 [[package]]

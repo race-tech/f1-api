@@ -3,13 +3,6 @@ members = ["crates/*", "bin/*"]
 resolver = "2"
 
 [workspace.dependencies]
-time = { version = "0.3.44", features = [
-    "serde",
-    "std",
-    "parsing",
-    "macros",
-    "formatting",
-] }
 chrono = "0.4.42"
 sea-orm = { version = "2.0.0-rc", features = ["chrono", "seaography", "sqlx-mysql", "macros", "runtime-tokio-native-tls"] }
 seaography = { version = "~2.0.0-rc.8", features = ["with-chrono"] }
@@ -34,5 +27,5 @@ tokio = { version = "1", default-features = false, features = [
     "rt-multi-thread",
 ] }
 figment = { version = "0.10.19", default-features = false, features = ["yaml"] }
-async-graphql = { version = "7.0.17", features = ["chrono"] }
+async-graphql = { version = "7.0.17", features = ["chrono", "graphiql"] }
 async-graphql-axum = "7.0.17"

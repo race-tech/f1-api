@@ -12,4 +12,4 @@ r2d2.workspace = true
 figment.workspace = true
 serde.workspace = true
 
-shared = { path = "../shared" }
+error = { path = "../error" }

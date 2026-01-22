@@ -1,5 +1,5 @@
 [package]
-name = "backend"
+name = "entities"
 version = "0.1.0"
 edition = "2024"
 
@@ -8,6 +8,4 @@ tokio.workspace = true
 chrono.workspace = true
 sea-orm.workspace = true
 seaography.workspace = true
-
-shared = { path = "../shared" }
 

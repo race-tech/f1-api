@@ -9,7 +9,7 @@ use axum::{
 };
 
 use infrastructure::config::{Config, MiddlewareConfig};
-use shared::error::Result;
+use error::Result;
 
 pub struct Api {
     port: u16,

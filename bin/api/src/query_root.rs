@@ -2,7 +2,7 @@ use async_graphql::dynamic::*;
 use sea_orm::DatabaseConnection;
 use seaography::{async_graphql, lazy_static::lazy_static, Builder, BuilderContext};
 
-use backend::*;
+use entities::register_entity_modules;
 
 lazy_static! {
     static ref CONTEXT: BuilderContext = BuilderContext::default();
@@ -24,6 +24,7 @@ pub fn schema_builder(
 ) -> SchemaBuilder {
     let mut builder = Builder::new(context, database.clone());
     builder = register_entity_modules(builder);
+    builder.mutations.clear();
     builder
         .set_depth_limit(depth)
         .set_complexity_limit(complexity)

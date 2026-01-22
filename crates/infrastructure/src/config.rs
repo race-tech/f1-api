@@ -10,7 +10,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn try_new() -> shared::error::Result<Self> {
+    pub fn try_new() -> error::Result<Self> {
         let config = Figment::from(Serialized::defaults(Config::default()))
             .merge(Yaml::file(
                 std::env::var("F1_API_CONFIG").unwrap_or("config.yml".into()),

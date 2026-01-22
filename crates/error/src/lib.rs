@@ -192,8 +192,8 @@ mod macros {
     #[macro_export]
     macro_rules! error {
         ($kind:ident) => {
-            $crate::error::Error {
-                kind: $crate::error::ErrorKind::$kind,
+            $crate::Error {
+                kind: $crate::ErrorKind::$kind,
                 message: None,
             }
         };
@@ -204,8 +204,8 @@ mod macros {
             }
         };
         ($kind:ident => $($tt:tt)*) => {
-            $crate::error::Error {
-                kind: $crate::error::ErrorKind::$kind,
+            $crate::Error {
+                kind: $crate::ErrorKind::$kind,
                 message: Some(format!($($tt)*)),
             }
         };

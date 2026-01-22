@@ -14,7 +14,7 @@ async-graphql-axum.workspace = true
 sea-orm.workspace = true
 seaography.workspace = true
 
-backend = { path = "../../crates/backend" }
+entities = { path = "../../crates/entities" }
 logger = { path = "../../crates/logger" }
-shared = { path = "../../crates/shared" }
+error = { path = "../../crates/error" }
 infrastructure = { path = "../../crates/infrastructure" }
