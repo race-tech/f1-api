@@ -8,8 +8,8 @@ use axum::{
     Router,
 };
 
-use infrastructure::config::{Config, MiddlewareConfig};
 use error::Result;
+use infrastructure::config::{Config, MiddlewareConfig};
 
 pub struct Api {
     port: u16,
