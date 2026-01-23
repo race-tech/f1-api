@@ -1,6 +1,6 @@
 FROM rust:alpine AS chef
 
-RUN apk add --no-cache musl-dev
+RUN apk add --no-cache musl-dev openssl-libs-static openssl-dev
 
 RUN cargo install cargo-chef
 

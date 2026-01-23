@@ -1,5 +1,7 @@
 FROM rust:slim-bullseye AS chef
 
+RUN apt update && apt install -y pkg-config libssl-dev
+
 RUN cargo install cargo-chef
 
 WORKDIR /usr/f1-api
