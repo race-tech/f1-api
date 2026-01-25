@@ -823,6 +823,7 @@ dependencies = [
  "logger",
  "sea-orm",
  "seaography",
+ "serde_json",
  "tokio",
 ]
 

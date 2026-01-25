@@ -25,6 +25,7 @@ pub fn schema_builder(
     let mut builder = Builder::new(context, database.clone());
     builder = register_entity_modules(builder);
     builder.mutations.clear();
+
     builder
         .set_depth_limit(depth)
         .set_complexity_limit(complexity)
