@@ -3,7 +3,7 @@ port: 8000
 
 database:
   name: f1db
-  hostname: database
+  hostname: 127.0.0.1
   port: 3306
   user: user
   password: password
