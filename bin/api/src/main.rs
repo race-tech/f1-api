@@ -1,7 +1,6 @@
 use infrastructure::config::Config;
 
 mod api;
-mod pagination;
 mod query_root;
 
 #[tokio::main]
