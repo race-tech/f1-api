@@ -18,6 +18,7 @@ entities = { path = "../../crates/entities" }
 logger = { path = "../../crates/logger" }
 error = { path = "../../crates/error" }
 infrastructure = { path = "../../crates/infrastructure" }
+macros = { path = "../../crates/macros" }
 
 [dev-dependencies]
 serde_json.workspace = true
