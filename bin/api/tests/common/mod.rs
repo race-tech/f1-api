@@ -3,14 +3,12 @@ use async_graphql::dynamic::Schema;
 #[path = "../../src/query_root.rs"]
 mod query_root;
 
-#[allow(dead_code)]
 pub struct Test<'a> {
     query: &'a str,
     expected: Option<serde_json::Value>,
     schema: Schema,
 }
 
-#[allow(dead_code)]
 impl<'a> Test<'a> {
     pub async fn new(query: &'a str) -> Test<'a> {
         Test {
@@ -79,6 +77,7 @@ async fn setup() -> Schema {
     let pool = infrastructure::create_database_conn_pool(&config)
         .await
         .expect("unable to create database pool");
+    let schema = query_root::schema(pool.into(), None, None).unwrap();
 
-    query_root::schema(pool.into(), None, None).unwrap()
+    schema
 }
